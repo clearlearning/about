@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive Regulatory Glossary</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: white;
+            margin-top: 300px; /* Adjust based on nav height */
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .navigation {
+            background: linear-gradient(135deg, #900d3f, #64092c);
+            color: white;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .nav-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #900d3f, #64092c);
+        }
+
+        .nav-brand {
+            flex: 1;
+            text-align: center; /* Center the title and subtitle */
+        }
+
+        .nav-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin: 0;
+            color: white;
+        }
+
+        .nav-subtitle {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin: 0;
+            color: white;
+        }
+
+        .nav-content {
+            max-height: 80vh;
+            overflow-y: auto;
+            transition: max-height 0.3s ease;
+            padding: 0 20px 20px 20px;
+            text-align: center; /* Center all navigation content */
+        }
+
+        .nav-content.expanded {
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 0 20px 20px 20px;
+        }
+
+        .nav-section-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin: 15px 0 10px 0;
+            color: white;
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+            padding-bottom: 5px;
+        }
+
+        .nav-section {
+            margin-bottom: 15px;
+        }
+
+        .nav-section h3 {
+            font-size: 1em;
+            color: white;
+            margin-bottom: 8px;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center; /* Center the navigation links */
+        }
+
+        .nav-links a {
+            background: #FDEDF3;
+            color: #000000;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            min-width: 40px;
+            text-align: center;
+            display: inline-block;
+            font-size: 0.9em;
+        }
+
+        .nav-links a:hover {
+            background: #F7EACE;
+            color: #000000;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        /* Adjust body margin for collapsed nav */
+        body {
+            font-family: 'Open Sans', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f0eeee;
+            margin-top: 90px; /* Much smaller since nav is collapsed by default */
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+
+        /* Remove scroll offset since nav is now fixed and collapsible */
+        .letter-section,
+        .section {
+            scroll-margin-top: 0;
+        }
+
+        .section-title {
+            font-size: 2em;
+            color: #000000;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #64092c;
+            position: relative;
+        }
+
+        .content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-top: 20px; /* Add extra top margin to content */
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 2em;
+            color: #000000;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #64092c;
+            position: relative;
+            scroll-margin-top: 300px; /* Add scroll margin to section titles */
+        }
+
+        .letter-section {
+            margin-bottom: 30px;
+            margin-top: 40px; /* Add more space above each letter section */
+        }
+
+        .letter-title {
+            font-size: 1.5em;
+            color: #64092c;
+            margin-bottom: 15px;
+            padding: 15px; /* Increase padding */
+            background: transparent;
+            border-radius: 5px;
+            position: relative;
+        }
+
+        .letter-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #64092c 0%, #dda839 33%, #484848 66%, #084d78 100%);
+            border-radius: 10px 0 0 10px;
+        }
+
+        .term {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-left: 4px solid #dda839;
+            background: #fefcf8;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .term-name {
+            font-weight: bold;
+            color: #000000;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .term-definition {
+            color: #000000;
+            line-height: 1.6;
+        }
+
+        .back-to-top {
+            display: inline-block;
+            background: #64092c;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .back-to-top:hover {
+            background: #900d3f;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .nav-title {
+                font-size: 1.4em;
+            }
+            
+            .nav-subtitle {
+                font-size: 0.8em;
+            }
+            
+            .nav-links {
+                justify-content: center;
+                gap: 4px;
+            }
+            
+            .nav-links a {
+                padding: 6px 8px;
+                min-width: 35px;
+                font-size: 0.85em;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nav-title {
+                font-size: 1.2em;
+            }
+            
+            .nav-subtitle {
+                font-size: 0.75em;
+            }
+            
+            .nav-links a {
+                padding: 5px 7px;
+                min-width: 32px;
+                font-size: 0.8em;
+            }
+            
+            .nav-links {
+                gap: 3px;
+            }
+        }
+    </style>
+</head>
+<body style="background: transparent;">
+    <div class="container">
+        <nav class="navigation" id="navigation">
+            <div class="nav-header">
+                <div class="nav-brand">
+                	<img src="https://assets-002.noviams.com/novi-file-uploads/clear/structure/clearlogo.png" style="width: 100px;">
+                    <h1 class="nav-title">CLEAR AI Glossary of Terms</h1>
+                    <p class="nav-subtitle">Use the quick navigation links below</p>
+                </div>
+            </div>
+            
+            <div class="nav-content" id="nav-content">
+                <div class="nav-section">
+                    <div class="nav-links">
+                        <a href="#letter-a" onclick="closeNav()">A</a>
+                        <a href="#letter-b" onclick="closeNav()">B</a>
+                        <a href="#letter-c" onclick="closeNav()">C</a>
+                        <a href="#letter-d" onclick="closeNav()">D</a>
+                        <a href="#letter-e" onclick="closeNav()">E</a>
+                        <a href="#letter-f" onclick="closeNav()">F</a>
+                        <a href="#letter-g" onclick="closeNav()">G</a>
+                        <a href="#letter-h" onclick="closeNav()">H</a>
+                        <a href="#letter-i" onclick="closeNav()">I</a>
+                        <a href="#letter-k" onclick="closeNav()">K</a>
+                        <a href="#letter-l" onclick="closeNav()">L</a>
+                        <a href="#letter-m" onclick="closeNav()">M</a>
+                        <a href="#letter-n" onclick="closeNav()">N</a>
+                        <a href="#letter-p" onclick="closeNav()">P</a>
+                        <a href="#letter-r" onclick="closeNav()">R</a>
+                        <a href="#letter-s" onclick="closeNav()">S</a>
+                        <a href="#letter-t" onclick="closeNav()">T</a>
+                        <a href="#letter-u" onclick="closeNav()">U</a>
+                        <a href="#letter-v" onclick="closeNav()">V</a>
+                        <a href="#letter-z" onclick="closeNav()">Z</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="content">
+            <div class="section">
+                <div class="letter-section" id="letter-a">
+                    <h3 class="letter-title" style="margin-top: 135px;">A</h3>
+                    
+                    <div class="term">
+                        <div class="term-name">Accountability</div>
+                        <div class="term-definition">The obligation to take responsibility for the outcomes of AI decisions and to provide remedies for harm.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Adversarial Attack</div>
+                        <div class="term-definition">A technique that deliberately manipulates input data to exploit vulnerabilities and cause machine learning/AI systems to behave incorrectly.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Agentic AI</div>
+                        <div class="term-definition">AI systems that can plan, call tools, and take multi-step actions toward goals, within set boundaries.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Audit Trail (AI)</div>
+                        <div class="term-definition">Documented evidence of AI system development, deployment, and updates to enable oversight. AI audit trails are also used to record inputs, outputs, AI model behaviour and decision-making logic to be able to trace decisions to data and model parameters.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Ethics (AI)</div>
+                        <div class="term-definition">The study and application of moral principles in the design, development, and use of AI.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Governance (AI)</div>
+                        <div class="term-definition">The systems, policies, and processes used to direct and control AI technologies responsibly.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Lifecycle (AI)</div>
+                        <div class="term-definition">The stages of AI system development from design and training to deployment, monitoring, and retirement.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Oversight Committee (AI)</div>
+                        <div class="term-definition">A body responsible for monitoring AI use within an organization to ensure ethical and regulatory compliance.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Policy (AI)</div>
+                        <div class="term-definition">A set of rules and/or guidelines governing how AI can be developed, deployed, and used – consistent with applicable AI regulation.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Regulation (AI)</div>
+                        <div class="term-definition">Public sector policies and laws setting rules for AI design, deployment, and accountability (e.g., EU AI Act).</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Algorithm</div>
+                        <div class="term-definition">A set of step-by-step instructions or rules that are used by AI/machine learning systems for solving a problem or making a decision.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Algorithmic Accountability</div>
+                        <div class="term-definition">The responsibility of organizations/developers to explain, rationalize, and take ownership of AI decisions and their impacts.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Algorithmic Drift (or Model Drift)</div>
+                        <div class="term-definition">A gradual decline in AI/machine learning model performance over time. Algorithmic drift is a type of Concept Drift.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Algorithmic Impact Assessment (AIA)</div>
+                        <div class="term-definition">A structured assessment of the potential impacts and risks of an AI system.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Alignment</div>
+                        <div class="term-definition">Ensuring AI systems are consistent with organization preferences, goals, and ethics.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Anonymization</div>
+                        <div class="term-definition">Irreversibly altering data so individuals cannot be identified.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Application Programming Interface (API)</div>
+                        <div class="term-definition">A set of rules and protocols that allows different software applications to communicate and interact with each other, serving as an intermediary enabling applications to request and exchange data or functionality seamlessly.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Artificial Intelligence (AI)</div>
+                        <div class="term-definition">The field of computer science focused on creating systems or machines that can perform tasks that typically require human intelligence. These tasks include learning, reasoning, problem-solving, understanding natural language, perception (like vision and hearing), and decision-making.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Audit (AI Audit)</div>
+                        <div class="term-definition">A systematic review of AI systems for compliance with ethical and regulatory standards.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Autonomy</div>
+                        <div class="term-definition">The ability of an AI system to operate without human intervention.</div>
+                    </div>
+
+                <div class="letter-section" id="letter-b">
+                    <h3 class="letter-title">B</h3>
+                    
+                    <div class="term">
+                        <div class="term-name">Backdoor Attack</div>
+                        <div class="term-definition">A hidden trigger planted during training that makes a model behave incorrectly when that trigger appears.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Benchmarking</div>
+                        <div class="term-definition">Comparing model performance against standard datasets or other metrics.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Bias</div>
+                        <div class="term-definition">Systematic errors in AI outputs that result in unfair treatment or outcomes for certain groups.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Bias Mitigation</div>
+                        <div class="term-definition">The processes and techniques used during the AI lifecycle (data collection, model training, deployment) to identify, measure, and reduce the systemic errors or prejudices that lead to unfair outcomes.</div>
+                    </div>
+
+                <div class="letter-section" id="letter-c">
+                    <h3 class="letter-title">C</h3>
+                    
+                    <div class="term">
+                        <div class="term-name">Cache-Augmented Generation (CAG)</div>
+                        <div class="term-definition">A technique that improves generative AI models by using a cache to store and reuse past information, making responses faster and more contextually relevant.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Capability Control (AI Confinement)</div>
+                        <div class="term-definition">Techniques to limit or constrain what an AI system can do (through monitoring and control).</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Chatbot</div>
+                        <div class="term-definition">A software application designed to simulate human conversation through text or voice commands.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Compliance</div>
+                        <div class="term-definition">The act of adhering to established standards, policies, or regulations.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Compute</div>
+                        <div class="term-definition">The computational power (hardware, energy, and time) required to train or run AI models.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Computer Vision</div>
+                        <div class="term-definition">AI systems that analyze and interpret visual data (e.g., images and video).</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Concept Drift</div>
+                        <div class="term-definition">When the statistical relationships the model learned (i.e., relationship between input data to target variable) has changed making it less accurate in its predictions. This frequently occurs due to the evolution of real-world conditions, making the relationships that the model learned on no longer valid.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Convolutional Neural Network (CNN)</div>
+                        <div class="term-definition">A neural network for images and video that scans small patches to detect edges, textures, and shapes.</div>
+                    </div>
+
+                <div class="letter-section" id="letter-d">
+                    <h3 class="letter-title">D</h3>
+                    
+                    <div class="term">
+                        <div class="term-name">Data Governance</div>
+                        <div class="term-definition">Policies and practices that ensure data quality, privacy, and ethical compliance.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Data Leakage (train-test contamination)</div>
+                        <div class="term-definition">When evaluation data overlaps with training data, giving an overly optimistic performance score.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Data Minimization</div>
+                        <div class="term-definition">Collecting and using only the data needed for a specific, stated purpose.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Data Provenance</div>
+                        <div class="term-definition">The documentation of where data comes from and how it has been used or altered.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Data Protection</div>
+                        <div class="term-definition">Legal frameworks (e.g., GDPR, PIPEDA) ensuring responsible data handling and safeguarding individual rights.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Data Sovereignty</div>
+                        <div class="term-definition">Data is subject to the laws of the country or region where it was generated.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Decommissioning / Retiring</div>
+                        <div class="term-definition">The process of safely phasing out or disabling an AI system.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Deep Learning</div>
+                        <div class="term-definition">A type of AI that learns from data by way of multi-layered neural networks to process complex data patterns.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">De-identification</div>
+                        <div class="term-definition">Reducing the link to an individual by removing or masking identifiers; re-identification may still be possible.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Differential Privacy</div>
+                        <div class="term-definition">A technique that adds carefully calibrated noise so insights can be shared without revealing information about any one person.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Diffusion Model</div>
+                        <div class="term-definition">A generative model that starts with noise and gradually removes it to create realistic images, audio, or video.</div>
+                    </div>
+
+                <div class="letter-section" id="letter-e">
+                    <h3 class="letter-title">E</h3>
+                    
+                    <div class="term">
+                        <div class="term-name">Edge AI</div>
+                        <div class="term-definition">AI processing done locally on a device (e.g., smartphone) rather than in the cloud.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Embedding</div>
+                        <div class="term-definition">A numerical representation of data (e.g., words or images) that captures semantic meaning.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Ethical Impact Assessment (EIA)</div>
+                        <div class="term-definition">A process to evaluate potential social, cultural, and ethical implications of AI before and during deployment. Under the EU AI Act this is a required process that evaluates risks, biases, and potential harms of an AI system before deployment.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Explainability</div>
+                        <div class="term-definition">The degree to which an AI system’s decision-making process can be understood by humans.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Explainable AI (XAI)</div>
+                        <div class="term-definition">A field of AI focused on improving explainability, transparency, and interpretability of AI systems.</div>
+                    </div>
+
+                <div class="letter-section" id="letter-f">
+                    <h3 class="letter-title">F</h3>
+                    
+                    <div class="term">
+                        <div class="term-name">Federated Learning</div>
+                        <div class="term-definition">A technique allowing models to be trained across multiple decentralized devices or servers while keeping data local for privacy.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Feedforward Neural Network (FNN)</div>
+                        <div class="term-definition">The simplest neural network where information flows straight from input to output.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Few-shot Learning</div>
+                        <div class="term-definition">Adapting a model to a new task using only a small number of labeled examples.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Few-shot Prompting</div>
+                        <div class="term-definition">Improving outputs by including a few examples in the prompt.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Fine-Tuning</div>
+                        <div class="term-definition">Adapting a pre-trained model to a specific domain or use case using specialized datasets.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Foundation Model</div>
+                        <div class="term-definition">A large, pre-trained model that can be fine-tuned for other tasks.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Frontier Model</div>
+                        <div class="term-definition">Highly advanced, large scale AI model that pushes the boundaries of current capabilities.</div>
+                    </div>
+
+                <div class="letter-section" id="letter-g">
+                    <h3 class="letter-title">G</h3>
+                    
+                    <div class="term">
+                        <div class="term-name">Generalization</div>
+                        <div class="term-definition">A model’s ability to perform well on new, unseen data.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Generative Adversarial Network</div>
+                        <div class="term-definition">Two models train together; one generates synthetic data and the other detects fakes, pushing realism.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Generative AI (GenAI)</div>
+                        <div class="term-definition">AI systems capable of creating new content—text, images, music, code—based on training data (e.g., ChatGPT, DALL·E, Claude).</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Goodhart's Law</div>
+                        <div class="term-definition">In AI, it is the principle that “when a measure becomes a target, it ceases to be a good measure.”</div>
+                    </div>
+
+                <div class="letter-section" id="letter-h">
+                    <h3 class="letter-title">H</h3>
+                    
+                    <div class="term">
+                        <div class="term-name">Hallucination</div>
+                        <div class="term-definition">A generative AI output that is factually incorrect and fabricated but presented as fact.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Human-in-the-Loop (HITL)</div>
+                        <div class="term-definition">An approach where humans are actively involved with the AI through oversight, judgement, and feedback.</div>
+                    </div>
+
+                <div class="letter-section" id="letter-i">
+                    <h3 class="letter-title">I</h3>
+                    
+                    <div class="term">
+                        <div class="term-name">Inclusive AI</div>
+                        <div class="term-definition">The intentional practice of designing, developing, and deploying AI systems that are accessible, fair and beneficial to all people from all backgrounds.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Inference</div>
+                        <div class="term-definition">The process that a trained AI model uses to generate predictions or outputs from new data.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Inference Engine</div>
+                        <div class="term-definition">The component of an AI system that applies rules to established data to make predictions, make decisions, or generate new information.</div>
+                    </div>
+
+                <div class="letter-section" id="letter-k">
+                    <h3 class="letter-title">K</h3>
+                    
+                    <div class="term">
+                        <div class="term-name">Knowledge Graph</div>
+                        <div class="term-definition">A structured network of entities and relationships used to ground answers and reasoning.</div>
+                    </div>
+
+                <div class="letter-section" id="letter-l">
+                    <h3 class="letter-title">L</h3>
+                    
+                    <div class="term">
+                        <div class="term-name">Label (target)</div>
+                        <div class="term-definition">The outcome a model is trained to predict.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Large Language Model (LLM)</div>
+                        <div class="term-definition">A type of foundation model trained on massive text data to understand and generate human-like language outputs.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Library (AI)</div>
+                        <div class="term-definition">A reusable collection of code, tools, and sometimes prebuilt models that developers import to handle common AI tasks—such as data processing, training, and inference—without writing everything from scratch.</div>
+                    </div>
+
+                <div class="letter-section" id="letter-m">
+                    <h3 class="letter-title">M</h3>
+                    
+                    <div class="term">
+                        <div class="term-name">Machine Learning (ML)</div>
+                        <div class="term-definition">A subset of AI that enables systems to learn from data and improve performance over time without being explicitly programmed.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Model Card / System Card</div>
+                        <div class="term-definition">Documentation that explains how a model was trained, evaluated, and its appropriate use cases.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Model</div>
+                        <div class="term-definition">AI programs that make predictions or generate outputs by recognizing patterns in data sets.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Multimodal Model</div>
+                        <div class="term-definition">A model that can process and combine multiple data types (e.g., text + images + sound).</div>
+                    </div>
+
+
+                <div class="letter-section" id="letter-n">
+                    <h3 class="letter-title">N</h3>
+                    
+                    <div class="term">
+                        <div class="term-name">Natural Language Processing (NLP)</div>
+                        <div class="term-definition">A branch of AI that helps machines recognize, understand, and respond to human language.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Neural Network</div>
+                        <div class="term-definition">A type of AI inspired by the human brain’s structure, used to identify patterns and relationships in data.</div>
+                    </div>
+
+                <div class="letter-section" id="letter-p">
+                    <h3 class="letter-title">P</h3>
+                    
+                    <div class="term">
+                        <div class="term-name">Parameter</div>
+                        <div class="term-definition">A variable used to determine how data is processed and to manipulate the input and output of AI models.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Pipeline</div>
+                        <div class="term-definition">A series of data processing steps that prepare and train AI models.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Predictive Analytics</div>
+                        <div class="term-definition">The use of data, statistical algorithms, and AI to forecast future outcomes or behaviors.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Privacy Impact Assessment</div>
+                        <div class="term-definition">A method to assess and address privacy risks when collecting, using or sharing personal information.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Prompt Engineering</div>
+                        <div class="term-definition">Designing effective instructions and questions (aka prompts) to guide generative AI outputs.</div>
+                    </div>
+
+                <div class="letter-section" id="letter-r">
+                    <h3 class="letter-title">R</h3>
+                    
+                    <div class="term">
+                        <div class="term-name">Red Teaming</div>
+                        <div class="term-definition">Testing AI systems by intentionally probing for vulnerabilities, bias, or harmful outputs.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Regulation</div>
+                        <div class="term-definition">Legally binding rules set by governments or regulatory authorities to control aspects of AI deployment.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Regulatory Sandbox</div>
+                        <div class="term-definition">A controlled setting that allows testing AI systems under relaxed regulatory conditions to support innovation.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Reinforcement Learning</div>
+                        <div class="term-definition">A machine learning approach where models learn by receiving feedback (rewards or penalties) for their actions.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Responsible AI</div>
+                        <div class="term-definition">An umbrella term and practice that focuses on developing and deploying AI systems in a safe, fair, transparent, and environmentally conscious manner, aligning with human values.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Retraining</div>
+                        <div class="term-definition">Updating a model with new or more representative data to maintain accuracy.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Retrieval Augmented Generation (RAG)</div>
+                        <div class="term-definition">A pattern where a model looks up trusted documents and uses them to ground its answer.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Risk-Based Approach</div>
+                        <div class="term-definition">Regulatory method that tailors oversight based on the potential risk an AI system poses to individuals or society.</div>
+                    </div>
+
+                <div class="letter-section" id="letter-s">
+                    <h3 class="letter-title">S</h3>
+                    
+                    <div class="term">
+                        <div class="term-name">Safety by Design</div>
+                        <div class="term-definition">A principle emphasizing the proactive integration of safety and risk prevention into AI development at the design level.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Shadow Uses</div>
+                        <div class="term-definition">Employees using unauthorized AI tools without IT knowledge and oversight.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Soft Law</div>
+                        <div class="term-definition">Non-binding standards, guidelines, or best practices (e.g., OECD AI Principles, UNESCO AI Ethics Recommendation).</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Synthetic Data</div>
+                        <div class="term-definition">Artificially generated data used to train AI systems when real data is unavailable or sensitive.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Synthetic Media (Deep Fakes)</div>
+                        <div class="term-definition">AI-generated content such as virtual influencers or AI-created videos that feel real but originate in code.</div>
+                    </div>
+
+                <div class="letter-section" id="letter-t">
+                    <h3 class="letter-title">T</h3>
+                    
+                    <div class="term">
+                        <div class="term-name">Temperature</div>
+                        <div class="term-definition">A setting that controls randomness in generation; higher means more varied outputs.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Token</div>
+                        <div class="term-definition">A unit of data (e.g., word fragment or symbol) processed by algorithms.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Training Data</div>
+                        <div class="term-definition">The dataset used to teach an AI model to recognize patterns or perform tasks.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Transfer Learning</div>
+                        <div class="term-definition">Reusing knowledge from a pre-trained model to improve performance on a new task.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Transformer</div>
+                        <div class="term-definition">A neural network architecture that uses attention to process sequences efficiently (the basis for most modern LLMs).</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Transparency</div>
+                        <div class="term-definition">Openness about how an AI system operates, including data sources, algorithms, and intended uses.</div>
+                    </div>
+
+                <div class="letter-section" id="letter-u">
+                    <h3 class="letter-title">U</h3>
+                    
+                    <div class="term">
+                        <div class="term-name">Unsupervised Learning</div>
+                        <div class="term-definition">Finding patterns or clusters in unlabeled data.</div>
+                    </div>
+
+                <div class="letter-section" id="letter-v">
+                    <h3 class="letter-title">V</h3>
+                    
+                    <div class="term">
+                        <div class="term-name">Validation Data</div>
+                        <div class="term-definition">A set of data used during model development to tune parameters and prevent overfitting.</div>
+                    </div>
+
+                <div class="letter-section" id="letter-z">
+                    <h3 class="letter-title">Z</h3>
+                    
+                    <div class="term">
+                        <div class="term-name">Zero-shot Learning</div>
+                        <div class="term-definition">Solving a new task with no labeled examples by relying on what the model already knows and a clear description.</div>
+                    </div>
+                    
+                    <div class="term">
+                        <div class="term-name">Zero-shot Prompting</div>
+                        <div class="term-definition">Asking a model to perform a task without providing any examples in the prompt.</div>
+                    </div>
+<a href="#navigation" class="back-to-top">Back to Top</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Hamburger menu functionality
+        function toggleNav() {
+            const navContent = document.getElementById('nav-content');
+            const hamburgerIcon = document.getElementById('hamburger-icon');
+            
+            if (navContent.classList.contains('expanded')) {
+                navContent.classList.remove('expanded');
+                hamburgerIcon.textContent = '☰';
+            } else {
+                navContent.classList.add('expanded');
+                hamburgerIcon.textContent = '✕';
+            }
+        }
+
+        function closeNav() {
+            const navContent = document.getElementById('nav-content');
+            const hamburgerIcon = document.getElementById('hamburger-icon');
+            
+            navContent.classList.remove('expanded');
+            hamburgerIcon.textContent = '☰';
+        }
+
+        // Smooth scrolling with offset for fixed navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    const navHeight = 275; // Height of collapsed nav
+                    const targetPosition = target.offsetTop - navHeight - 20;
+                    
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Close nav when clicking outside of it
+        document.addEventListener('click', function(event) {
+            const nav = document.getElementById('navigation');
+            const navContent = document.getElementById('nav-content');
+            const hamburgerIcon = document.getElementById('hamburger-icon');
+            
+            if (!nav.contains(event.target) && navContent.classList.contains('expanded')) {
+                navContent.classList.remove('expanded');
+                hamburgerIcon.textContent = '☰';
+            }
+        });
+
+        // Close nav when pressing Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const navContent = document.getElementById('nav-content');
+                const hamburgerIcon = document.getElementById('hamburger-icon');
+                
+                if (navContent.classList.contains('expanded')) {
+                    navContent.classList.remove('expanded');
+                    hamburgerIcon.textContent = '☰';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
