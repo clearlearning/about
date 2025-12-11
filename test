@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regulation 101 Module 29: Investigations</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .lms-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            height: calc(100vh - 40px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .lms-header {
+            background: linear-gradient(135deg, #64092c 0%, #84093c 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .lms-header h1 {
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        .progress-container {
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            height: 8px;
+            width: 200px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: #dda838;
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .content-area {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: #f8f9fa;
+            border-right: 1px solid #e0e0e0;
+            padding: 20px;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .sidebar h3 {
+            color: #64092c;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #dda838;
+        }
+
+        .sidebar-item {
+            padding: 12px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9em;
+        }
+
+        .sidebar-item:hover {
+            background: #e8e9ea;
+        }
+
+        .sidebar-item.active {
+            background: #64092c;
+            color: white;
+        }
+
+        .sidebar-item.completed::before {
+            content: "✓";
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .slide {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide h2 {
+            color: #64092c;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #dda838;
+        }
+
+        .slide h3 {
+            color: #084d78;
+            font-size: 1.5em;
+            margin: 25px 0 15px 0;
+        }
+
+        .slide h4 {
+            color: #084d78;
+            font-size: 1.2em;
+            margin: 20px 0 10px 0;
+        }
+
+        .slide p {
+            line-height: 1.8;
+            color: #484848;
+            margin-bottom: 15px;
+            font-size: 1.05em;
+        }
+
+        .slide ul {
+            margin: 15px 0 15px 30px;
+            line-height: 1.8;
+        }
+
+        .slide li {
+            margin-bottom: 8px;
+            color: #484848;
+        }
+
+        .objectives-list {
+            background: #f8f9fa;
+            border-left: 4px solid #dda838;
+            padding: 20px 20px 20px 40px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .objectives-list li {
+            margin-bottom: 12px;
+            line-height: 1.6;
+            color: #484848;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            margin: 20px auto;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .video-container iframe {
+            width: 100%;
+            height: 500px;
+            border: none;
+        }
+
+        .highlight-box {
+            background: #fff9e6;
+            border-left: 4px solid #dda838;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .concept-card {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-left: 5px solid;
+        }
+
+        .concept-card.burgundy {
+            border-left-color: #64092c;
+            background: #fef7fa;
+        }
+
+        .concept-card.gold {
+            border-left-color: #dda838;
+            background: #fffcf7;
+        }
+
+        .concept-card.blue {
+            border-left-color: #084d78;
+            background: #f7fbfe;
+        }
+
+        .concept-card.gray {
+            border-left-color: #484848;
+            background: #fafbfb;
+        }
+
+        /* Interactive Gallery Cards */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .gallery-card {
+            background: white;
+            border: 3px solid #084d78;
+            border-radius: 12px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-height: 150px;
+            position: relative;
+        }
+
+        .gallery-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(8,77,120,0.3);
+            border-color: #0a5d92;
+        }
+
+        .gallery-card.revealed {
+            background: linear-gradient(135deg, #f7fbfe 0%, #e6f3ff 100%);
+            border-color: #28a745;
+        }
+
+        .gallery-card-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #084d78;
+            margin-bottom: 15px;
+        }
+
+        .gallery-card.revealed .gallery-card-title {
+            color: #064d78;
+        }
+
+        .gallery-card-content {
+            display: none;
+            color: #484848;
+            line-height: 1.6;
+        }
+
+        .gallery-card.revealed .gallery-card-content {
+            display: block;
+        }
+
+        .gallery-card::after {
+            content: "Click to reveal";
+            position: absolute;
+            bottom: 15px;
+            right: 20px;
+            font-size: 0.85em;
+            color: #084d78;
+            font-style: italic;
+        }
+
+        .gallery-card.revealed::after {
+            content: "✓ Revealed";
+            color: #28a745;
+        }
+
+        /* Scenario Box */
+        .scenario-box {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-top: 5px solid;
+            border-image: linear-gradient(90deg, #64092c 0%, #dda838 50%, #084d78 100%) 1;
+        }
+
+        .scenario-box h3 {
+            color: #64092c;
+            margin-bottom: 15px;
+        }
+
+        /* Quiz Styles */
+        .quiz-question {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .quiz-question h4 {
+            color: #64092c;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .quiz-options {
+            margin: 20px 0;
+        }
+
+        .quiz-option {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .quiz-option:hover {
+            background: #e6f3ff;
+            border-color: #084d78;
+        }
+
+        .quiz-option.selected {
+            background: #e6f3ff;
+            border-color: #084d78;
+            border-width: 3px;
+        }
+
+        .quiz-option.correct {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+
+        .quiz-option.incorrect {
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+
+        .quiz-feedback {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            line-height: 1.6;
+        }
+
+        .quiz-feedback.show {
+            display: block;
+        }
+
+        .quiz-feedback.correct {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+        }
+
+        .quiz-feedback.incorrect {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+        }
+
+        /* Match Question */
+        .match-container {
+            margin: 20px 0;
+        }
+
+        .match-item {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            margin: 15px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .match-term {
+            flex: 1;
+            font-weight: 600;
+            color: #084d78;
+        }
+
+        .match-dropdown {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+
+        .match-dropdown:focus {
+            outline: none;
+            border-color: #084d78;
+        }
+
+        .accordion-item {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .accordion-header {
+            padding: 18px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 600;
+            color: #064d78;
+            transition: all 0.3s;
+        }
+
+        .accordion-header:hover {
+            background: #e8e9ea;
+        }
+
+        .accordion-header.active {
+            background: #084d78;
+            color: white;
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            padding: 0 20px;
+        }
+
+        .accordion-content.expanded {
+            max-height: 800px;
+            padding: 15px 20px;
+        }
+
+        .accordion-arrow {
+            transition: transform 0.3s;
+            font-size: 1.2em;
+        }
+
+        .accordion-arrow.rotated {
+            transform: rotate(90deg);
+        }
+
+        .btn {
+            background: #084d78;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+            margin: 10px 5px;
+        }
+
+        .btn:hover {
+            background: #0a5d92;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .btn-primary {
+            background: #64092c;
+        }
+
+        .btn-primary:hover {
+            background: #84093c;
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .pdf-download {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .lms-container {
+                height: auto;
+            }
+
+            .content-area {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #e0e0e0;
+                max-height: 200px;
+            }
+
+            .video-container iframe {
+                height: 300px;
+            }
+
+            .gallery-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="lms-container">
+        <div class="lms-header">
+            <div>
+                <h1>Regulation 101 Module 29: Investigations</h1>
+                <p style="opacity: 0.9; margin-top: 5px;">CLEAR Professional Development Module</p>
+            </div>
+            <div>
+                <div style="margin-bottom: 5px; text-align: right; font-size: 0.9em;">
+                    Progress: <span id="progress-percent">0</span>%
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <div class="sidebar">
+                <h3>Module Contents</h3>
+                <div class="sidebar-item active" data-slide="0">
+                    <span>📋 Module Introduction</span>
+                </div>
+                <div class="sidebar-item" data-slide="1">
+                    <span>📚 Investigative Planning</span>
+                </div>
+                <div class="sidebar-item" data-slide="2">
+                    <span>🔍 Information Sources</span>
+                </div>
+                <div class="sidebar-item" data-slide="3">
+                    <span>🗺️ Executing Your Plan</span>
+                </div>
+                <div class="sidebar-item" data-slide="4">
+                    <span>📝 Summary & Takeaways</span>
+                </div>
+                <div class="sidebar-item" data-slide="5">
+                    <span>✓ Knowledge Assessment</span>
+                </div>
+            </div>
+
+            <div class="main-content">
+                <!-- Slide 0: Module Introduction -->
+                <div class="slide active" data-slide-num="0">
+                    <h2>Module Introduction</h2>
+                    
+                    <p>Welcome to the <strong>Investigations</strong> module, part of <strong>CLEAR's Regulation 101 Microlearning Series</strong> within our <strong>How We Regulate</strong> track.</p>
+
+                    <p>When something goes wrong, such as allegations of sexual misconduct, embezzlement, falsification of records, regulatory agencies must respond. Unlike inspections, which proactively ensure compliance, <strong>investigations are reactive actions taken after an event has occurred</strong>.</p>
+
+                    <p>An investigation is an in-depth inquiry and analysis into a complaint or allegation. It's detective work that requires planning, legal knowledge, evidence gathering, and careful documentation. The goal? To determine what happened, who was involved, and whether regulatory violations occurred.</p>
+
+                    <p>Watch the video below to get started.</p>
+
+                    <div class="video-container">
+                        <iframe src="https://player.vimeo.com/video/1143681371?h=61382ee3a0&badge=0&autopause=0&player_id=0&app_id=58479" allow="autoplay; fullscreen; encrypted-media" title="Licensure Introduction"></iframe>
+                    </div>
+
+                    <h3>Module Structure</h3>
+                    
+                    <p style="text-align: center; margin: 30px 0;">
+                        <em>[Module structure image would display here]</em>
+                    </p>
+
+                    <h3>Learning Objectives</h3>
+                    
+                    <div class="objectives-list">
+                        <p>Upon completing this module, you will be able to:</p>
+                        <ul>
+                            <li><strong>Define</strong> licensure and registration, and explain the difference between them</li>
+                            <li><strong>List</strong> the key benefits that licensure provides to the public</li>
+                            <li><strong>Identify</strong> the key components of a licensure process</li>
+                        </ul>
+                    </div>
+
+                    <div class="highlight-box">
+                        <h4>Navigation Tip</h4>
+                        <p>Use the arrows at the top and bottom of each page to navigate back and forth throughout the module, or by expanding the menu on the left side of your screen.</p>
+                    </div>
+                </div>
+
+                <!-- Slide 1: Investigative Planning -->
+                <div class="slide" data-slide-num="1">
+                    <h2>Investigative Planning & Legal Considerations</h2>
+                    
+                    <h3>Why Proper Investigation Techniques Matter</h3>
+                    
+                    <div class="concept-card burgundy">
+                        <h4>Public Protection</h4>
+                        <p>Investigations address potential harm and prevent future violations.</p>
+                    </div>
+
+                    <div class="concept-card gold">
+                        <h4>Legal Defensibility</h4>
+                        <p>Properly conducted investigations withstand legal scrutiny.</p>
+                    </div>
+
+                    <div class="concept-card blue">
+                        <h4>Fairness</h4>
+                        <p>Thorough investigations protect both the public and the rights of licensees.</p>
+                    </div>
+
+                    <div class="concept-card gray">
+                        <h4>Accountability</h4>
+                        <p>Investigations demonstrate regulatory bodies take complaints seriously.</p>
+                    </div>
+
+                    <h3>Prior Planning Prevents Poor Performance</h3>
+                    <p>Preparing an investigation plan and following it ensures investigators conduct thorough, legally defensible investigations. Planning prevents missed evidence, legal missteps, and incomplete findings. It's your roadmap from complaint to conclusion.</p>
+
+                    <h3>What is an Investigative Plan?</h3>
+                    <p>An investigation plan answers the fundamental questions about what happened and outlines how you'll gather the evidence to answer those questions. It's both a planning tool and an organizational framework for your investigation.</p>
+                    
+                    <p>Think of it as a roadmap that guides your investigation while remaining flexible enough to adapt to new information and unexpected developments.</p>
+
+                    <h3>The Six Fundamental Questions</h3>
+                    <p>Every investigation must answer six basic questions. These questions form the foundation of your investigation plan:</p>
+
+                    <div class="concept-card blue" style="margin-top: 20px;">
+                        <ul style="list-style: none; padding: 0;">
+                            <li style="margin-bottom: 15px;"><strong>👤 WHO?</strong><br>Complainant, victim, respondent, witnesses</li>
+                            <li style="margin-bottom: 15px;"><strong>📝 WHAT?</strong><br>Alleged violation, evidence needed</li>
+                            <li style="margin-bottom: 15px;"><strong>📅 WHEN?</strong><br>Timeframe of violation</li>
+                            <li style="margin-bottom: 15px;"><strong>📍 WHERE?</strong><br>Location of violation, parties, evidence</li>
+                            <li style="margin-bottom: 15px;"><strong>🤔 WHY?</strong><br>Root cause analysis</li>
+                            <li style="margin-bottom: 15px;"><strong>⚙️ HOW?</strong><br>Mechanism of violation</li>
+                        </ul>
+                    </div>
+
+                    <h3>Additional Planning Considerations</h3>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
+                        <div class="concept-card gold">
+                            <h4>🛠️ Tools & Equipment</h4>
+                            <ul>
+                                <li>Cameras for documentation</li>
+                                <li>Evidence collection gear</li>
+                                <li>Audio recorders</li>
+                                <li>Personal protective equipment</li>
+                                <li>Vehicles for travel</li>
+                            </ul>
+                        </div>
+
+                        <div class="concept-card burgundy">
+                            <h4>💰 Budget Considerations</h4>
+                            <ul>
+                                <li>Travel expenses</li>
+                                <li>Expert witness fees</li>
+                                <li>Undercover purchases</li>
+                                <li>Equipment rental</li>
+                                <li>Document retrieval costs</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="highlight-box">
+                        <h4>💡 Planning Principle</h4>
+                        <p>Time spent planning is never wasted. A thorough investigation plan prevents missed evidence, reduces the need for follow-up, and ensures your investigation will withstand scrutiny.</p>
+                    </div>
+
+                    <h3>Legal Considerations</h3>
+                    <p>While many regulatory agencies require cooperation with investigations, individuals and businesses typically have legal protections against government intrusion. Understanding these protections, and your jurisdiction's specific requirements, is essential for conducting legally defensible investigations.</p>
+
+                    <p><strong>Click each card below to learn about the legal considerations impacting investigations:</strong></p>
+
+                    <div class="gallery-grid">
+                        <div class="gallery-card" onclick="revealGallery(1, 1)">
+                            <div class="gallery-card-title">📜 Protection Against Unreasonable Searches</div>
+                            <div class="gallery-card-content">
+                                <p>Most jurisdictions provide constitutional or statutory protections against unreasonable government searches and seizures. For example, in the United States, the 4th Amendment states:</p>
+                                <p style="font-style: italic; margin: 15px 0;">"The right of the people to be secure in their persons, houses, papers, and effects, against unreasonable searches and seizures, shall not be violated..."</p>
+                                <h4>What this means for investigators:</h4>
+                                <ul>
+                                    <li>Warrants or proper authorization may be required for searches, even in regulatory contexts</li>
+                                    <li>Warrants must typically be based on probable cause or reasonable grounds</li>
+                                    <li>Warrants must specifically describe what will be searched and seized</li>
+                                </ul>
+                                <h4>Important</h4>
+                                <p>Similar protections exist in Canada (Charter of Rights and Freedoms), Australia, and other jurisdictions. Always consult your jurisdiction's specific requirements.</p>
+                            </div>
+                        </div>
+
+                        <div class="gallery-card" onclick="revealGallery(1, 2)">
+                            <div class="gallery-card-title">⚖️ Due Process Protections</div>
+                            <div class="gallery-card-content">
+                                <p>Regulatory investigations must respect due process rights, which exist in various forms across jurisdictions. These typically include:</p>
+                                <ul>
+                                    <li><strong>Notice:</strong> Informing parties they're under investigation (timing varies by jurisdiction)</li>
+                                    <li><strong>Opportunity to respond:</strong> Allowing parties to present their side</li>
+                                    <li><strong>Fair procedures:</strong> Following established investigative procedures</li>
+                                    <li><strong>Right to counsel:</strong> Allowing legal representation in many circumstances</li>
+                                </ul>
+                                <h4>Critical Point</h4>
+                                <p>Sub-national governments (states, provinces, territories) often must apply the same or stronger protections as their national government. Check your specific jurisdictional requirements.</p>
+                            </div>
+                        </div>
+
+                        <div class="gallery-card" onclick="revealGallery(1, 3)">
+                            <div class="gallery-card-title">📋 Relevant Legal Precedents</div>
+                            <div class="gallery-card-content">
+                                <p>Court decisions in many jurisdictions have established that regulatory authority doesn't eliminate legal protections. In the United States, for example:</p>
+                                <ul>
+                                    <li><strong>Camara v. Municipal Court:</strong> Established warrant requirement for administrative inspections</li>
+                                    <li><strong>See v. City of Seattle:</strong> Extended warrant requirement to commercial properties</li>
+                                    <li><strong>Marshall v. Barlow's Inc.:</strong> OSHA inspections require warrants if business demands one</li>
+                                </ul>
+                                <h4>Universal Principle</h4>
+                                <p>When a business or individual demands proper authorization, regulators must obtain it. Similar principles apply across many jurisdictions, consult your local legal requirements.</p>
+                            </div>
+                        </div>
+
+                        <div class="gallery-card" onclick="revealGallery(1, 4)">
+                            <div class="gallery-card-title">📄 Administrative Subpoenas / Summons</div>
+                            <div class="gallery-card-content">
+                                <p><strong>What they are:</strong> Legal orders issued by agencies to compel a person or business to provide documents or testimony. (Terminology varies: "subpoena" in US, "summons" in some other jurisdictions).</p>
+                                <h4>General Requirements</h4>
+                                <ul>
+                                    <li>Agency must have statutory authority to issue compulsory orders</li>
+                                    <li>The order must be relevant to the investigation</li>
+                                    <li>The order must not be overly broad</li>
+                                    <li>Recipients typically can challenge the order</li>
+                                </ul>
+                                <h4>Important</h4>
+                                <p>Check your agency's specific authority and procedural requirements for issuing compulsory process.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="scenario-box" style="margin-top: 30px;">
+                        <h3>Scenario:</h3>
+                        <p>You're investigating a complaint that a licensed dental practice is reusing single-use equipment.</p>
+                        <p>When you arrive at the office to conduct an inspection, the office manager asks to see your warrant or proper authorization.</p>
+                        <p>The practice has never been inspected before, and you have no authorization document with you.</p>
+                        <h3 style="color: #64092c;">What should you do?</h3>
+                        <p style="margin-top: 15px;"><strong>Think about:</strong></p>
+                        <ul>
+                            <li>Do you need a warrant for regulatory inspections in your jurisdiction?</li>
+                            <li>Can you proceed without consent if the business demands authorization?</li>
+                            <li>What are the consequences of proceeding without proper authorization?</li>
+                        </ul>
+                        <p style="margin-top: 15px; padding: 15px; background: #fff9e6; border-radius: 6px;"><strong>💡 Key Insight:</strong> When authorization is demanded, you typically must obtain it before proceeding, even in highly regulated industries. Proceeding without authorization when demanded could result in evidence being excluded or the investigation being challenged.</p>
+                    </div>
+                </div>
+
+                <!-- Slide 2: Information Sources -->
+                <div class="slide" data-slide-num="2">
+                    <h2>Information Sources</h2>
+                    
+                    <p>A thorough investigation draws from multiple sources of information. Each source provides a different perspective and different types of evidence. Understanding these sources helps you plan comprehensive investigations.</p>
+
+                    <p><strong>Click each card below to learn about the seven basic sources of investigative information:</strong></p>
+
+                    <div class="gallery-grid">
+                        <div class="gallery-card" onclick="revealGallery(2, 1)">
+                            <div class="gallery-card-title">📢 The Complainant</div>
+                            <div class="gallery-card-content">
+                                <p><strong>Role in the investigation:</strong> The complainant provides the foundation of your investigation, the initial allegation and complaint that triggers the investigative process.</p>
+                                <h4>What they provide:</h4>
+                                <ul>
+                                    <li>The allegation itself (what they claim happened)</li>
+                                    <li>Their account of events and timeline</li>
+                                    <li>Identification of potential witnesses</li>
+                                    <li>Leads to documentation and evidence</li>
+                                    <li>Context about the situation</li>
+                                </ul>
+                                <h4>Important considerations</h4>
+                                <p>The complainant's perspective is just one side of the story. Verify their claims through independent evidence and other sources. Document their complaint thoroughly, including dates, times, specific allegations, and any supporting documentation they provide.</p>
+                            </div>
+                        </div>
+
+                        <div class="gallery-card" onclick="revealGallery(2, 2)">
+                            <div class="gallery-card-title">🔍 The Investigator</div>
+                            <div class="gallery-card-content">
+                                <p><strong>Why investigators are a source:</strong> Investigators have access to institutional knowledge, previous investigations, case files, and other investigators' experiences that provide crucial context.</p>
+                                <h4>What investigators provide:</h4>
+                                <ul>
+                                    <li><strong>Previous investigations:</strong> Has this respondent been investigated before? Are there patterns?</li>
+                                    <li><strong>Institutional knowledge:</strong> Understanding of common issues in this profession or industry</li>
+                                    <li><strong>Investigation files:</strong> Comprehensive documentation from past cases</li>
+                                    <li><strong>Colleague experience:</strong> Other investigators who've handled similar cases</li>
+                                </ul>
+                                <p><strong>Best practice:</strong> Review previous investigation files early in your planning. They often reveal patterns, identify recurring witnesses, and suggest effective investigation strategies.</p>
+                            </div>
+                        </div>
+
+                        <div class="gallery-card" onclick="revealGallery(2, 3)">
+                            <div class="gallery-card-title">👔 The Respondent</div>
+                            <div class="gallery-card-content">
+                                <p><strong>Role in the investigation:</strong> The respondent is the person or business against whom the complaint has been made. They provide their version of events and their documentary evidence.</p>
+                                <h4>What they provide:</h4>
+                                <ul>
+                                    <li>Their account of what happened</li>
+                                    <li>Documentation supporting their position</li>
+                                    <li>Identification of witnesses favorable to their case</li>
+                                    <li>Alternative explanations for events</li>
+                                    <li>Context about policies, procedures, and circumstances</li>
+                                </ul>
+                                <h4>Important note</h4>
+                                <p>The respondent has a vested interest in the outcome. While their perspective must be heard and documented, verify their claims independently. Fair investigations require hearing both sides while objectively evaluating all evidence.</p>
+                            </div>
+                        </div>
+
+                        <div class="gallery-card" onclick="revealGallery(2, 4)">
+                            <div class="gallery-card-title">👥 Witnesses</div>
+                            <div class="gallery-card-content">
+                                <p><strong>Role in the investigation:</strong> Witnesses provide third-party accounts of events, adding credibility and independent verification to either party's claims.</p>
+                                <h4>What they provide:</h4>
+                                <ul>
+                                    <li>Independent accounts of what happened</li>
+                                    <li>Corroboration (or contradiction) of party statements</li>
+                                    <li>Additional context and details</li>
+                                    <li>Identification of other witnesses or evidence locations</li>
+                                </ul>
+                                <h4>Critical consideration</h4>
+                                <p>Always assess witness relationships with the complainant or respondent. A witness who is the respondent's business partner has different potential biases than a neutral third party. Document these relationships and consider them when weighing witness credibility.</p>
+                            </div>
+                        </div>
+
+                        <div class="gallery-card" onclick="revealGallery(2, 5)">
+                            <div class="gallery-card-title">📁 Public Records</div>
+                            <div class="gallery-card-content">
+                                <p><strong>What they are:</strong> Records accessible to everyone, either in hard copy or through the internet, maintained by government agencies and public entities.</p>
+                                <h4>Types of public records:</h4>
+                                <ul>
+                                    <li>Court records (civil, criminal, family court)</li>
+                                    <li>Business and professional licenses</li>
+                                    <li>Marriage and divorce records</li>
+                                    <li>Property ownership and transfer records</li>
+                                    <li>DMV records (may require legal process)</li>
+                                    <li>Public contracts and bids</li>
+                                    <li>Other government agency records</li>
+                                </ul>
+                                <h4>Value in investigations</h4>
+                                <p>Public records provide objective, independently verified information. They're particularly useful for establishing timelines, verifying claims, and discovering connections between parties.</p>
+                            </div>
+                        </div>
+
+                        <div class="gallery-card" onclick="revealGallery(2, 6)">
+                            <div class="gallery-card-title">🔒 Private Records</div>
+                            <div class="gallery-card-content">
+                                <p><strong>What they are:</strong> Documents and records held by private entities that are not generally available to the public.</p>
+                                <h4>Types of private records:</h4>
+                                <ul>
+                                    <li>Medical records (HIPAA protected)</li>
+                                    <li>Security camera footage</li>
+                                    <li>Personnel files</li>
+                                    <li>Private contracts and agreements</li>
+                                    <li>Company policies and procedures</li>
+                                    <li>Financial records</li>
+                                    <li>Email and internal communications</li>
+                                </ul>
+                                <h4>How to obtain them</h4>
+                                <p>Private records may be obtained voluntarily from parties cooperating with your investigation. When cooperation isn't forthcoming, you may need compulsory process such as an administrative subpoena or, in some cases, a search warrant.</p>
+                            </div>
+                        </div>
+
+                        <div class="gallery-card" onclick="revealGallery(2, 7)">
+                            <div class="gallery-card-title">🔬 Physical & Electronic Evidence</div>
+                            <div class="gallery-card-content">
+                                <p><strong>What it is:</strong> Tangible items and digital data that investigators physically collect as part of their investigation.</p>
+                                <h4>Types of physical and electronic evidence:</h4>
+                                <ul>
+                                    <li>Scientific evidence (lab samples, drug testing results)</li>
+                                    <li>Surveillance footage collected during investigation</li>
+                                    <li>DNA or fingerprint evidence</li>
+                                    <li>Hard drives, external drives, USB devices</li>
+                                    <li>Physical items (equipment, documents, products)</li>
+                                    <li>Photographs and video documentation</li>
+                                    <li>Audio recordings</li>
+                                </ul>
+                                <h4>Critical requirement</h4>
+                                <p>Maintain proper chain of custody for all physical and electronic evidence. Document who collected it, when, where, how it was stored, and who accessed it. This documentation is essential if evidence is challenged.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="highlight-box" style="margin-top: 20px;">
+                        <h4>💡 Investigation Principle</h4>
+                        <p>The most thorough investigations draw from multiple sources. No single source tells the complete story. Cross-reference information from different sources to build a complete, accurate picture of what happened.</p>
+                    </div>
+                </div>
+
+                <!-- Slide 3: Executing Your Plan -->
+                <div class="slide" data-slide-num="3">
+                    <h2>Executing Your Plan</h2>
+                    
+                    <p>Once your investigation plan is complete, execution is largely about following your roadmap. However, just like any journey, you must remain flexible when unexpected issues arise.</p>
+
+                    <h3>🗺️ Following the Roadmap</h3>
+                    <div class="concept-card blue">
+                        <p>Your investigation plan provides direction and structure. Generally, investigators work through tasks as outlined in their plan:</p>
+                        <ul>
+                            <li>Review and analyze complainant documentation</li>
+                            <li>Inform the respondent they're under investigation (per agency requirements)</li>
+                            <li>Interview witnesses in planned order</li>
+                            <li>Collect physical and documentary evidence</li>
+                            <li>Document findings systematically</li>
+                        </ul>
+                    </div>
+
+                    <h3>⚠️ Remaining Flexible</h3>
+                    <div class="concept-card gold">
+                        <p><strong>Expect the unexpected.</strong> Even with thorough planning, investigations rarely go exactly as planned:</p>
+                        <ul>
+                            <li>Witnesses may become unavailable or uncooperative</li>
+                            <li>You may need to interview witnesses out of original order</li>
+                            <li>Documentation may not be available as expected</li>
+                            <li>New information may require investigating additional leads</li>
+                            <li>Parties may refuse to cooperate</li>
+                        </ul>
+                        <p style="margin-top: 15px;"><strong>Key principle:</strong> Adapt your plan while maintaining focus on answering your six fundamental questions (Who, What, When, Where, Why, How).</p>
+                    </div>
+
+                    <h3>🎯 Management by Objectives (MBO)</h3>
+                    <div class="concept-card burgundy">
+                        <p>MBO is a goal-oriented approach that keeps investigations focused on results:</p>
+                        <ul>
+                            <li><strong>Objective-focused:</strong> All activities are designed to reach specific investigation goals</li>
+                            <li><strong>Result-based:</strong> Investigations must produce findings that answer the fundamental questions</li>
+                            <li><strong>Adaptable:</strong> Methods may change, but objectives remain constant</li>
+                        </ul>
+                        <div style="margin-top: 15px; padding: 15px; background: white; border-radius: 8px;">
+                            <h4 style="color: #64092c; margin-bottom: 10px;">Application</h4>
+                            <p>If a planned interview becomes impossible, identify alternative methods to obtain the same information. The objective (gathering that witness's account) remains; only the method changes.</p>
+                        </div>
+                    </div>
+
+                    <h3>Sample Investigation Plan Framework</h3>
+                    <p>Click to open each section to explore the components of a comprehensive investigation plan.</p>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion(1)">
+                            <span>1. Purpose and Scope</span>
+                            <span class="accordion-arrow" id="arrow-1">►</span>
+                        </div>
+                        <div class="accordion-content" id="content-1">
+                            <p><strong>Objective:</strong> Assess whether a licensed professional has violated statutes, regulations, or ethical standards governing their practice.</p>
+                            <p style="margin-top: 10px;"><strong>Scope includes:</strong></p>
+                            <ul>
+                                <li>Alleged misconduct (e.g., fraud, negligence, unprofessional conduct)</li>
+                                <li>Timeframe of alleged behavior</li>
+                                <li>Jurisdictional relevance (licensee must be under agency authority)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion(2)">
+                            <span>2. Legal Authority</span>
+                            <span class="accordion-arrow" id="arrow-2">►</span>
+                        </div>
+                        <div class="accordion-content" id="content-2">
+                            <p><strong>Document your authority:</strong></p>
+                            <ul>
+                                <li>Statutory basis (e.g., State Professional Licensing Act)</li>
+                                <li>Agency rules and regulations</li>
+                                <li>Authority to compel testimony and issue subpoenas</li>
+                                <li>Authority to access records</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion(3)">
+                            <span>3. Investigative Team</span>
+                            <span class="accordion-arrow" id="arrow-3">►</span>
+                        </div>
+                        <div class="accordion-content" id="content-3">
+                            <p><strong>Identify team members and roles:</strong></p>
+                            <ul>
+                                <li>Lead Investigator (compliance officer or enforcement agent)</li>
+                                <li>Legal Counsel (advises on due process and statutory interpretation)</li>
+                                <li>Subject Matter Expert (provides technical insight)</li>
+                                <li>Support Staff (administrative and data analysts)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion(4)">
+                            <span>4. Preliminary Review</span>
+                            <span class="accordion-arrow" id="arrow-4">►</span>
+                        </div>
+                        <div class="accordion-content" id="content-4">
+                            <p><strong>Initial assessment:</strong></p>
+                            <ul>
+                                <li>Intake of complaint or referral</li>
+                                <li>Screening for jurisdiction, credibility, and sufficiency</li>
+                                <li>Decision to open formal investigation</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion(5)">
+                            <span>5. Investigation Strategy</span>
+                            <span class="accordion-arrow" id="arrow-5">►</span>
+                        </div>
+                        <div class="accordion-content" id="content-5">
+                            <p><strong>Evidence collection plan:</strong></p>
+                            <ul>
+                                <li>Licensee records (patient charts, billing, case files)</li>
+                                <li>Public records (court filings, arrest records)</li>
+                                <li>Witness interviews (patients, colleagues, employers)</li>
+                                <li>Licensee interview (voluntary or compelled)</li>
+                            </ul>
+                            <p style="margin-top: 10px;"><strong>Timeline:</strong> 30-90 days for initial findings, with extensions based on complexity.</p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion(6)">
+                            <span>6. Evidence Handling</span>
+                            <span class="accordion-arrow" id="arrow-6">►</span>
+                        </div>
+                        <div class="accordion-content" id="content-6">
+                            <p><strong>Proper evidence management:</strong></p>
+                            <ul>
+                                <li>Secure digital and physical storage</li>
+                                <li>Chain of custody documentation</li>
+                                <li>Redaction of sensitive third-party data (HIPAA compliance)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion(7)">
+                            <span>7. Legal and Ethical Safeguards</span>
+                            <span class="accordion-arrow" id="arrow-7">►</span>
+                        </div>
+                        <div class="accordion-content" id="content-7">
+                            <p><strong>Due process requirements:</strong></p>
+                            <ul>
+                                <li>Notice of investigation to licensee</li>
+                                <li>Opportunity to respond or rebut allegations</li>
+                                <li>Confidentiality of investigation until final disposition</li>
+                                <li>Protection of complainant identity (when appropriate)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion(8)">
+                            <span>8. Reporting</span>
+                            <span class="accordion-arrow" id="arrow-8">►</span>
+                        </div>
+                        <div class="accordion-content" id="content-8">
+                            <p><strong>Draft investigative report with:</strong></p>
+                            <ul>
+                                <li>Factual findings</li>
+                                <li>Legal analysis</li>
+                                <li>Recommendations (dismissal, disciplinary hearing, settlement)</li>
+                            </ul>
+                            <p style="margin-top: 10px;">Internal review by legal and executive staff before submission to licensing board or administrative law judge.</p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion(9)">
+                            <span>9. Post-Investigation Actions</span>
+                            <span class="accordion-arrow" id="arrow-9">►</span>
+                        </div>
+                        <div class="accordion-content" id="content-9">
+                            <p><strong>Final steps:</strong></p>
+                            <ul>
+                                <li>Board vote on disciplinary action</li>
+                                <li>Referral to law enforcement if criminal conduct suspected</li>
+                                <li>Public notification (license status updates, press release)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion(10)">
+                            <span>10. Documentation and Recordkeeping</span>
+                            <span class="accordion-arrow" id="arrow-10">►</span>
+                        </div>
+                        <div class="accordion-content" id="content-10">
+                            <p><strong>Maintain complete investigation file:</strong></p>
+                            <ul>
+                                <li>Original complaint</li>
+                                <li>All correspondence</li>
+                                <li>Evidence logs and chain of custody</li>
+                                <li>Interview notes and recordings</li>
+                                <li>Final investigation report</li>
+                            </ul>
+                            <p style="margin-top: 10px;">Retain per agency retention schedule. Investigation files may be needed years later for appeals or related proceedings.</p>
+                        </div>
+                    </div>
+
+                    <div class="highlight-box" style="margin-top: 30px;">
+                        <h4>💡 Execution Principle</h4>
+                        <p>Plans guide your investigation, but judgment guides your decisions. When circumstances change, adapt your methods while staying focused on your objectives. Document all decisions and changes to your plan.</p>
+                    </div>
+                </div>
+
+                <!-- Slide 4: Summary & Takeaways -->
+                <div class="slide" data-slide-num="4">
+                    <h2>Summary & Key Takeaways</h2>
+                    
+                    <h3>Learning Objectives Review</h3>
+                    <div class="objectives-list">
+                        <p><strong>You should now be able to:</strong></p>
+                        <ul>
+                            <li><strong>Prepare</strong> an investigation plan using the six fundamental questions and understanding legal boundaries</li>
+                            <li><strong>Identify</strong> the seven sources of investigative information</li>
+                            <li><strong>Execute</strong> an investigation plan while remaining flexible to changing circumstances and documenting thoroughly</li>
+                        </ul>
+                    </div>
+
+                    <h3>Key Messages to Remember</h3>
+
+                    <div class="concept-card burgundy">
+                        <h4>Lesson 1 - Planning Your Investigation:</h4>
+                        <ul>
+                            <li>Six fundamental questions: <strong>Who, What, When, Where, Why, How</strong></li>
+                            <li>Planning for tools, equipment, budget, and travel</li>
+                            <li>Understanding legal boundaries in your jurisdiction</li>
+                            <li>When proper authorization (warrants, orders) may be required</li>
+                            <li>Your investigation plan is both a roadmap and the foundation for your report</li>
+                        </ul>
+                    </div>
+
+                    <div class="concept-card gold">
+                        <h4>Lesson 2 - Seven Sources of Information:</h4>
+                        <ul>
+                            <li>📢 <strong>The Complainant</strong> - Foundation of investigation</li>
+                            <li>🔍 <strong>The Investigator</strong> - Institutional knowledge and previous cases</li>
+                            <li>👔 <strong>The Respondent</strong> - Their version of events</li>
+                            <li>👥 <strong>Witnesses</strong> - Third-party accounts</li>
+                            <li>📁 <strong>Public Records</strong> - Objective, verified information</li>
+                            <li>🔒 <strong>Private Records</strong> - May require compulsory process</li>
+                            <li>🔬 <strong>Physical & Electronic Evidence</strong> - Tangible proof</li>
+                        </ul>
+                    </div>
+
+                    <div class="concept-card blue">
+                        <h4>Lesson 3 - Executing the Plan:</h4>
+                        <ul>
+                            <li>Follow your roadmap while remaining flexible</li>
+                            <li>Use Management by Objectives (MBO) to stay result-focused</li>
+                            <li>Adapt methods while maintaining focus on objectives</li>
+                            <li>Document everything—your investigation must withstand scrutiny</li>
+                        </ul>
+                    </div>
+
+                    <h3>Your Competency Checklist</h3>
+                    <div class="pdf-download">
+                        <p>The PDF below serves as a record of learning objectives achieved in this module.</p>
+                        <p style="margin-top: 10px;">To download the PDF, click or tap the icon.</p>
+                        <p style="margin-top: 20px;"><strong>[PDF Download: Investigations - Competency Checklist.pdf]</strong></p>
+                    </div>
+
+                    <h3>Final Thought</h3>
+                    <div class="concept-card gray">
+                        <p>Investigations are among the most sensitive and consequential activities regulatory agencies undertake. When someone files a complaint, they're trusting your agency to take it seriously and investigate thoroughly. When someone is the subject of an investigation, their livelihood and reputation are at stake.</p>
+
+                        <p style="margin-top: 15px;">This responsibility requires both systematic rigor and sound judgment. The investigations plan provides a structured approach that ensures you ask the right questions, gather the right evidence, and respect legal boundaries. Your judgment provides the flexibility to adapt when circumstances change and the wisdom to balance public protection with fundamental fairness.</p>
+
+                        <p style="margin-top: 15px;">Remember that investigations don't exist in isolation. They're part of a larger regulatory system designed to protect the public. A well-conducted investigation provides the evidence needed for informed decisions about disciplinary action, referral to law enforcement, or case closure. It creates a record that will withstand scrutiny months or years later when cases are reviewed or appealed.</p>
+
+                        <p style="margin-top: 15px;"><strong>Your role as an investigator matters.</strong> The care you take in planning, the thoroughness of your evidence gathering, and your respect for both public protection and constitutional rights directly impact the quality of regulatory enforcement and public safety.</p>
+                    </div>
+                </div>
+
+                <!-- Slide 5: Knowledge Assessment -->
+                <div class="slide" data-slide-num="5">
+                    <h2>Knowledge Assessment</h2>
+                    
+                    <p>Test your understanding of the key concepts from this module. Answer all questions and click "Check Answer" for each one.</p>
+
+                    <!-- Question 1: Matching -->
+                    <div class="quiz-question">
+                        <h4>Question 1: Match each individual with their role in an investigation</h4>
+                        
+                        <div class="match-container">
+                            <div class="match-item">
+                                <div class="match-term">The Complainant</div>
+                                <select class="match-dropdown" id="match1">
+                                    <option value="">Select role...</option>
+                                    <option value="foundation">Provides the foundation for the investigation</option>
+                                    <option value="primary">Provides the primary source of information for the investigation</option>
+                                    <option value="subject">Is the subject of the investigation</option>
+                                </select>
+                            </div>
+                            
+                            <div class="match-item">
+                                <div class="match-term">The Investigator</div>
+                                <select class="match-dropdown" id="match2">
+                                    <option value="">Select role...</option>
+                                    <option value="foundation">Provides the foundation for the investigation</option>
+                                    <option value="primary">Provides the primary source of information for the investigation</option>
+                                    <option value="subject">Is the subject of the investigation</option>
+                                </select>
+                            </div>
+                            
+                            <div class="match-item">
+                                <div class="match-term">The Respondent</div>
+                                <select class="match-dropdown" id="match3">
+                                    <option value="">Select role...</option>
+                                    <option value="foundation">Provides the foundation for the investigation</option>
+                                    <option value="primary">Provides the primary source of information for the investigation</option>
+                                    <option value="subject">Is the subject of the investigation</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-primary" onclick="checkQuestion1()">Check Answer</button>
+                        
+                        <div class="quiz-feedback" id="feedback-q1"></div>
+                    </div>
+
+                    <!-- Question 2: True/False -->
+                    <div class="quiz-question">
+                        <h4>Question 2: True or False</h4>
+                        <p style="margin: 15px 0;">Legal protections against unreasonable government searches apply only to federal agencies, not to state, provincial, or local regulatory agencies.</p>
+                        
+                        <div class="quiz-options">
+                            <div class="quiz-option" onclick="selectOption('q2', 'true')">
+                                <input type="radio" name="q2" value="true" style="margin-right: 10px;">
+                                <strong>True</strong>
+                            </div>
+                            
+                            <div class="quiz-option" onclick="selectOption('q2', 'false')">
+                                <input type="radio" name="q2" value="false" style="margin-right: 10px;">
+                                <strong>False</strong>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-primary" onclick="checkQuestion2()">Check Answer</button>
+                        
+                        <div class="quiz-feedback" id="feedback-q2"></div>
+                    </div>
+
+                    <!-- Question 3: Multiple Choice -->
+                    <div class="quiz-question">
+                        <h4>Question 3: All of the following are examples of where you can find information during an investigation, EXCEPT:</h4>
+                        
+                        <div class="quiz-options">
+                            <div class="quiz-option" onclick="selectOption('q3', 'a')">
+                                <input type="radio" name="q3" value="a" style="margin-right: 10px;">
+                                <strong>A)</strong> Public Records
+                            </div>
+                            
+                            <div class="quiz-option" onclick="selectOption('q3', 'b')">
+                                <input type="radio" name="q3" value="b" style="margin-right: 10px;">
+                                <strong>B)</strong> Witnesses
+                            </div>
+                            
+                            <div class="quiz-option" onclick="selectOption('q3', 'c')">
+                                <input type="radio" name="q3" value="c" style="margin-right: 10px;">
+                                <strong>C)</strong> Internet Search Engines
+                            </div>
+                            
+                            <div class="quiz-option" onclick="selectOption('q3', 'd')">
+                                <input type="radio" name="q3" value="d" style="margin-right: 10px;">
+                                <strong>D)</strong> Court Records
+                            </div>
+                            
+                            <div class="quiz-option" onclick="selectOption('q3', 'e')">
+                                <input type="radio" name="q3" value="e" style="margin-right: 10px;">
+                                <strong>E)</strong> The Complainant
+                            </div>
+                            
+                            <div class="quiz-option" onclick="selectOption('q3', 'none')">
+                                <input type="radio" name="q3" value="none" style="margin-right: 10px;">
+                                <strong>F)</strong> All of the above ARE valid sources
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-primary" onclick="checkQuestion3()">Check Answer</button>
+                        
+                        <div class="quiz-feedback" id="feedback-q3"></div>
+                    </div>
+
+                    <div style="text-align: center; margin-top: 40px; padding: 30px; background: linear-gradient(135deg, #64092c 0%, #84093c 100%); border-radius: 12px; color: white;">
+                        <h3 style="color: white; margin-bottom: 15px;">🎓 Module Complete!</h3>
+                        <p style="color: white; font-size: 1.1em;">You've completed the Investigations module. Review your answers above to ensure you understand all the key concepts.</p>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <div class="navigation">
+                    <button class="btn" id="prev-btn" onclick="previousSlide()">← Previous</button>
+                    <div>
+                        <span id="slide-counter">Slide 1 of 6</span>
+                    </div>
+                    <button class="btn btn-primary" id="next-btn" onclick="nextSlide()">Next →</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const totalSlides = 6;
+        let assessmentAnswers = {
+            q1: null,
+            q2: null,
+            q3: null
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateSlide();
+        });
+
+        function updateSlide() {
+            document.querySelectorAll('.slide').forEach(slide => {
+                slide.classList.remove('active');
+            });
+            
+            const slides = document.querySelectorAll('.slide');
+            if (slides[currentSlide]) {
+                slides[currentSlide].classList.add('active');
+            }
+            
+            document.querySelectorAll('.sidebar-item').forEach((item, index) => {
+                item.classList.remove('active');
+                if (index === currentSlide) {
+                    item.classList.add('active');
+                }
+                if (index < currentSlide) {
+                    item.classList.add('completed');
+                }
+            });
+            
+            const progress = ((currentSlide + 1) / totalSlides) * 100;
+            document.getElementById('progress-bar').style.width = progress + '%';
+            document.getElementById('progress-percent').textContent = Math.round(progress);
+            
+            document.getElementById('slide-counter').textContent = `Slide ${currentSlide + 1} of ${totalSlides}`;
+            
+            document.getElementById('prev-btn').disabled = currentSlide === 0;
+            if (currentSlide === totalSlides - 1) {
+                document.getElementById('next-btn').style.display = 'none';
+            } else {
+                document.getElementById('next-btn').style.display = 'block';
+            }
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                updateSlide();
+                document.querySelector('.main-content').scrollTop = 0;
+            }
+        }
+
+        function previousSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlide();
+                document.querySelector('.main-content').scrollTop = 0;
+            }
+        }
+
+        document.querySelectorAll('.sidebar-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const slideNum = parseInt(this.getAttribute('data-slide'));
+                currentSlide = slideNum;
+                updateSlide();
+                document.querySelector('.main-content').scrollTop = 0;
+            });
+        });
+
+        // Gallery cards reveal
+        function revealGallery(slideNum, cardNum) {
+            const slideId = slideNum === 1 ? 1 : 2; // Planning (1) or Sources (2)
+            const slides = document.querySelectorAll('.slide');
+            const cards = slides[slideId].querySelectorAll('.gallery-card');
+            cards[cardNum - 1].classList.toggle('revealed');
+        }
+
+        // Accordion functionality
+        function toggleAccordion(num) {
+            const content = document.getElementById('content-' + num);
+            const arrow = document.getElementById('arrow-' + num);
+            const header = arrow.parentElement;
+            
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                arrow.classList.remove('rotated');
+                header.classList.remove('active');
+            } else {
+                content.classList.add('expanded');
+                arrow.classList.add('rotated');
+                header.classList.add('active');
+            }
+        }
+
+        // Quiz option selection
+        function selectOption(questionId, value) {
+            const options = document.querySelectorAll(`input[name="${questionId}"]`);
+            options.forEach(opt => {
+                opt.parentElement.classList.remove('selected');
+            });
+            
+            const selectedInput = document.querySelector(`input[name="${questionId}"][value="${value}"]`);
+            if (selectedInput) {
+                selectedInput.checked = true;
+                selectedInput.parentElement.classList.add('selected');
+            }
+        }
+
+        // Question 1: Matching
+        function checkQuestion1() {
+            const match1 = document.getElementById('match1').value;
+            const match2 = document.getElementById('match2').value;
+            const match3 = document.getElementById('match3').value;
+            
+            if (!match1 || !match2 || !match3) {
+                alert('Please complete all matches before checking your answer.');
+                return;
+            }
+            
+            const correct = (match1 === 'foundation' && match2 === 'primary' && match3 === 'subject');
+            assessmentAnswers.q1 = correct;
+            
+            const feedback = document.getElementById('feedback-q1');
+            feedback.classList.add('show');
+            
+            if (correct) {
+                feedback.className = 'quiz-feedback show correct';
+                feedback.innerHTML = `<h4 style="color: #28a745;">✓ Correct!</h4>
+                <p><strong>Why this is right:</strong> You correctly identified the role each individual plays in an investigation:</p>
+                <ul>
+                    <li><strong>Complainant</strong> provides the foundation—the initial allegation that triggers the investigation</li>
+                    <li><strong>Investigator</strong> is the best source of information because they have access to institutional knowledge, previous cases, and investigation files</li>
+                    <li><strong>Respondent</strong> is the subject of the investigation—the person or entity against whom the complaint was made</li>
+                </ul>
+                <h4 style="margin-top: 15px;">Key Insight</h4>
+                <p>Understanding these roles helps you identify where to gather different types of information throughout your investigation.</p>`;
+            } else {
+                feedback.className = 'quiz-feedback show incorrect';
+                feedback.innerHTML = `<h4 style="color: #dc3545;">Not quite.</h4>
+                <h4>Review the Roles</h4>
+                <p>Think about what each individual contributes to an investigation:</p>
+                <ul>
+                    <li>Who initiates the investigation by filing the complaint?</li>
+                    <li>Who has access to previous investigations, institutional knowledge, and case files?</li>
+                    <li>Who is being investigated?</li>
+                </ul>
+                <p><strong>Review the Seven Sources of Information section to see the correct answers.</strong></p>`;
+            }
+        }
+
+        // Question 2: True/False
+        function checkQuestion2() {
+            const selected = document.querySelector('input[name="q2"]:checked');
+            
+            if (!selected) {
+                alert('Please select an answer before checking.');
+                return;
+            }
+            
+            const correct = (selected.value === 'false');
+            assessmentAnswers.q2 = correct;
+            
+            // Mark options
+            document.querySelectorAll('input[name="q2"]').forEach(opt => {
+                opt.parentElement.classList.remove('correct', 'incorrect');
+                if (opt.value === 'false') {
+                    opt.parentElement.classList.add('correct');
+                } else if (opt.checked) {
+                    opt.parentElement.classList.add('incorrect');
+                }
+            });
+            
+            const feedback = document.getElementById('feedback-q2');
+            feedback.classList.add('show');
+            
+            if (correct) {
+                feedback.className = 'quiz-feedback show correct';
+                feedback.innerHTML = `<h4 style="color: #28a745;">✓ Correct!</h4>
+                <p><strong>Why this is right:</strong> The statement is FALSE. Legal protections against unreasonable searches typically apply to ALL levels of government within a jurisdiction.</p>
+                <h4 style="margin-top: 15px;">The principle:</h4>
+                <p>In most jurisdictions, constitutional or statutory protections that restrict federal or national government actions also restrict sub-national government actions (states, provinces, territories, municipalities). For example, in the United States, the 14th Amendment applies federal protections to state and local governments. In Canada, the Charter of Rights and Freedoms applies to all levels of government.</p>
+                <h4 style="margin-top: 15px;">Key Insight</h4>
+                <p>Sub-national governments typically cannot have fewer protections than the national government, though they may have more. All government agencies at every level must generally respect the same fundamental legal protections.</p>`;
+            } else {
+                feedback.className = 'quiz-feedback show incorrect';
+                feedback.innerHTML = `<h4 style="color: #dc3545;">Review the legal framework:</h4>
+                <p>Think about whether state, provincial, or local government agencies have fewer restrictions than national agencies when conducting searches and investigations.</p>
+                <ul>
+                    <li>Do legal protections apply only to the national government?</li>
+                    <li>Can sub-national agencies ignore legal protections that apply to national agencies?</li>
+                    <li>Do investigators at all levels need proper authorization when demanded?</li>
+                </ul>
+                <p><strong>Review the Legal Considerations section to understand how protections apply across government levels.</strong></p>`;
+            }
+        }
+
+        // Question 3: Multiple Choice
+        function checkQuestion3() {
+            const selected = document.querySelector('input[name="q3"]:checked');
+            
+            if (!selected) {
+                alert('Please select an answer before checking.');
+                return;
+            }
+            
+            const correct = (selected.value === 'none');
+            assessmentAnswers.q3 = correct;
+            
+            // Mark options
+            document.querySelectorAll('input[name="q3"]').forEach(opt => {
+                opt.parentElement.classList.remove('correct', 'incorrect');
+                if (opt.value === 'none') {
+                    opt.parentElement.classList.add('correct');
+                } else if (opt.checked) {
+                    opt.parentElement.classList.add('incorrect');
+                }
+            });
+            
+            const feedback = document.getElementById('feedback-q3');
+            feedback.classList.add('show');
+            
+            if (correct) {
+                feedback.className = 'quiz-feedback show correct';
+                feedback.innerHTML = `<h4 style="color: #28a745;">✓ Correct!</h4>
+                <p><strong>Why this is right:</strong> All of the listed options ARE valid sources of information during an investigation.</p>
+                <h4 style="margin-top: 15px;">Sources of information include:</h4>
+                <ul>
+                    <li><strong>Public Records</strong> - Court records, licenses, property records (covered in the seven sources)</li>
+                    <li><strong>Witnesses</strong> - Third-party accounts of events (covered in the seven sources)</li>
+                    <li><strong>Internet Search Engines</strong> - Can locate public information, news articles, social media (a tool for accessing public records and information)</li>
+                    <li><strong>Court Records</strong> - Part of public records (covered in the seven sources)</li>
+                    <li><strong>The Complainant</strong> - Foundation of the investigation (covered in the seven sources)</li>
+                </ul>
+                <h4 style="margin-top: 15px;">Key Insight</h4>
+                <p>Thorough investigations draw from multiple sources. While we focused on seven primary sources, investigators use all available tools, including internet searches, to gather comprehensive information.</p>`;
+            } else {
+                feedback.className = 'quiz-feedback show incorrect';
+                feedback.innerHTML = `<h4 style="color: #dc3545;">Review the Question Carefully</h4>
+                <p>The question asks which is NOT a source of information. Think about whether ALL of the listed options can provide useful information during an investigation.</p>
+                <ul>
+                    <li>Can public records provide investigation information? Yes - covered in the seven sources</li>
+                    <li>Can witnesses provide information? Yes - covered in the seven sources</li>
+                    <li>Can internet searches help find information? Yes - they access public information</li>
+                    <li>Can court records provide information? Yes - they're public records</li>
+                    <li>Can complainants provide information? Yes - they're the foundation of investigations</li>
+                </ul>
+                <p><strong>Review the Seven Sources of Information to confirm all options are valid sources.</strong></p>`;
+            }
+        }
+    </script>
+</body>
+</html>
