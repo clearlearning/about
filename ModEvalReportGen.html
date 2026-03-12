@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CLEAR Learning Module Evaluation Report Generator</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
+
+  :root {
+    --burgundy: #64092c;
+    --burgundy-light: #8a1e4a;
+    --gold: #dda838;
+    --gold-light: #f0c95c;
+    --blue: #084d78;
+    --charcoal: #484848;
+    --light-bg: #f7f5f2;
+    --white: #ffffff;
+    --border: #e0dcd6;
+    --text: #333333;
+    --text-light: #6b6b6b;
+    --success: #2e7d4f;
+    --shadow: 0 2px 12px rgba(100, 9, 44, 0.08);
+    --shadow-lg: 0 8px 32px rgba(100, 9, 44, 0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Open Sans', sans-serif;
+    background: var(--light-bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  .header {
+    background: linear-gradient(135deg, var(--burgundy) 0%, var(--burgundy-light) 100%);
+    color: var(--white);
+    padding: 28px 40px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 4px 20px rgba(100, 9, 44, 0.25);
+  }
+  .header-icon {
+    width: 100px; height: 48px;
+    background: transparent;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 700; color: var(--burgundy);
+    flex-shrink: 0;
+  }
+  .header h1 { font-size: 24px; font-weight: 700; letter-spacing: 0.5px; }
+  .header p { font-size: 13px; opacity: 0.85; margin-top: 2px; }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 40px 60px;
+  }
+
+  /* INSTRUCTIONS */
+
+  .instructions {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 24px 32px;
+  box-shadow: var(--shadow);
+  margin-bottom: 28px;
+  border-left: 4px solid var(--gold);
+}
+.instructions h2 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--burgundy);
+  margin-bottom: 14px;
+}
+.instructions ol {
+  margin: 0 0 16px 20px;
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--text);
+}
+.instructions ol li {
+  padding-left: 4px;
+}
+.instructions a {
+  color: var(--blue);
+  text-decoration: underline;
+}
+.instructions a:hover {
+  color: var(--burgundy);
+}
+.instructions p {
+  font-size: 13px;
+  color: var(--text-light);
+  line-height: 1.6;
+}
+
+  /* UPLOAD ZONE */
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 48px 32px;
+    text-align: center;
+    background: var(--white);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    margin-bottom: 28px;
+    position: relative;
+  }
+  .upload-zone:hover, .upload-zone.dragover {
+    border-color: var(--gold);
+    background: #fffdf5;
+    box-shadow: var(--shadow);
+  }
+  .upload-zone.loaded {
+    border-color: var(--success);
+    border-style: solid;
+    background: #f4faf6;
+    padding: 20px 32px;
+    cursor: default;
+  }
+  .upload-icon { font-size: 40px; margin-bottom: 12px; }
+  .upload-zone h3 { font-size: 16px; color: var(--charcoal); margin-bottom: 6px; }
+  .upload-zone p { font-size: 13px; color: var(--text-light); }
+  .upload-zone input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer;
+  }
+  .upload-zone.loaded input[type="file"] { display: none; }
+  .loaded-info {
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+  }
+  .loaded-info .check { color: var(--success); font-size: 20px; font-weight: 700; }
+  .loaded-info .filename { font-weight: 600; color: var(--charcoal); }
+  .loaded-info .rowcount { color: var(--text-light); font-size: 13px; }
+  .reload-btn {
+    background: none; border: 1px solid var(--border); border-radius: 6px;
+    padding: 6px 14px; font-size: 12px; color: var(--text-light);
+    cursor: pointer; margin-left: 8px; transition: all 0.2s;
+  }
+  .reload-btn:hover { border-color: var(--burgundy); color: var(--burgundy); }
+
+  /* FILTERS */
+  .filters-panel {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 28px 32px;
+    box-shadow: var(--shadow);
+    margin-bottom: 28px;
+    display: none;
+  }
+  .filters-panel.visible { display: block; }
+  .filters-title {
+    font-size: 16px; font-weight: 700; color: var(--burgundy);
+    margin-bottom: 20px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .filters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .filter-group label {
+    display: block; font-size: 12px; font-weight: 600;
+    color: var(--text-light); text-transform: uppercase;
+    letter-spacing: 0.5px; margin-bottom: 6px;
+  }
+  .filter-group select, .filter-group input[type="date"], .filter-group input[type="text"] {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--border);
+    border-radius: 8px; font-size: 14px; font-family: 'Open Sans', sans-serif;
+    color: var(--text); background: var(--white);
+    transition: border-color 0.2s;
+  }
+  .filter-group select:focus, .filter-group input:focus {
+    outline: none; border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(221, 168, 56, 0.15);
+  }
+
+  /* MULTI-SELECT DROPDOWN */
+  .multi-select {
+    position: relative;
+    width: 100%;
+  }
+  .multi-select-toggle {
+    width: 100%; padding: 10px 32px 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px; font-size: 14px;
+    font-family: 'Open Sans', sans-serif;
+    color: var(--text); background: var(--white);
+    cursor: pointer; text-align: left;
+    transition: border-color 0.2s;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    position: relative;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .multi-select-toggle::after {
+    content: '';
+    position: absolute; right: 12px; top: 50%;
+    transform: translateY(-50%);
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid var(--text-light);
+    pointer-events: none;
+  }
+  .multi-select-toggle:hover,
+  .multi-select-toggle.open {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(221, 168, 56, 0.15);
+  }
+  .multi-select-toggle .placeholder { color: var(--text-light); }
+  .multi-select-dropdown {
+    display: none;
+    position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow-lg);
+    z-index: 100;
+    max-height: 240px;
+    overflow-y: auto;
+  }
+  .multi-select-dropdown.open { display: block; }
+  .ms-option {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 14px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.15s;
+  }
+  .ms-option:hover { background: #fdf6e3; }
+  .ms-option input[type="checkbox"] {
+    accent-color: var(--burgundy);
+    width: 16px; height: 16px;
+    cursor: pointer; flex-shrink: 0;
+  }
+  .ms-option label { cursor: pointer; flex: 1; }
+  .ms-actions {
+    display: flex; gap: 8px;
+    padding: 8px 14px;
+    border-top: 1px solid var(--border);
+    background: #faf9f7;
+    border-radius: 0 0 8px 8px;
+  }
+  .ms-actions button {
+    background: none; border: none; font-size: 12px;
+    font-family: 'Open Sans', sans-serif;
+    color: var(--blue); cursor: pointer; font-weight: 600;
+    padding: 2px 4px;
+  }
+  .ms-actions button:hover { text-decoration: underline; }
+
+  .btn-row {
+    display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+    padding-top: 8px; border-top: 1px solid var(--border);
+  }
+  .btn {
+    padding: 11px 28px; border-radius: 8px; font-size: 14px;
+    font-weight: 600; font-family: 'Open Sans', sans-serif;
+    cursor: pointer; border: none; transition: all 0.2s;
+  }
+  .btn-primary { background: var(--burgundy); color: var(--white); }
+  .btn-primary:hover { background: var(--burgundy-light); box-shadow: var(--shadow); }
+  .btn-secondary { background: var(--white); color: var(--charcoal); border: 1px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--charcoal); }
+  .btn-export { background: var(--blue); color: var(--white); }
+  .btn-export:hover { background: #0a6191; box-shadow: var(--shadow); }
+  .filter-summary {
+    font-size: 13px; color: var(--text-light); margin-left: auto;
+  }
+
+  /* REPORT */
+  .report-section { display: none; }
+  .report-section.visible { display: block; }
+
+  .report-card {
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .report-card-header {
+    background: linear-gradient(135deg, var(--charcoal) 0%, #5a5a5a 100%);
+    color: var(--white);
+    padding: 16px 28px;
+    font-size: 15px; font-weight: 700;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .report-card-body { padding: 0; }
+
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    background: #f9f7f4;
+    padding: 12px 16px;
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    color: var(--text-light);
+    text-align: center;
+    border-bottom: 2px solid var(--border);
+  }
+  thead th:first-child { text-align: left; }
+  tbody td {
+    padding: 12px 16px;
+    font-size: 14px;
+    text-align: center;
+    border-bottom: 1px solid #f0ede8;
+  }
+  tbody td:first-child {
+    text-align: left; font-weight: 600; color: var(--burgundy);
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: #fdfcfa; }
+
+  .overall-row td {
+    background: #fdf6e3 !important;
+    font-weight: 700 !important;
+    color: var(--charcoal) !important;
+    border-top: 2px solid var(--gold);
+  }
+
+  .score-badge {
+    display: inline-block; padding: 3px 10px; border-radius: 12px;
+    font-weight: 600; font-size: 13px;
+  }
+  .score-high { background: #e8f5e9; color: #2e7d32; }
+  .score-mid { background: #fff8e1; color: #b8860b; }
+  .score-low { background: #fce1ec; color: #c62828; }
+  .score-na { background: #f0f0f0; color: #757575; }
+
+  .comments-table td { text-align: left; font-size: 13px; }
+  .comments-table td:first-child { white-space: nowrap; width: 120px; }
+  .comments-table td:nth-child(2) {
+    white-space: nowrap; width: 80px; text-align: center;
+    font-weight: 400; color: var(--text-light);
+  }
+  .comments-table td:last-child {
+    color: var(--text); font-weight: 400; font-style: italic;
+  }
+
+  .comments-table .cb-col {
+  width: 40px;
+  text-align: center !important;
+}
+  .comments-table input[type="checkbox"] {
+  accent-color: var(--burgundy);
+  width: 15px; height: 15px;
+  cursor: pointer;
+}
+  .comment-excluded td:not(.cb-col) {
+  opacity: 0.4;
+  text-decoration: line-through;
+}
+
+  .export-bar {
+    display: none; gap: 12px; align-items: center;
+    margin-bottom: 24px;
+    padding: 16px 24px;
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+  }
+  .export-bar.visible { display: flex; }
+  .export-bar span {
+    font-size: 13px; font-weight: 600; color: var(--charcoal);
+    margin-right: auto;
+  }
+
+  .empty-state {
+    text-align: center; padding: 60px 20px; color: var(--text-light);
+  }
+  .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
+  .empty-state h3 { font-size: 16px; color: var(--charcoal); margin-bottom: 6px; }
+
+  @media print {
+    .header { padding: 16px 20px; }
+    .upload-zone, .filters-panel, .export-bar, .btn { display: none !important; }
+    .report-section { display: block !important; }
+    .container { padding: 0 20px; }
+    .report-card { box-shadow: none; border: 1px solid #ddd; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header"> 
+  <div class="header-icon"><img src="https://assets-002.noviams.com/novi-file-uploads/clear/graphics/CLEAR_Learning_New.png" style="width: 100px; height: auto; border-radius: 4px; box-shadow: 0 4px 8px rgba(0, 0, 0, .3); padding: 10px; background: white;" alt="CLEAR Learning Logo"></div>
+  <div>
+    <h1>CLEAR Learning Module Evaluation Report Generator</h1>
+    <p>Filter, analyze, and export module evaluation data</p>
+  </div>
+</div>
+
+<div class="container">
+
+	<div class="instructions">
+		<h2 style="font-size: 1.5rem;">Instructions</h2>
+		<ol style="color: #000000;">
+			<li>Open the <strong>CLEARLearning-ModSM.xlsx File</strong> located <a href="ms-excel:ofe|u|https://clearorg-my.sharepoint.com/:x:/g/personal/avance_clearhq_org/IQBuOcUKZ9pESbW3QqV1VotlARBY8LjbWR7Kc536ARCWArw?e=9DyXR6" rel="noopener noreferrer" target="_blank">here</a>.</li>
+			<li>Save the file to a local folder on your device</li>
+			<li>Open the file folder in a file browser and drag the file to the upload zone below</li>
+		</ol>
+		<h3 style="margin: 20px auto; text-align: center; color: #64092c;">PLEASE DO NOT OPEN OR CHANGE THE EXCEL FILE</h3>
+		<p style="font-size: .9rem; color: #000000;">Once you have uploaded the file, use the report filters to display the data you wish to pull from the file. Once you have the report the way you want it, you can export either a <strong>PDF</strong> or an <strong>Excel</strong> file.</p>
+	</div>
+
+  <div class="upload-zone" id="uploadZone">
+    <div class="upload-icon">📊</div>
+    <h3>Drop your Excel file here or click to browse</h3>
+    <p>Accepts .xlsx files &mdash; data will be read from the &ldquo;Sheet1&rdquo; tab</p>
+    <input type="file" id="fileInput" accept=".xlsx,.xls">
+  </div>
+
+  <div class="filters-panel" id="filtersPanel">
+    <div class="filters-title"><h2>⚙ Report Filters</h2></div>
+    <div class="instructions" style="background: #FFFDF9;"><p style="line-height: 1.5; font-size: .9rem; color: #000;"><strong>Note:</strong> To create a report that will be used to update the Master Instructor Report you <strong>MUST</strong> provide the Instructor Name and Cohort Name. Populate as many of the filters below as possible; the more specific you are, the better data you will recieve.</p></div>
+    <div class="filters-grid">
+      <div class="filter-group">
+        <label>Course</label>
+        <select id="filterCourse"><option value="">All Courses</option></select>
+      </div>
+      <div class="filter-group">
+        <label>Version</label>
+        <select id="filterVersion"><option value="">All Versions</option></select>
+      </div>
+      <div class="filter-group">
+        <label>Method</label>
+        <select id="filterMethod"><option value="">All Methods</option></select>
+      </div>
+      <div class="filter-group">
+        <label>Module</label>
+        <div class="multi-select" id="moduleMultiSelect">
+          <button type="button" class="multi-select-toggle" id="moduleToggle">
+            <span class="placeholder">All Modules</span>
+          </button>
+          <div class="multi-select-dropdown" id="moduleDropdown">
+            <div id="moduleOptions"></div>
+            <div class="ms-actions">
+              <button type="button" onclick="msSelectAll()">Select All</button>
+              <button type="button" onclick="msClearAll()">Clear All</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="filter-group">
+        <label>Start Date (From)</label>
+        <input type="date" id="filterDateFrom">
+      </div>
+      <div class="filter-group">
+        <label>Start Date (To)</label>
+        <input type="date" id="filterDateTo">
+      </div>
+      <div class="filter-group">
+        <label>Instructor Name</label>
+        <select id="instructorSelect" onchange="handleInstructorChange()">
+          <option value="">— Select Instructor —</option>
+          <option value="Anderegg, Karen">Anderegg, Karen</option>
+          <option value="Barton, Andrew">Barton, Andrew</option>
+          <option value="Betteridge, Lise">Betteridge, Lise</option>
+          <option value="Chambers, Sarah">Chambers, Sarah</option>
+          <option value="Cooley, Mandi">Cooley, Mandi</option>
+          <option value="Crumley, John">Crumley, John</option>
+          <option value="Curley, Stephen">Curley, Stephen</option>
+          <option value="deFoy, Carmen">deFoy, Carmen</option>
+          <option value="Deforest, Denise">Deforest, Denise</option>
+          <option value="DeLuca, Ryan">DeLuca, Ryan</option>
+          <option value="DeSousa, Lisa">DeSousa, Lisa</option>
+          <option value="Eichrodt, Sean">Eichrodt, Sean</option>
+          <option value="Erikson, Marcus">Erikson, Marcus</option>
+          <option value="Jenkins, Robin">Jenkins, Robin</option>
+          <option value="Kay, David">Kay, David</option>
+          <option value="Keirstead, Graeme">Keirstead, Graeme</option>
+          <option value="Pfiefer, Judy">Pfiefer, Judy</option>
+          <option value="Robinson, Jan">Robinson, Jan</option>
+          <option value="Salvatori, Michael">Salvatori, Michael</option>
+          <option value="Stansfield, Katherine">Stansfield, Katherine</option>
+          <option value="Thibert, Lena">Thibert, Lena</option>
+          <option value="Thompson, David (Eric)">Thompson, David (Eric)</option>
+          <option value="Thompson-May, Brett">Thompson-May, Brett</option>
+          <option value="Verge, Vicki">Verge, Vicki</option>
+          <option value="Wade, Amigo">Wade, Amigo</option>
+          <option value="Wilkie, Kathy">Wilkie, Kathy</option>
+          <option value="Williams, Deanna">Williams, Deanna</option>
+          <option value="_OTHER_">Other (type new name)</option>
+        </select>
+        <input type="text" id="instructorOther" placeholder="Type new instructor name" style="display:none; margin-top: 6px;">
+      </div>
+      <div class="filter-group">
+        <label>Cohort Name</label>
+        <input type="text" id="cohortName" placeholder="e.g. 2026 01 NCIT B US Open">
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="generateReport()">Generate Report</button>
+      <button class="btn btn-secondary" onclick="resetFilters()">Reset Filters</button>
+      <span class="filter-summary" id="filterSummary"></span>
+    </div>
+  </div>
+
+  <div class="export-bar" id="exportBar" style="flex-direction: column; align-items: flex-start;">
+    <div style="width: 100%;">
+      <h2 style="margin: 20px auto; text-align: left !important; color: #64092c;">Next Steps:</h2>
+      <div class="instructions">
+        <ol>
+          <li>Review the report below and remove any comments you do not wish to include.</li>
+          <li>Click the <strong>Download the PDF</strong> button to generate the file you will send to the instructor.</li>
+          <li>Click the <strong>Download XLSX</strong> to generage the file you will use to update the master instructor file.</li>
+          <li>Click the <strong>Update Master Instructor file</strong> button to navigate to the next step.</li>
+        </ol>
+      </div>
+      <div style="display: flex; gap: 20px;">
+        <button class="btn btn-export" onclick="exportPDF()">📄 Download PDF</button>
+        <button class="btn btn-export" onclick="exportXLSX()">📗 Download XLSX</button>
+        <a href="https://clearlearning.github.io/about/EvalDataUpdater.html" rel="noopener noreferrer" target="_blank" style=" text-decoration: none;" class="btn btn-export">🔗 Update Master Instructor File</a> 
+      </div> 
+    </div>
+  </div>
+
+  <div class="report-section" id="reportSection">
+    <div id="reportContent"></div>
+  </div>
+</div>
+
+<script>
+	let allData = [];
+  const ratingCols = [
+    'The instructor was',
+    'The style of delivery was',
+    'The content of this module was',
+    'The amount of material covered was',
+    'The usefulness of this session was'
+  ];
+  const shortLabels = ['Instructor', 'Style', 'Content', 'Coverage', 'Usefulness'];
+  let lastReportData = null;
+  let selectedModules = new Set();
+  let allModuleValues = [];
+
+  // ---- INSTRUCTOR DROPDOWN ----
+  function handleInstructorChange() {
+    const sel = document.getElementById('instructorSelect');
+    const other = document.getElementById('instructorOther');
+    if (sel.value === '_OTHER_') {
+      other.style.display = 'block';
+      other.focus();
+    } else {
+      other.style.display = 'none';
+      other.value = '';
+    }
+  }
+
+  function getInstructorName() {
+    const sel = document.getElementById('instructorSelect');
+    if (sel.value === '_OTHER_') {
+      return document.getElementById('instructorOther').value.trim();
+    }
+    return sel.value || '';
+  }
+
+  function getCohortName() {
+    return document.getElementById('cohortName').value.trim();
+  }
+
+  // ---- FILE LOADING ----
+  const uploadZone = document.getElementById('uploadZone');
+  const fileInput = document.getElementById('fileInput');
+
+  uploadZone.addEventListener('dragover', e => {
+    e.preventDefault(); uploadZone.classList.add('dragover');
+  });
+  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+  uploadZone.addEventListener('drop', e => {
+    e.preventDefault(); uploadZone.classList.remove('dragover');
+    if (e.dataTransfer.files.length) loadFile(e.dataTransfer.files[0]);
+  });
+  fileInput.addEventListener('change', e => {
+    if (e.target.files.length) loadFile(e.target.files[0]);
+  });
+
+  function loadFile(file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const wb = XLSX.read(e.target.result, { type: 'array', cellDates: true });
+
+        let sheetName = null;
+        if (wb.SheetNames.includes('Sheet1')) {
+          sheetName = 'Sheet1';
+        } else {
+          const match = wb.SheetNames.find(n => n.toLowerCase().trim() === 'sheet1');
+          if (match) {
+            sheetName = match;
+          } else {
+            alert('Could not find a "Sheet1" tab in this workbook.\n\nAvailable tabs: ' + wb.SheetNames.join(', '));
+            return;
+          }
+        }
+
+        const ws = wb.Sheets[sheetName];
+        const json = XLSX.utils.sheet_to_json(ws, { defval: '' });
+
+        if (!json.length) {
+          alert('"Sheet1" appears to be empty. Please check your file.');
+          return;
+        }
+
+        allData = json.map(row => {
+          let startDate = null;
+          const raw = row['Start Date'];
+          if (raw instanceof Date) {
+            startDate = raw;
+          } else if (typeof raw === 'string' && raw.length >= 10) {
+            startDate = new Date(raw);
+            if (isNaN(startDate.getTime())) startDate = null;
+          }
+
+          const ratings = {};
+          ratingCols.forEach(col => {
+            const v = parseFloat(row[col]);
+            ratings[col] = (!isNaN(v) && v >= 0 && v <= 5) ? v : null;
+          });
+
+          return {
+            ...row,
+            _startDate: startDate,
+            _ratings: ratings,
+            _course: String(row['course'] || '').trim(),
+            _version: String(row['version'] || '').trim(),
+            _method: String(row['method'] || '').trim(),
+            _module: String(row['module_name'] || '').trim(),
+            _comment: String(row['Q2'] || '').trim()
+          };
+        });
+
+        showLoadedState(file.name, allData.length);
+        populateFilters();
+        document.getElementById('filtersPanel').classList.add('visible');
+      } catch (err) {
+        alert('Error reading file: ' + err.message);
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
+  function showLoadedState(name, count) {
+    uploadZone.classList.add('loaded');
+    uploadZone.innerHTML = `
+      <div class="loaded-info">
+        <span class="check">&#10003;</span>
+        <span class="filename">${escapeHtml(name)}</span>
+        <button class="reload-btn" onclick="resetAll()">Load Different File</button>
+      </div>`;
+  }
+
+  function resetAll() {
+    allData = [];
+    lastReportData = null;
+    selectedModules.clear();
+    allModuleValues = [];
+    uploadZone.classList.remove('loaded');
+    uploadZone.innerHTML = `
+      <div class="upload-icon">📊</div>
+      <h3>Drop your Excel file here or click to browse</h3>
+      <p>Accepts .xlsx files &mdash; data will be read from the &ldquo;Sheet1&rdquo; tab</p>
+      <input type="file" id="fileInput" accept=".xlsx,.xls">`;
+    document.getElementById('fileInput').addEventListener('change', e => {
+      if (e.target.files.length) loadFile(e.target.files[0]);
+    });
+    document.getElementById('filtersPanel').classList.remove('visible');
+    document.getElementById('reportSection').classList.remove('visible');
+    document.getElementById('exportBar').classList.remove('visible');
+  }
+
+  // ---- MULTI-SELECT MODULE DROPDOWN ----
+  const moduleToggle = document.getElementById('moduleToggle');
+  const moduleDropdown = document.getElementById('moduleDropdown');
+
+  moduleToggle.addEventListener('click', (e) => {
+    e.stopPropagation();
+    moduleDropdown.classList.toggle('open');
+    moduleToggle.classList.toggle('open');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!document.getElementById('moduleMultiSelect').contains(e.target)) {
+      moduleDropdown.classList.remove('open');
+      moduleToggle.classList.remove('open');
+    }
+  });
+
+  function buildModuleOptions(values) {
+    const container = document.getElementById('moduleOptions');
+    container.innerHTML = '';
+    values.forEach((v, i) => {
+      const div = document.createElement('div');
+      div.className = 'ms-option';
+      const id = 'ms_mod_' + i;
+      div.innerHTML = `<input type="checkbox" id="${id}" value="${escapeHtml(v)}" ${selectedModules.has(v) ? 'checked' : ''}>
+        <label for="${id}">${escapeHtml(v)}</label>`;
+      div.querySelector('input').addEventListener('change', function() {
+        if (this.checked) {
+          selectedModules.add(v);
+        } else {
+          selectedModules.delete(v);
+        }
+        updateModuleToggleLabel();
+      });
+      container.appendChild(div);
+    });
+  }
+
+  function updateModuleToggleLabel() {
+    const toggle = document.getElementById('moduleToggle');
+    if (selectedModules.size === 0 || selectedModules.size === allModuleValues.length) {
+      toggle.innerHTML = '<span class="placeholder">All Modules</span>';
+    } else if (selectedModules.size <= 3) {
+      toggle.textContent = [...selectedModules].sort().join(', ');
+    } else {
+      toggle.textContent = selectedModules.size + ' modules selected';
+    }
+  }
+
+  function msSelectAll() {
+    allModuleValues.forEach(v => selectedModules.add(v));
+    document.querySelectorAll('#moduleOptions input[type="checkbox"]').forEach(cb => cb.checked = true);
+    updateModuleToggleLabel();
+  }
+
+  function msClearAll() {
+    selectedModules.clear();
+    document.querySelectorAll('#moduleOptions input[type="checkbox"]').forEach(cb => cb.checked = false);
+    updateModuleToggleLabel();
+  }
+
+  // ---- FILTERS ----
+  function populateFilters() {
+    populateSelect('filterCourse', [...new Set(allData.map(r => r._course).filter(Boolean))].sort());
+    populateSelect('filterVersion', [...new Set(allData.map(r => r._version).filter(Boolean))].sort());
+    populateSelect('filterMethod', [...new Set(allData.map(r => r._method).filter(Boolean))].sort());
+
+    allModuleValues = [...new Set(allData.map(r => r._module).filter(Boolean))].sort();
+    selectedModules.clear();
+    buildModuleOptions(allModuleValues);
+    updateModuleToggleLabel();
+  }
+
+  function populateSelect(id, values) {
+    const sel = document.getElementById(id);
+    const current = sel.value;
+    const label = sel.options[0].text;
+    sel.innerHTML = `<option value="">${label}</option>`;
+    values.forEach(v => {
+      const opt = document.createElement('option');
+      opt.value = v; opt.textContent = v;
+      sel.appendChild(opt);
+    });
+    sel.value = current;
+  }
+
+  function resetFilters() {
+    ['filterCourse','filterVersion','filterMethod','filterDateFrom','filterDateTo','cohortName']
+      .forEach(id => document.getElementById(id).value = '');
+    document.getElementById('instructorSelect').value = '';
+    document.getElementById('instructorOther').value = '';
+    document.getElementById('instructorOther').style.display = 'none';
+    selectedModules.clear();
+    document.querySelectorAll('#moduleOptions input[type="checkbox"]').forEach(cb => cb.checked = false);
+    updateModuleToggleLabel();
+    document.getElementById('reportSection').classList.remove('visible');
+    document.getElementById('exportBar').classList.remove('visible');
+    document.getElementById('filterSummary').textContent = '';
+  }
+
+  function getFilteredData() {
+    const course = document.getElementById('filterCourse').value;
+    const version = document.getElementById('filterVersion').value;
+    const method = document.getElementById('filterMethod').value;
+    const dateFrom = document.getElementById('filterDateFrom').value;
+    const dateTo = document.getElementById('filterDateTo').value;
+
+    const useModuleFilter = selectedModules.size > 0 && selectedModules.size < allModuleValues.length;
+
+    return allData.filter(row => {
+      if (!row._module) return false;
+      if (course && row._course !== course) return false;
+      if (version && row._version !== version) return false;
+      if (method && row._method !== method) return false;
+      if (useModuleFilter && !selectedModules.has(row._module)) return false;
+      if (dateFrom && row._startDate) {
+        if (row._startDate < new Date(dateFrom + 'T00:00:00')) return false;
+      }
+      if (dateFrom && !row._startDate) return false;
+      if (dateTo && row._startDate) {
+        if (row._startDate > new Date(dateTo + 'T23:59:59')) return false;
+      }
+      if (dateTo && !row._startDate) return false;
+      return true;
+    });
+  }
+
+  // ---- REPORT ----
+  function generateReport() {
+    const filtered = getFilteredData();
+
+    document.getElementById('filterSummary').textContent =
+      `${filtered.length} response${filtered.length !== 1 ? 's' : ''} match your filters`;
+
+    if (!filtered.length) {
+      document.getElementById('reportContent').innerHTML = `
+        <div class="report-card"><div class="report-card-body">
+          <div class="empty-state">
+            <div class="icon">🔍</div>
+            <h3>No responses match these filters</h3>
+            <p>Try adjusting your criteria or date range.</p>
+          </div>
+        </div></div>`;
+      document.getElementById('reportSection').classList.add('visible');
+      document.getElementById('exportBar').classList.remove('visible');
+      return;
+    }
+
+    // Group by module
+    const modules = {};
+    filtered.forEach(row => {
+      const m = row._module;
+      if (!modules[m]) modules[m] = [];
+      modules[m].push(row);
+    });
+    const moduleNames = Object.keys(modules).sort();
+
+    // Build table data
+    const tableRows = [];
+    let grandTotals = ratingCols.map(() => ({ sum: 0, count: 0 }));
+
+    moduleNames.forEach(mod => {
+      const rows = modules[mod];
+      const avgs = ratingCols.map((col, i) => {
+        const valid = rows.map(r => r._ratings[col]).filter(v => v !== null);
+        const avg = valid.length ? valid.reduce((a, b) => a + b, 0) / valid.length : null;
+        if (valid.length) {
+          grandTotals[i].sum += valid.reduce((a, b) => a + b, 0);
+          grandTotals[i].count += valid.length;
+        }
+        return avg;
+      });
+      const allValid = avgs.filter(v => v !== null);
+      const overall = allValid.length ? allValid.reduce((a, b) => a + b, 0) / allValid.length : null;
+      tableRows.push({ module: mod, count: rows.length, avgs, overall });
+    });
+
+    const grandAvgs = grandTotals.map(t => t.count ? t.sum / t.count : null);
+    const grandValidAvgs = grandAvgs.filter(v => v !== null);
+    const grandOverall = grandValidAvgs.length
+      ? grandValidAvgs.reduce((a, b) => a + b, 0) / grandValidAvgs.length : null;
+
+    // Collect meaningful comments
+    const comments = [];
+    filtered.forEach(row => {
+      const c = row._comment;
+      if (c && c !== '-' && c !== '.' && c !== '—' && c !== '–' && c.length > 1) {
+        comments.push({
+          module: row._module,
+          date: row._startDate
+            ? row._startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+            : '',
+          text: c
+        });
+      }
+    });
+
+    // Store for export
+    const instructorName = getInstructorName();
+    const cohortName = getCohortName();
+    const metadata = {
+      instructor: instructorName,
+      cohort: cohortName,
+      course: document.getElementById('filterCourse').value || 'All',
+      version: document.getElementById('filterVersion').value || 'All',
+      method: document.getElementById('filterMethod').value || 'All',
+      modules: (selectedModules.size > 0 && selectedModules.size < allModuleValues.length)
+        ? [...selectedModules].sort().join(', ')
+        : 'All',
+      dateFrom: document.getElementById('filterDateFrom').value || '',
+      dateTo: document.getElementById('filterDateTo').value || '',
+      generatedDate: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+    };
+    lastReportData = {
+      tableRows, grandAvgs, grandOverall, comments,
+      totalResponses: filtered.length,
+      instructorName,
+      cohortName,
+      metadata
+    };
+
+    // ---- RENDER SCORES TABLE ----
+    let html = '';
+    if (instructorName || cohortName) {
+      html += `<div style="background: var(--white); border-radius: 12px; padding: 16px 28px; margin-bottom: 16px; box-shadow: var(--shadow); display: flex; align-items: center; gap: 24px; flex-wrap: wrap;">`;
+      if (instructorName) {
+        html += `<div><span style="font-size: 13px; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px;">Instructor:</span> <span style="font-size: 16px; font-weight: 700; color: var(--burgundy);">${escapeHtml(instructorName)}</span></div>`;
+      }
+      if (cohortName) {
+        html += `<div><span style="font-size: 13px; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px;">Cohort:</span> <span style="font-size: 16px; font-weight: 700; color: var(--blue);">${escapeHtml(cohortName)}</span></div>`;
+      }
+      html += `</div>`;
+    }
+    html += `
+      <div class="report-card">
+        <div class="report-card-header">📊 Evaluation Scores by Module</div>
+        <div class="report-card-body">
+          <table id="scoresTable">
+            <thead><tr>
+              <th>Module</th>
+              <th>Responses</th>
+              ${shortLabels.map(l => `<th>${l}</th>`).join('')}
+              <th>Overall Avg</th>
+            </tr></thead>
+            <tbody>`;
+
+    tableRows.forEach(row => {
+      html += `<tr>
+        <td>${escapeHtml(row.module)}</td>
+        <td>${row.count}</td>
+        ${row.avgs.map(a => `<td>${scoreBadge(a)}</td>`).join('')}
+        <td>${scoreBadge(row.overall)}</td>
+      </tr>`;
+    });
+
+    html += `<tr class="overall-row">
+      <td>All Modules</td>
+      <td>${filtered.length}</td>
+      ${grandAvgs.map(a => `<td>${scoreBadge(a)}</td>`).join('')}
+      <td>${scoreBadge(grandOverall)}</td>
+    </tr>`;
+    html += `</tbody></table></div></div>`;
+
+    // ---- RENDER COMMENTS TABLE WITH CHECKBOXES ----
+    if (comments.length) {
+      html += `
+        <div class="report-card">
+          <div class="report-card-header" style="flex-direction: column; align-items: flex-start;">💬 Open-Ended Comments (${comments.length})<div style="font-weight: 500; margin-top: 15px;"><strong>Note:</strong> To remove a comment from the report, de-select the checkbox to the left of the comment. Only checked comments will be included in the PDF or Excel download.</div></div>
+          <div class="report-card-body">
+            <table class="comments-table" id="commentsTable">
+              <thead><tr>
+                <th class="cb-col"><input type="checkbox" id="toggleAllComments" checked title="Include/exclude all"></th>
+                <th style="text-align:left">Module</th>
+                <th>Date</th>
+                <th style="text-align:left">Comment</th>
+              </tr></thead>
+              <tbody>`;
+      comments.forEach((c, i) => {
+        html += `<tr id="commentRow${i}">
+          <td class="cb-col"><input type="checkbox" class="comment-cb" data-index="${i}" checked></td>
+          <td>${escapeHtml(c.module)}</td>
+          <td>${c.date}</td>
+          <td>${escapeHtml(c.text)}</td>
+        </tr>`;
+      });
+      html += `</tbody></table></div></div>`;
+    } else {
+      html += `
+        <div class="report-card">
+          <div class="report-card-header">💬 Open-Ended Comments</div>
+          <div class="report-card-body">
+            <div class="empty-state" style="padding:30px">
+              <p>No comments found for this selection.</p>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    document.getElementById('reportContent').innerHTML = html;
+    document.getElementById('reportSection').classList.add('visible');
+    document.getElementById('exportBar').classList.add('visible');
+
+    // ---- WIRE UP COMMENT CHECKBOXES ----
+    const toggleAll = document.getElementById('toggleAllComments');
+    if (toggleAll) {
+      toggleAll.addEventListener('change', function() {
+        document.querySelectorAll('.comment-cb').forEach(cb => {
+          cb.checked = this.checked;
+          const row = document.getElementById('commentRow' + cb.dataset.index);
+          row.classList.toggle('comment-excluded', !cb.checked);
+        });
+      });
+      document.querySelectorAll('.comment-cb').forEach(cb => {
+        cb.addEventListener('change', function() {
+          const row = document.getElementById('commentRow' + this.dataset.index);
+          row.classList.toggle('comment-excluded', !this.checked);
+          const allCbs = document.querySelectorAll('.comment-cb');
+          const allChecked = [...allCbs].every(c => c.checked);
+          const noneChecked = [...allCbs].every(c => !c.checked);
+          toggleAll.checked = allChecked;
+          toggleAll.indeterminate = !allChecked && !noneChecked;
+        });
+      });
+    }
+  }
+
+  function scoreBadge(val) {
+    if (val === null) return '<span class="score-badge score-na">N/A</span>';
+    const d = val.toFixed(2);
+    if (val >= 3.5) return `<span class="score-badge score-high">${d}</span>`;
+    if (val >= 2.5) return `<span class="score-badge score-mid">${d}</span>`;
+    return `<span class="score-badge score-low">${d}</span>`;
+  }
+
+  function escapeHtml(str) {
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  function getFilterText() {
+    const parts = [];
+    const fc = document.getElementById('filterCourse').value;
+    const fv = document.getElementById('filterVersion').value;
+    const fm = document.getElementById('filterMethod').value;
+    const fd1 = document.getElementById('filterDateFrom').value;
+    const fd2 = document.getElementById('filterDateTo').value;
+    if (fc) parts.push('Course: ' + fc);
+    if (fv) parts.push('Version: ' + fv);
+    if (fm) parts.push('Method: ' + fm);
+    if (selectedModules.size > 0 && selectedModules.size < allModuleValues.length) {
+      parts.push('Modules: ' + [...selectedModules].sort().join(', '));
+    }
+    if (fd1) parts.push('From: ' + fd1);
+    if (fd2) parts.push('To: ' + fd2);
+    const inst = getInstructorName();
+    if (inst) parts.push('Instructor: ' + inst);
+    const coh = getCohortName();
+    if (coh) parts.push('Cohort: ' + coh);
+    return parts.length ? parts.join('  |  ') : 'None (all data)';
+  }
+
+  // Helper: get only the checked comments for export
+  function getIncludedComments() {
+    if (!lastReportData || !lastReportData.comments.length) return [];
+    return lastReportData.comments.filter((c, i) => {
+      const cb = document.querySelector(`.comment-cb[data-index="${i}"]`);
+      return cb ? cb.checked : true;
+    });
+  }
+
+  // ==========================
+  // EXPORT: PDF
+  // ==========================
+  function exportPDF() {
+    if (!lastReportData) return;
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+    const pageW = doc.internal.pageSize.getWidth();
+
+    doc.setFillColor(100, 9, 44);
+    doc.rect(0, 0, pageW, 22, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text(lastReportData.instructorName
+      ? 'Evaluation Report — ' + lastReportData.instructorName
+      : 'Evaluation Report', 14, 14);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Generated ' + new Date().toLocaleDateString('en-US', {
+      year: 'numeric', month: 'long', day: 'numeric'
+    }), pageW - 14, 14, { align: 'right' });
+
+    doc.setTextColor(72, 72, 72);
+    doc.setFontSize(10);
+    let pdfY = 30;
+    if (lastReportData.instructorName) {
+      doc.setFont('helvetica', 'bold');
+      doc.text('Instructor: ' + lastReportData.instructorName, 14, pdfY);
+      pdfY += 6;
+      doc.setFont('helvetica', 'normal');
+    }
+    if (lastReportData.cohortName) {
+      doc.setFont('helvetica', 'bold');
+      doc.text('Cohort: ' + lastReportData.cohortName, 14, pdfY);
+      pdfY += 6;
+      doc.setFont('helvetica', 'normal');
+    }
+    doc.text('Filters: ' + getFilterText(), 14, pdfY);
+    doc.text('Total Responses: ' + lastReportData.totalResponses, 14, pdfY + 6);
+
+    const head = [['Module', 'Responses', ...shortLabels, 'Overall Avg']];
+    const body = lastReportData.tableRows.map(r => [
+      r.module, r.count,
+      ...r.avgs.map(a => a !== null ? a.toFixed(2) : 'N/A'),
+      r.overall !== null ? r.overall.toFixed(2) : 'N/A'
+    ]);
+    body.push([
+      'All Modules', lastReportData.totalResponses,
+      ...lastReportData.grandAvgs.map(a => a !== null ? a.toFixed(2) : 'N/A'),
+      lastReportData.grandOverall !== null ? lastReportData.grandOverall.toFixed(2) : 'N/A'
+    ]);
+
+    doc.autoTable({
+      startY: pdfY + 14,
+      head, body,
+      styles: { fontSize: 9, cellPadding: 3 },
+      headStyles: { fillColor: [72, 72, 72], textColor: 255, fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: [249, 247, 244] },
+      didParseCell: function(data) {
+        if (data.row.index === body.length - 1) {
+          data.cell.styles.fontStyle = 'bold';
+          data.cell.styles.fillColor = [253, 246, 227];
+        }
+      }
+    });
+
+    const includedComments = getIncludedComments();
+    if (includedComments.length) {
+      let y = doc.lastAutoTable.finalY + 12;
+      if (y > doc.internal.pageSize.getHeight() - 30) {
+        doc.addPage(); y = 20;
+      }
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(100, 9, 44);
+      doc.text('Open-Ended Comments (' + includedComments.length + ')', 14, y);
+
+      doc.autoTable({
+        startY: y + 4,
+        head: [['Module', 'Date', 'Comment']],
+        body: includedComments.map(c => [c.module, c.date, c.text]),
+        styles: { fontSize: 8, cellPadding: 3 },
+        headStyles: { fillColor: [72, 72, 72], textColor: 255, fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [249, 247, 244] },
+        columnStyles: {
+          0: { cellWidth: 30 },
+          1: { cellWidth: 28 },
+          2: { cellWidth: 'auto', fontStyle: 'italic' }
+        }
+      });
+    }
+
+    const pdfFilename = lastReportData.instructorName
+      ? 'Evaluation_Report_' + lastReportData.instructorName.replace(/\s+/g, '_') + '.pdf'
+      : 'Evaluation_Report.pdf';
+    doc.save(pdfFilename);
+  }
+
+  // ==========================
+  // EXPORT: XLSX
+  // ==========================
+  function exportXLSX() {
+    if (!lastReportData) return;
+    const wb = XLSX.utils.book_new();
+
+    const scoresData = [];
+    const meta = lastReportData.metadata;
+    // Structured metadata block — Tool 2 reads these key-value rows
+    scoresData.push(['_META_INSTRUCTOR', meta.instructor || '']);
+    scoresData.push(['_META_COHORT', meta.cohort || '']);
+    scoresData.push(['_META_COURSE', meta.course]);
+    scoresData.push(['_META_VERSION', meta.version]);
+    scoresData.push(['_META_METHOD', meta.method]);
+    scoresData.push(['_META_MODULES', meta.modules]);
+    scoresData.push(['_META_DATE_FROM', meta.dateFrom]);
+    scoresData.push(['_META_DATE_TO', meta.dateTo]);
+    scoresData.push(['_META_GENERATED', meta.generatedDate]);
+    scoresData.push(['_META_RESPONSES', lastReportData.totalResponses]);
+    scoresData.push([]); // blank separator row
+    scoresData.push(['Module', 'Responses', ...shortLabels, 'Overall Avg']);
+    lastReportData.tableRows.forEach(r => {
+      scoresData.push([
+        r.module, r.count,
+        ...r.avgs.map(a => a !== null ? Math.round(a * 100) / 100 : ''),
+        r.overall !== null ? Math.round(r.overall * 100) / 100 : ''
+      ]);
+    });
+    scoresData.push([
+      'All Modules', lastReportData.totalResponses,
+      ...lastReportData.grandAvgs.map(a => a !== null ? Math.round(a * 100) / 100 : ''),
+      lastReportData.grandOverall !== null ? Math.round(lastReportData.grandOverall * 100) / 100 : ''
+    ]);
+
+    const ws1 = XLSX.utils.aoa_to_sheet(scoresData);
+    ws1['!cols'] = [
+      { wch: 16 }, { wch: 12 }, { wch: 14 }, { wch: 14 },
+      { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 14 }
+    ];
+    XLSX.utils.book_append_sheet(wb, ws1, 'Scores');
+
+    const includedComments = getIncludedComments();
+    const commentsData = [['Module', 'Date', 'Comment']];
+    includedComments.forEach(c => {
+      commentsData.push([c.module, c.date, c.text]);
+    });
+    const ws2 = XLSX.utils.aoa_to_sheet(commentsData);
+    ws2['!cols'] = [{ wch: 16 }, { wch: 14 }, { wch: 60 }];
+    XLSX.utils.book_append_sheet(wb, ws2, 'Comments');
+
+    const xlsxFilename = lastReportData.instructorName
+      ? 'Evaluation_Report_' + lastReportData.instructorName.replace(/\s+/g, '_') + '.xlsx'
+      : 'Evaluation_Report.xlsx';
+    XLSX.writeFile(wb, xlsxFilename);
+  }
+</script>
+
+</body>
+</html>
