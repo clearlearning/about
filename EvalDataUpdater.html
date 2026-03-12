@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CLEAR Learning Master Instructor File Updater</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
+
+  :root {
+    --burgundy: #64092c;
+    --burgundy-light: #8a1e4a;
+    --gold: #dda838;
+    --gold-light: #f0c95c;
+    --blue: #084d78;
+    --charcoal: #484848;
+    --light-bg: #f7f5f2;
+    --white: #ffffff;
+    --border: #e0dcd6;
+    --text: #333333;
+    --text-light: #6b6b6b;
+    --success: #2e7d4f;
+    --danger: #c62828;
+    --shadow: 0 2px 12px rgba(100, 9, 44, 0.08);
+    --shadow-lg: 0 8px 32px rgba(100, 9, 44, 0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Open Sans', sans-serif;
+    background: var(--light-bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  .header {
+    background: linear-gradient(135deg, var(--blue) 0%, #0a6191 100%);
+    color: var(--white);
+    padding: 28px 40px;
+    display: flex; align-items: center; gap: 20px;
+    box-shadow: 0 4px 20px rgba(8, 77, 120, 0.25);
+  }
+  .header-icon {
+    width: 100px; height: 48px;
+    background: transparent;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .header h1 { font-size: 24px; font-weight: 700; letter-spacing: 0.5px; }
+  .header p { font-size: 13px; opacity: 0.85; margin-top: 2px; }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 40px 60px;
+  }
+
+  /* INSTRUCTIONS */
+  .instructions {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 24px 32px;
+    box-shadow: var(--shadow);
+    margin-bottom: 28px;
+    border-left: 4px solid var(--gold);
+  }
+  .instructions h2 {
+    font-size: 1.5rem; font-weight: 700;
+    color: var(--blue); margin-bottom: 14px;
+  }
+  .instructions ol {
+    margin: 0 0 16px 20px;
+    font-size: 14px; line-height: 1.8; color: #000;
+  }
+  .instructions p {
+    font-size: .9rem; color: #000; line-height: 1.6;
+  }
+
+  /* STEP CARDS */
+  .step-card {
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .step-header {
+    padding: 16px 28px;
+    font-size: 15px; font-weight: 700;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .step-header .step-num {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; color: var(--white);
+    flex-shrink: 0;
+  }
+  .step-1 .step-header { background: linear-gradient(135deg, var(--burgundy) 0%, var(--burgundy-light) 100%); color: var(--white); }
+  .step-1 .step-num { background: rgba(255,255,255,0.25); }
+  .step-2 .step-header { background: linear-gradient(135deg, var(--blue) 0%, #0a6191 100%); color: var(--white); }
+  .step-2 .step-num { background: rgba(255,255,255,0.25); }
+  .step-body { padding: 24px 28px; }
+
+  /* UPLOAD AREAS */
+  .upload-area {
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+    padding: 32px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    position: relative;
+  }
+  .upload-area:hover, .upload-area.dragover {
+    border-color: var(--gold);
+    background: #fffdf5;
+  }
+  .upload-area.loaded {
+    border-color: var(--success);
+    border-style: solid;
+    background: #f4faf6;
+    padding: 16px 24px;
+    cursor: default;
+  }
+  .upload-area .icon { font-size: 32px; margin-bottom: 8px; }
+  .upload-area h4 { font-size: 14px; color: var(--charcoal); margin-bottom: 4px; }
+  .upload-area p { font-size: 12px; color: var(--text-light); }
+  .upload-area input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer;
+  }
+  .upload-area.loaded input[type="file"] { display: none; }
+
+  .loaded-info {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  }
+  .loaded-info .check { color: var(--success); font-size: 18px; font-weight: 700; }
+  .loaded-info .fname { font-weight: 600; color: var(--charcoal); font-size: 14px; }
+  .loaded-info .fdetail { color: var(--text-light); font-size: 12px; }
+  .change-btn {
+    background: none; border: 1px solid var(--border); border-radius: 6px;
+    padding: 4px 12px; font-size: 11px; color: var(--text-light);
+    cursor: pointer; margin-left: auto; transition: all 0.2s;
+  }
+  .change-btn:hover { border-color: var(--burgundy); color: var(--burgundy); }
+
+  /* REPORT FILE LIST */
+  .report-file-list {
+    margin-top: 16px;
+  }
+  .report-file-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    font-size: 13px;
+    background: #f9f7f4;
+    border: 1px solid var(--border);
+  }
+  .report-file-item.has-error {
+    background: #fce4ec;
+    border-color: #f8bbd0;
+  }
+  .rfi-icon { font-size: 16px; flex-shrink: 0; }
+  .rfi-name { font-weight: 600; color: var(--charcoal); }
+  .rfi-instructor { color: var(--burgundy); font-weight: 600; }
+  .rfi-detail { color: var(--text-light); font-size: 12px; }
+  .rfi-error { color: var(--danger); font-size: 12px; }
+  .rfi-remove {
+    background: none; border: none; color: var(--text-light);
+    cursor: pointer; font-size: 15px; margin-left: auto;
+    padding: 2px 6px; border-radius: 4px; transition: all 0.15s;
+  }
+  .rfi-remove:hover { background: #fce4ec; color: var(--danger); }
+
+  .add-more-row {
+    display: flex; gap: 12px; align-items: center;
+    margin-top: 12px;
+  }
+  .add-more-btn {
+    background: none; border: 1px solid var(--border); border-radius: 6px;
+    padding: 6px 16px; font-size: 12px; color: var(--text-light);
+    cursor: pointer; transition: all 0.2s;
+    font-family: 'Open Sans', sans-serif; font-weight: 600;
+    position: relative;
+  }
+  .add-more-btn:hover { border-color: var(--burgundy); color: var(--burgundy); }
+  .add-more-btn input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer;
+  }
+  .clear-all-btn {
+    background: none; border: 1px solid var(--danger); border-radius: 6px;
+    padding: 6px 16px; font-size: 12px; color: var(--danger);
+    cursor: pointer; transition: all 0.2s;
+    font-family: 'Open Sans', sans-serif; font-weight: 600;
+  }
+  .clear-all-btn:hover { background: #fce4ec; }
+
+  /* PREVIEW */
+  .preview-section {
+    overflow-x: auto;
+  }
+  .preview-group {
+    margin-bottom: 20px;
+  }
+  .preview-group-header {
+    font-size: 14px; font-weight: 700; color: var(--burgundy);
+    margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .preview-group-header .badge {
+    font-size: 11px; font-weight: 600;
+    padding: 2px 10px; border-radius: 10px;
+  }
+  .badge-match { background: #e8f5e9; color: #2e7d32; }
+  .badge-new { background: #e3f2fd; color: #1565c0; }
+  .preview-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+  .preview-table thead th {
+    background: #f9f7f4;
+    padding: 8px 12px;
+    font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    color: var(--text-light);
+    text-align: center;
+    border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+  }
+  .preview-table thead th:first-child { text-align: left; }
+  .preview-table tbody td {
+    padding: 8px 12px;
+    font-size: 13px;
+    text-align: center;
+    border-bottom: 1px solid #f0ede8;
+  }
+  .preview-table tbody td:first-child {
+    text-align: left; font-weight: 600; color: var(--burgundy);
+  }
+  .preview-table tbody tr:hover { background: #fdfcfa; }
+
+  /* ACTION AREA */
+  .action-card {
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 24px 28px;
+    margin-bottom: 24px;
+    display: none;
+  }
+  .action-card.visible { display: block; }
+
+  .action-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .action-stat {
+    text-align: center; padding: 14px;
+    background: #f9f7f4; border-radius: 8px;
+  }
+  .action-stat .num {
+    font-size: 24px; font-weight: 700; color: var(--blue); display: block;
+  }
+  .action-stat .lbl {
+    font-size: 10px; font-weight: 600; color: var(--text-light);
+    text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; display: block;
+  }
+
+  .btn {
+    padding: 12px 32px; border-radius: 8px; font-size: 14px;
+    font-weight: 600; font-family: 'Open Sans', sans-serif;
+    cursor: pointer; border: none; transition: all 0.2s;
+  }
+  .btn-success { background: var(--success); color: var(--white); }
+  .btn-success:hover { background: #256b40; box-shadow: var(--shadow); }
+  .btn-secondary { background: var(--white); color: var(--charcoal); border: 1px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--charcoal); }
+  .btn-row { display: flex; gap: 12px; align-items: center; }
+
+  .done-message {
+    display: none;
+    padding: 20px 24px;
+    background: #e8f5e9;
+    border: 1px solid #c8e6c9;
+    border-radius: 10px;
+    color: #2e7d32;
+    font-size: 14px;
+    margin-top: 16px;
+    text-align: center;
+  }
+  .done-message.visible { display: block; }
+  .done-message strong { display: block; font-size: 16px; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-icon"><img src="https://assets-002.noviams.com/novi-file-uploads/clear/graphics/CLEAR_Learning_New.png" style="width: 100px; height: auto; border-radius: 4px; box-shadow: 0 4px 8px rgba(0, 0, 0, .3); padding: 10px; background: white;" alt="CLEAR Learning Logo"></div>
+  <div>
+    <h1>Master Instructor File Updater</h1>
+    <p>Update the master instructor file with new evaluation data pulled from the Module Evaluation Report Generator</p>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="instructions">
+    <h2>Instructions</h2>
+    <ol style="line-height: 2;">
+      <li>Upload one or more <strong>evaluation report Excel files</strong> exported from the Report Generator in <span style="background: #64092c; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, .3); padding: 5px 15px; color: white;">Section 1</span> below. You can upload multiple files at once.</li>
+      <li>Upload the <strong>instructor master workbook</strong> (located <a href="https://clearorg.sharepoint.com/:f:/s/CLEARStaff/IgD1nJ1HiawSTrcxtrh7rR9cAYHw7kFhMKO2X6Fa3voW_VE?e=x4kYGN" rel="noopener noreferrer" target="_blank">here</a>) in <span style="background: #084d78; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, .3); padding: 5px 15px; color: white;">Section 2</span> below.</li>
+      <li>Review the data preview, then click <strong>Update &amp; Download</strong> to append all module scores to the correct instructor tabs and download the updated workbook.</li>
+    </ol>
+    <p><strong>Note:</strong> If an instructor doesn't have a tab in the master workbook yet, a new tab will be created automatically with the correct column headers. After you Update and Download the file, replace the existing workbook in this location with your new file.</p>
+  </div>
+
+  <!-- STEP 1: Report Files -->
+  <div class="step-card step-1">
+    <div class="step-header">
+      <span class="step-num">1</span>
+      Upload Evaluation Reports
+    </div>
+    <div class="step-body">
+      <div class="upload-area" id="reportUpload">
+        <div class="icon">📊</div>
+        <h4>Drop report Excel files here or click to browse</h4>
+        <p>Select one or more .xlsx files exported from the Evaluation Report Generator</p>
+        <input type="file" id="reportFileInput" accept=".xlsx,.xls" multiple>
+      </div>
+      <div id="reportFileList"></div>
+    </div>
+  </div>
+
+  <!-- STEP 2: Master Workbook -->
+  <div class="step-card step-2">
+    <div class="step-header">
+      <span class="step-num">2</span>
+      Upload Instructor Master Workbook
+    </div>
+    <div class="step-body">
+      <div class="upload-area" id="masterUpload">
+        <div class="icon">📁</div>
+        <h4>Drop the master workbook here or click to browse</h4>
+        <p>The .xlsx workbook with instructor tabs</p>
+        <input type="file" id="masterFileInput" accept=".xlsx,.xls">
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTION AREA -->
+  <div class="action-card" id="actionCard">
+    <div class="action-summary" id="actionSummary"></div>
+    <div class="preview-section" id="previewArea"></div>
+    <div class="btn-row" style="margin-top: 20px;">
+      <button class="btn btn-success" onclick="performUpdate()">✓ Update &amp; Download</button>
+      <button class="btn btn-secondary" onclick="resetAll()">Start Over</button>
+    </div>
+    <div class="done-message" id="doneMessage">
+      <strong>✓ Workbook Updated Successfully</strong>
+      <span id="doneDetail"></span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const HEADERS = [
+    'Cohort Name', 'Course', 'Version', 'Method', 'Module',
+    'Responses', 'Instructor', 'Style', 'Content', 'Coverage',
+    'Usefulness', 'Overall Module Average'
+  ];
+
+  let reportFiles = [];  // array of parsed report objects
+  let masterWB = null;
+  let masterFileName = '';
+
+  // ---- STEP 1: Report File Upload ----
+  const reportUpload = document.getElementById('reportUpload');
+  const reportFileInput = document.getElementById('reportFileInput');
+
+  reportUpload.addEventListener('dragover', e => { e.preventDefault(); reportUpload.classList.add('dragover'); });
+  reportUpload.addEventListener('dragleave', () => reportUpload.classList.remove('dragover'));
+  reportUpload.addEventListener('drop', e => {
+    e.preventDefault(); reportUpload.classList.remove('dragover');
+    if (e.dataTransfer.files.length) processReportFiles(e.dataTransfer.files);
+  });
+  reportFileInput.addEventListener('change', e => {
+    if (e.target.files.length) processReportFiles(e.target.files);
+    e.target.value = '';
+  });
+
+  function processReportFiles(fileList) {
+    const files = Array.from(fileList).filter(f => f.name.endsWith('.xlsx') || f.name.endsWith('.xls'));
+    if (!files.length) {
+      alert('Please select .xlsx files exported from the Evaluation Report Generator.');
+      return;
+    }
+
+    let loaded = 0;
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const result = parseReportFile(file.name, e.target.result);
+          reportFiles.push(result);
+        } catch (err) {
+          reportFiles.push({ fileName: file.name, error: 'Could not parse: ' + err.message });
+        }
+        loaded++;
+        if (loaded === files.length) {
+          renderReportList();
+          checkReady();
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    });
+  }
+
+  function parseReportFile(fileName, buffer) {
+    const wb = XLSX.read(buffer, { type: 'array' });
+    const wsName = wb.SheetNames.find(n => n === 'Scores') || wb.SheetNames[0];
+    const ws = wb.Sheets[wsName];
+    const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+
+    const meta = {};
+    let dataStartRow = 0;
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      if (typeof row[0] === 'string' && row[0].startsWith('_META_')) {
+        const key = row[0].replace('_META_', '').toLowerCase();
+        meta[key] = row[1] !== undefined ? String(row[1]) : '';
+      } else if (row[0] === 'Module' && row[1] === 'Responses') {
+        dataStartRow = i + 1;
+        break;
+      }
+    }
+
+    if (!meta.instructor) {
+      return { fileName, error: 'No instructor name found. Was this exported with an instructor name selected?' };
+    }
+
+    const moduleRows = [];
+    for (let i = dataStartRow; i < rows.length; i++) {
+      const r = rows[i];
+      const modName = String(r[0] || '').trim();
+      if (!modName || modName === 'All Modules') continue;
+      moduleRows.push({
+        module: modName,
+        responses: typeof r[1] === 'number' ? r[1] : parseInt(r[1]) || 0,
+        instructor: typeof r[2] === 'number' ? r[2] : parseFloat(r[2]) || null,
+        style: typeof r[3] === 'number' ? r[3] : parseFloat(r[3]) || null,
+        content: typeof r[4] === 'number' ? r[4] : parseFloat(r[4]) || null,
+        coverage: typeof r[5] === 'number' ? r[5] : parseFloat(r[5]) || null,
+        usefulness: typeof r[6] === 'number' ? r[6] : parseFloat(r[6]) || null,
+        overall: typeof r[7] === 'number' ? r[7] : parseFloat(r[7]) || null
+      });
+    }
+
+    if (!moduleRows.length) {
+      return { fileName, error: 'No module data found in this file.' };
+    }
+
+    return { fileName, meta, moduleRows, error: null };
+  }
+
+  function renderReportList() {
+    const container = document.getElementById('reportFileList');
+    if (!reportFiles.length) {
+      container.innerHTML = '';
+      return;
+    }
+
+    let html = '<div class="report-file-list">';
+    reportFiles.forEach((r, i) => {
+      if (r.error) {
+        html += `<div class="report-file-item has-error">
+          <span class="rfi-icon">⚠️</span>
+          <span class="rfi-name">${esc(r.fileName)}</span>
+          <span class="rfi-error">${esc(r.error)}</span>
+          <button class="rfi-remove" onclick="removeReport(${i})" title="Remove">✕</button>
+        </div>`;
+      } else {
+        html += `<div class="report-file-item">
+          <span class="rfi-icon">✓</span>
+          <span class="rfi-instructor">${esc(r.meta.instructor)}</span>
+          <span class="rfi-detail">${esc(r.meta.cohort || '')}${r.meta.cohort ? ' · ' : ''}${r.moduleRows.length} module(s)</span>
+          <span class="rfi-detail" style="color: var(--text-light);">${esc(r.fileName)}</span>
+          <button class="rfi-remove" onclick="removeReport(${i})" title="Remove">✕</button>
+        </div>`;
+      }
+    });
+
+    html += `</div>
+      <div class="add-more-row">
+        <label class="add-more-btn">➕ Add More Files<input type="file" id="addMoreInput" accept=".xlsx,.xls" multiple></label>
+        <button class="clear-all-btn" onclick="clearReports()">Clear All</button>
+      </div>`;
+
+    container.innerHTML = html;
+
+    document.getElementById('addMoreInput').addEventListener('change', e => {
+      if (e.target.files.length) processReportFiles(e.target.files);
+      e.target.value = '';
+    });
+
+    // Hide the original upload area once files are loaded
+    reportUpload.style.display = 'none';
+  }
+
+  function removeReport(idx) {
+    reportFiles.splice(idx, 1);
+    if (!reportFiles.length) {
+      reportUpload.style.display = '';
+      document.getElementById('actionCard').classList.remove('visible');
+    }
+    renderReportList();
+    checkReady();
+  }
+
+  function clearReports() {
+    reportFiles = [];
+    reportUpload.style.display = '';
+    document.getElementById('reportFileList').innerHTML = '';
+    document.getElementById('actionCard').classList.remove('visible');
+    document.getElementById('doneMessage').classList.remove('visible');
+  }
+
+  // ---- STEP 2: Master Workbook Upload ----
+  const masterUpload = document.getElementById('masterUpload');
+  const masterFileInput = document.getElementById('masterFileInput');
+
+  masterUpload.addEventListener('dragover', e => { e.preventDefault(); masterUpload.classList.add('dragover'); });
+  masterUpload.addEventListener('dragleave', () => masterUpload.classList.remove('dragover'));
+  masterUpload.addEventListener('drop', e => {
+    e.preventDefault(); masterUpload.classList.remove('dragover');
+    if (e.dataTransfer.files.length) loadMaster(e.dataTransfer.files[0]);
+  });
+  masterFileInput.addEventListener('change', e => {
+    if (e.target.files.length) loadMaster(e.target.files[0]);
+  });
+
+  function loadMaster(file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        masterWB = XLSX.read(e.target.result, { type: 'array' });
+        masterFileName = file.name;
+        showMasterLoaded();
+        checkReady();
+      } catch (err) {
+        alert('Error reading master workbook: ' + err.message);
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
+  function showMasterLoaded() {
+    const el = masterUpload;
+    el.classList.add('loaded');
+    const tabCount = masterWB.SheetNames.filter(n => n !== 'Master').length;
+    el.innerHTML = `
+      <div class="loaded-info">
+        <span class="check">✓</span>
+        <span class="fname">${esc(masterFileName)}</span>
+        <span class="fdetail">${tabCount} instructor tab(s)</span>
+        <button class="change-btn" onclick="resetMaster()">Change</button>
+      </div>`;
+  }
+
+  function resetMaster() {
+    masterWB = null;
+    masterFileName = '';
+    const el = masterUpload;
+    el.classList.remove('loaded');
+    el.innerHTML = `
+      <div class="icon">📁</div>
+      <h4>Drop the master workbook here or click to browse</h4>
+      <p>The .xlsx workbook with instructor tabs</p>
+      <input type="file" id="masterFileInput" accept=".xlsx,.xls">`;
+    document.getElementById('masterFileInput').addEventListener('change', e => {
+      if (e.target.files.length) loadMaster(e.target.files[0]);
+    });
+    document.getElementById('actionCard').classList.remove('visible');
+    document.getElementById('doneMessage').classList.remove('visible');
+  }
+
+  // ---- CHECK READY & BUILD PREVIEW ----
+  function checkReady() {
+    const validReports = reportFiles.filter(r => !r.error);
+    if (!validReports.length || !masterWB) {
+      document.getElementById('actionCard').classList.remove('visible');
+      return;
+    }
+
+    document.getElementById('doneMessage').classList.remove('visible');
+    const actionCard = document.getElementById('actionCard');
+    actionCard.classList.add('visible');
+
+    // Group reports by instructor
+    const grouped = {};
+    validReports.forEach(r => {
+      const name = r.meta.instructor;
+      if (!grouped[name]) grouped[name] = [];
+      grouped[name].push(r);
+    });
+
+    const instructorNames = Object.keys(grouped).sort();
+    let totalRows = 0;
+    let newTabs = 0;
+    let existingTabs = 0;
+
+    // Build preview
+    let previewHtml = '';
+    instructorNames.forEach(name => {
+      const reports = grouped[name];
+      const matchedTab = masterWB.SheetNames.find(
+        n => n.trim().toLowerCase() === name.trim().toLowerCase()
+      );
+
+      if (matchedTab) {
+        existingTabs++;
+        previewHtml += `<div class="preview-group">
+          <div class="preview-group-header">${esc(name)} <span class="badge badge-match">Existing tab</span></div>`;
+      } else {
+        newTabs++;
+        previewHtml += `<div class="preview-group">
+          <div class="preview-group-header">${esc(name)} <span class="badge badge-new">New tab</span></div>`;
+      }
+
+      previewHtml += `<table class="preview-table">
+        <thead><tr>
+          ${HEADERS.map(h => `<th>${h}</th>`).join('')}
+        </tr></thead>
+        <tbody>`;
+
+      reports.forEach(r => {
+        r.moduleRows.forEach(mod => {
+          totalRows++;
+          previewHtml += `<tr>
+            <td>${esc(r.meta.cohort || '')}</td>
+            <td>${esc(r.meta.course || '')}</td>
+            <td>${esc(r.meta.version || '')}</td>
+            <td>${esc(r.meta.method || '')}</td>
+            <td>${esc(mod.module)}</td>
+            <td>${mod.responses}</td>
+            <td>${fmtScore(mod.instructor)}</td>
+            <td>${fmtScore(mod.style)}</td>
+            <td>${fmtScore(mod.content)}</td>
+            <td>${fmtScore(mod.coverage)}</td>
+            <td>${fmtScore(mod.usefulness)}</td>
+            <td>${fmtScore(mod.overall)}</td>
+          </tr>`;
+        });
+      });
+
+      previewHtml += `</tbody></table></div>`;
+    });
+
+    // Summary stats
+    document.getElementById('actionSummary').innerHTML = `
+      <div class="action-stat"><span class="num">${validReports.length}</span><span class="lbl">Report File(s)</span></div>
+      <div class="action-stat"><span class="num">${instructorNames.length}</span><span class="lbl">Instructor(s)</span></div>
+      <div class="action-stat"><span class="num">${totalRows}</span><span class="lbl">Rows to Add</span></div>
+      <div class="action-stat"><span class="num">${existingTabs}</span><span class="lbl">Existing Tabs</span></div>
+      <div class="action-stat"><span class="num">${newTabs}</span><span class="lbl">New Tabs</span></div>
+    `;
+
+    document.getElementById('previewArea').innerHTML = previewHtml;
+  }
+
+  // ---- PERFORM UPDATE ----
+  function performUpdate() {
+    const validReports = reportFiles.filter(r => !r.error);
+    if (!validReports.length || !masterWB) return;
+
+    // Group by instructor
+    const grouped = {};
+    validReports.forEach(r => {
+      const name = r.meta.instructor;
+      if (!grouped[name]) grouped[name] = [];
+      grouped[name].push(r);
+    });
+
+    let totalRowsAdded = 0;
+    const tabsUpdated = [];
+    const tabsCreated = [];
+
+    Object.keys(grouped).forEach(name => {
+      const reports = grouped[name];
+      let matchedTab = masterWB.SheetNames.find(
+        n => n.trim().toLowerCase() === name.trim().toLowerCase()
+      );
+
+      // Build the rows to append
+      const newRows = [];
+      reports.forEach(r => {
+        r.moduleRows.forEach(mod => {
+          newRows.push([
+            r.meta.cohort || '',
+            r.meta.course || '',
+            r.meta.version || '',
+            r.meta.method || '',
+            mod.module,
+            mod.responses,
+            mod.instructor,
+            mod.style,
+            mod.content,
+            mod.coverage,
+            mod.usefulness,
+            mod.overall
+          ]);
+        });
+      });
+
+      if (matchedTab) {
+        // Append to existing tab
+        const ws = masterWB.Sheets[matchedTab];
+        const existing = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+        newRows.forEach(row => existing.push(row));
+        const newWs = XLSX.utils.aoa_to_sheet(existing);
+        newWs['!cols'] = buildColWidths();
+        masterWB.Sheets[matchedTab] = newWs;
+        tabsUpdated.push(matchedTab);
+      } else {
+        // Create new tab
+        const sheetData = [HEADERS, ...newRows];
+        const newWs = XLSX.utils.aoa_to_sheet(sheetData);
+        newWs['!cols'] = buildColWidths();
+        let tabName = name.substring(0, 31).replace(/[\\\/\*\?\[\]:]/g, '_');
+        XLSX.utils.book_append_sheet(masterWB, newWs, tabName);
+        tabsCreated.push(tabName);
+        matchedTab = tabName;
+      }
+
+      totalRowsAdded += newRows.length;
+    });
+
+    // Re-apply hyperlinks (SheetJS strips them on read)
+    reapplyHyperlinks();
+
+    // Download
+    XLSX.writeFile(masterWB, masterFileName || 'Instructor_Master_Workbook.xlsx');
+
+    // Show success
+    const parts = [];
+    if (tabsUpdated.length) parts.push(`Updated ${tabsUpdated.length} tab(s): ${tabsUpdated.join(', ')}`);
+    if (tabsCreated.length) parts.push(`Created ${tabsCreated.length} new tab(s): ${tabsCreated.join(', ')}`);
+    parts.push(`${totalRowsAdded} total row(s) added.`);
+
+    document.getElementById('doneDetail').textContent = parts.join(' · ');
+    document.getElementById('doneMessage').classList.add('visible');
+  }
+
+  function buildColWidths() {
+    return [
+      { wch: 24 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 10 },
+      { wch: 11 }, { wch: 11 }, { wch: 10 }, { wch: 10 }, { wch: 11 },
+      { wch: 12 }, { wch: 20 }
+    ];
+  }
+
+  function reapplyHyperlinks() {
+    // Get the Master sheet
+    const masterSheet = masterWB.Sheets['Master'];
+    if (!masterSheet) return;
+
+    // Get all instructor tab names (everything except Master)
+    const instructorTabs = masterWB.SheetNames.filter(n => n !== 'Master');
+
+    // Master tab: link each instructor name (column A, row 2+) to their tab
+    instructorTabs.forEach((name, i) => {
+      const cellRef = 'A' + (i + 2);
+      const cell = masterSheet[cellRef];
+      if (cell) {
+        cell.l = { Target: "#'" + name + "'!A1" };
+      }
+    });
+
+    // Each instructor tab: add "Back to Master" link in N1
+    instructorTabs.forEach(name => {
+      const ws = masterWB.Sheets[name];
+      if (!ws) return;
+
+      // Ensure cell N1 exists with the link text
+      if (!ws['N1']) {
+        ws['N1'] = { t: 's', v: '← Back to Master' };
+      } else {
+        ws['N1'].v = '← Back to Master';
+      }
+      ws['N1'].l = { Target: "#Master!A1" };
+
+      // Make sure N column is in the sheet range
+      const range = XLSX.utils.decode_range(ws['!ref'] || 'A1');
+      if (range.e.c < 13) {  // column N = index 13
+        range.e.c = 13;
+        ws['!ref'] = XLSX.utils.encode_range(range);
+      }
+    });
+  }
+
+  function resetAll() {
+    clearReports();
+    resetMaster();
+  }
+
+  // ---- HELPERS ----
+  function esc(str) {
+    const d = document.createElement('div');
+    d.textContent = str || '';
+    return d.innerHTML;
+  }
+
+  function fmtScore(val) {
+    if (val === null || val === undefined || val === '') return '—';
+    const n = parseFloat(val);
+    return isNaN(n) ? '—' : n.toFixed(2);
+  }
+</script>
+
+</body>
+</html>
