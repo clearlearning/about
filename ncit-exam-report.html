@@ -1,0 +1,1672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NCIT Exam Report Generator</title>
+<link rel="icon" href="https://assets-002.noviams.com/novi-file-uploads/clear/graphics/CLEAR_Learning_New.png" type="image/png">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Trebuchet+MS&display=swap');
+
+  :root {
+    --burgundy: #64092c;
+    --burgundy-light: #8a1e4a;
+    --gold: #dda838;
+    --gold-light: #f0c96a;
+    --blue: #084d78;
+    --blue-light: #0a6ba8;
+    --gray: #484848;
+    --gray-light: #f4f4f5;
+    --gray-mid: #e0e0e0;
+    --pass-green: #2e7d32;
+    --pass-bg: #e8f5e9;
+    --fail-red: #c62828;
+    --fail-bg: #ffebee;
+    --warn-amber: #f57f17;
+    --warn-bg: #fff8e1;
+    --white: #ffffff;
+    --radius: 6px;
+    --shadow: 0 2px 8px rgba(0,0,0,0.08);
+    --shadow-lg: 0 4px 16px rgba(0,0,0,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Open Sans', sans-serif;
+    color: var(--gray);
+    background: var(--gray-light);
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: 'Trebuchet MS', 'Open Sans', sans-serif;
+  }
+
+  .header {
+    background: linear-gradient(135deg, var(--burgundy) 0%, var(--burgundy-light) 100%);
+    color: var(--white);
+    padding: 24px 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .header-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--gold);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+
+  .header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+
+  .header p {
+    font-size: 13px;
+    opacity: 0.85;
+    margin-top: 2px;
+  }
+
+  .main {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 24px 32px 48px;
+  }
+
+  /* Upload Panel */
+  .upload-panel {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 28px 32px;
+    box-shadow: var(--shadow);
+    margin-bottom: 24px;
+  }
+
+  .upload-panel h2 {
+    font-size: 17px;
+    color: var(--burgundy);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .form-row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+    align-items: flex-end;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .form-group label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .form-group input,
+  .form-group select {
+    padding: 10px 14px;
+    border: 1.5px solid var(--gray-mid);
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-family: 'Open Sans', sans-serif;
+    transition: border-color 0.2s;
+    background: var(--white);
+  }
+
+  .form-group input:focus,
+  .form-group select:focus {
+    outline: none;
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(8,77,120,0.1);
+  }
+
+  .drop-zone {
+    border: 2px dashed var(--gray-mid);
+    border-radius: var(--radius);
+    padding: 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--gray-light);
+    margin-bottom: 16px;
+  }
+
+  .drop-zone:hover,
+  .drop-zone.dragover {
+    border-color: var(--blue);
+    background: rgba(8,77,120,0.04);
+  }
+
+  .drop-zone .icon {
+    font-size: 36px;
+    margin-bottom: 8px;
+  }
+
+  .drop-zone p {
+    font-size: 14px;
+    color: var(--gray);
+  }
+
+  .drop-zone .sub {
+    font-size: 12px;
+    color: #999;
+    margin-top: 4px;
+  }
+
+  .file-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .file-chip {
+    background: var(--gray-light);
+    border: 1px solid var(--gray-mid);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .file-chip .remove {
+    cursor: pointer;
+    color: var(--fail-red);
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 1;
+  }
+
+  .btn {
+    padding: 11px 28px;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'Open Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-primary {
+    background: var(--blue);
+    color: var(--white);
+  }
+
+  .btn-primary:hover {
+    background: var(--blue-light);
+    box-shadow: var(--shadow);
+  }
+
+  .btn-primary:disabled {
+    background: #aaa;
+    cursor: not-allowed;
+  }
+
+  .btn-secondary {
+    background: var(--white);
+    color: var(--blue);
+    border: 1.5px solid var(--blue);
+  }
+
+  .btn-secondary:hover {
+    background: rgba(8,77,120,0.05);
+  }
+
+  .btn-gold {
+    background: var(--gold);
+    color: var(--burgundy);
+  }
+
+  .btn-gold:hover {
+    background: var(--gold-light);
+  }
+
+  .btn-sm {
+    padding: 7px 16px;
+    font-size: 12px;
+  }
+
+  /* Status Messages */
+  .status-bar {
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    margin-bottom: 16px;
+    display: none;
+  }
+
+  .status-bar.info {
+    background: #e3f2fd;
+    color: #1565c0;
+    border: 1px solid #90caf9;
+    display: block;
+  }
+
+  .status-bar.success {
+    background: var(--pass-bg);
+    color: var(--pass-green);
+    border: 1px solid #a5d6a7;
+    display: block;
+  }
+
+  .status-bar.error {
+    background: var(--fail-bg);
+    color: var(--fail-red);
+    border: 1px solid #ef9a9a;
+    display: block;
+  }
+
+  /* Results Tabs */
+  .results-panel {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 24px;
+    display: none;
+  }
+
+  .results-panel.visible {
+    display: block;
+  }
+
+  .tab-bar {
+    display: flex;
+    border-bottom: 2px solid var(--gray-mid);
+    padding: 0 16px;
+  }
+
+  .tab-btn {
+    padding: 14px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gray);
+    background: none;
+    border: none;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+    font-family: 'Open Sans', sans-serif;
+  }
+
+  .tab-btn:hover {
+    color: var(--blue);
+  }
+
+  .tab-btn.active {
+    color: var(--burgundy);
+    border-bottom-color: var(--burgundy);
+  }
+
+  .tab-content {
+    padding: 24px;
+    display: none;
+  }
+
+  .tab-content.active {
+    display: block;
+  }
+
+  /* Summary Cards */
+  .summary-cards {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+
+  .summary-card {
+    flex: 1;
+    min-width: 140px;
+    background: var(--gray-light);
+    border-radius: var(--radius);
+    padding: 16px;
+    text-align: center;
+  }
+
+  .summary-card .label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #888;
+    margin-bottom: 6px;
+  }
+
+  .summary-card .value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--burgundy);
+  }
+
+  .summary-card .value.pass { color: var(--pass-green); }
+  .summary-card .value.fail { color: var(--fail-red); }
+
+  /* Data Table */
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--gray-mid);
+    border-radius: var(--radius);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  thead th {
+    background: var(--burgundy);
+    color: var(--white);
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+
+  tbody td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--gray-mid);
+  }
+
+  tbody tr:hover {
+    background: rgba(8,77,120,0.03);
+  }
+
+  tbody tr:nth-child(even) {
+    background: #fafafa;
+  }
+
+  tbody tr:nth-child(even):hover {
+    background: rgba(8,77,120,0.05);
+  }
+
+  .cell-pass {
+    background: var(--pass-bg) !important;
+    color: var(--pass-green);
+    font-weight: 700;
+  }
+
+  .cell-fail {
+    background: var(--fail-bg) !important;
+    color: var(--fail-red);
+    font-weight: 700;
+  }
+
+  .cell-adjusted {
+    background: #fff9c4 !important;
+    border-left: 3px solid #f9a825;
+    font-weight: 700;
+  }
+
+  .cell-adjusted.cell-pass {
+    background: #fff9c4 !important;
+    color: var(--pass-green);
+  }
+
+  .cell-adjusted.cell-fail {
+    background: #fff9c4 !important;
+    color: var(--fail-red);
+  }
+
+  td.editable {
+    cursor: text;
+    position: relative;
+  }
+
+  td.editable:hover {
+    outline: 2px solid var(--blue-light);
+    outline-offset: -2px;
+  }
+
+  td[contenteditable="true"]:focus {
+    outline: 2px solid var(--blue);
+    outline-offset: -2px;
+    background: #fff !important;
+  }
+
+  /* Question Analysis */
+  .question-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 6px;
+    margin-bottom: 20px;
+  }
+
+  .q-cell {
+    padding: 8px 6px;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    border: 1px solid var(--gray-mid);
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+  }
+
+  .q-cell.good {
+    background: var(--pass-bg);
+    color: var(--pass-green);
+    border-color: #a5d6a7;
+  }
+
+  .q-cell.warn {
+    background: var(--warn-bg);
+    color: var(--warn-amber);
+    border-color: #ffe082;
+  }
+
+  .q-cell.bad {
+    background: var(--fail-bg);
+    color: var(--fail-red);
+    border-color: #ef9a9a;
+  }
+
+  .q-cell.excluded {
+    opacity: 0.4;
+    text-decoration: line-through;
+  }
+
+  .q-cell:hover {
+    transform: scale(1.05);
+    box-shadow: var(--shadow);
+  }
+
+  .q-cell .pct {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .threshold-control {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 12px 16px;
+    background: var(--gray-light);
+    border-radius: var(--radius);
+    flex-wrap: wrap;
+  }
+
+  .threshold-control label {
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .threshold-control input[type="range"] {
+    width: 200px;
+    accent-color: var(--burgundy);
+  }
+
+  .threshold-control .val {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--burgundy);
+    min-width: 40px;
+  }
+
+  .legend {
+    display: flex;
+    gap: 16px;
+    font-size: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .legend-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    border: 1px solid rgba(0,0,0,0.1);
+  }
+
+  /* Actions Bar */
+  .actions-bar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 16px 24px;
+    background: var(--gray-light);
+    border-top: 1px solid var(--gray-mid);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .header { padding: 16px; }
+    .main { padding: 16px; }
+    .upload-panel { padding: 16px; }
+    .form-row { flex-direction: column; }
+    .form-group { min-width: 100%; }
+    .summary-cards { flex-direction: column; }
+  }
+
+  /* Print */
+  @media print {
+    .header { background: var(--burgundy) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .upload-panel { display: none; }
+    .tab-bar { display: none; }
+    .actions-bar { display: none; }
+    .results-panel { box-shadow: none; border: 1px solid #ddd; }
+    .cell-pass, .cell-fail { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+
+  .spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-icon">&#128202;</div>
+  <div>
+    <h1>NCIT Exam Report Generator</h1>
+    <p>Upload exam exports, generate color-coded reports, and analyze question performance</p>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- Upload Panel -->
+  <div class="upload-panel">
+    <h2>&#9881;&#65039; Configuration &amp; Upload</h2>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Exam Type</label>
+        <select id="examType">
+          <option value="">Auto-detect from file name</option>
+          <option value="canadian">NCIT Basic Canadian Final Exam (72 Qs)</option>
+          <option value="us">NCIT Basic US Final Exam (74 Qs)</option>
+          <option value="specialized">NCIT Specialized Final Exam (60 Qs)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Cohort Name</label>
+        <input type="text" id="cohortName" placeholder="e.g., Spring 2026 Cohort">
+      </div>
+    </div>
+
+    <div class="drop-zone" id="dropZone">
+      <div class="icon">&#128193;</div>
+      <p>Drop ZIP file or XLSX files here, or click to browse</p>
+      <p class="sub">Accepts .zip archives or individual .xlsx files</p>
+      <input type="file" id="fileInput" multiple accept=".zip,.xlsx,.xls" style="display:none">
+    </div>
+
+    <div class="file-list" id="fileList"></div>
+
+    <div id="statusBar" class="status-bar"></div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn btn-primary" id="processBtn" disabled>
+        Process Exam Data
+      </button>
+      <button class="btn btn-secondary" id="clearBtn">
+        Clear All
+      </button>
+    </div>
+  </div>
+
+  <!-- Results Panel -->
+  <div class="results-panel" id="resultsPanel">
+    <div class="tab-bar">
+      <button class="tab-btn active" data-tab="report">Exam Report</button>
+      <button class="tab-btn" data-tab="questions">Question Analysis</button>
+    </div>
+
+    <!-- Report Tab -->
+    <div class="tab-content active" id="tab-report">
+      <div class="summary-cards" id="summaryCards"></div>
+      <div class="legend" id="colorKey" style="padding:12px 16px;background:var(--gray-light);border-radius:var(--radius);margin-bottom:16px;">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--pass-bg);border-color:#a5d6a7;"></div> Pass (&ge;70%)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--fail-bg);border-color:#ef9a9a;"></div> Fail (&lt;70%)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#fff9c4;border-color:#f9a825;"></div> Adjusted (questions excluded)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#fff;border-color:#ccc;"></div> Editable placeholder</div>
+      </div>
+      <div class="table-wrap" id="reportTableWrap"></div>
+    </div>
+
+    <!-- Question Analysis Tab -->
+    <div class="tab-content" id="tab-questions">
+      <div class="threshold-control">
+        <label>Flag questions where incorrect rate exceeds:</label>
+        <input type="range" id="thresholdSlider" min="20" max="80" value="50" step="5">
+        <span class="val" id="thresholdVal">50%</span>
+        <button class="btn btn-sm btn-secondary" id="recalcBtn">Recalculate Adjusted Grades</button>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--pass-bg);border-color:#a5d6a7;"></div> Good (&lt; threshold)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--warn-bg);border-color:#ffe082;"></div> Warning (near threshold)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--fail-bg);border-color:#ef9a9a;"></div> Flagged (exceeds threshold)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#ddd;"></div> Excluded (click to toggle)</div>
+      </div>
+      <div id="questionGrid"></div>
+      <div id="questionDetail" style="margin-top:16px;"></div>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions-bar">
+      <button class="btn btn-primary" id="exportCsvBtn">Export Report CSV</button>
+      <button class="btn btn-gold" id="exportXlsxBtn">Export Report XLSX</button>
+      <button class="btn btn-secondary" id="printBtn">Print Report</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+// NCIT Exam Report Generator - Core Logic
+// ============================================================
+
+const STATE = {
+  files: [],           // { name, data (ArrayBuffer) }
+  examType: '',
+  cohort: '',
+  mergedData: null,    // { students: [], questions: [], examType }
+  excludedQuestions: new Set(),
+  reportData: null
+};
+
+// Standard columns to identify (case-insensitive matching)
+const STANDARD_COLS = [
+  'first name', 'last name', 'email', 'date', 'time', 'score',
+  'status', 'attempt', 'credentials/designations', 'title',
+  'organization', 'work phone', 'city', 'state/province',
+  'zip/postal code', 'country', 'temporary password',
+  'ncit basic exam id', 'ncit specialized exam id'
+];
+
+const KEEP_COLS = ['first name', 'last name', 'email', 'date', 'time', 'score', 'status', 'attempt'];
+
+// Exam configs
+const EXAM_CONFIG = {
+  canadian: {
+    label: 'NCIT Basic Canadian Final Exam',
+    formCode: 'NCITBCAN',
+    totalQuestions: 72,
+    fileRanges: [[1,30],[31,60],[61,72]],
+    removeQuestions: [],
+    hasTopics: false
+  },
+  us: {
+    label: 'NCIT Basic US Final Exam',
+    formCode: 'NCITBUS',
+    totalQuestions: 74,
+    fileRanges: [[1,30],[31,60],[61,76]],
+    removeQuestions: [22, 25],  // Original Q numbers to remove from file 1
+    hasTopics: false
+  },
+  specialized: {
+    label: 'NCIT Specialized Final Exam',
+    formCode: 'NCITS',
+    totalQuestions: 60,
+    fileRanges: [[1,30],[31,60]],
+    removeQuestions: [],
+    hasTopics: true,
+    topics: {
+      AIS: [1, 20],
+      AIA: [21, 40],
+      IRD: [41, 60]
+    }
+  }
+};
+
+// Zip folder name patterns for auto-detect
+const FOLDER_PATTERNS = {
+  'ncit_basic_canadian': 'canadian',
+  'canadian_ncit_basic': 'canadian',
+  'ncit_basic_us': 'us',
+  'basic_online_program': 'us',
+  'ncit_specialized': 'specialized',
+  'specialized_program': 'specialized'
+};
+
+// ============================================================
+// File Upload Handling
+// ============================================================
+
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const fileList = document.getElementById('fileList');
+const processBtn = document.getElementById('processBtn');
+const clearBtn = document.getElementById('clearBtn');
+const statusBar = document.getElementById('statusBar');
+
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  handleFiles(e.dataTransfer.files);
+});
+fileInput.addEventListener('change', e => handleFiles(e.target.files));
+
+clearBtn.addEventListener('click', () => {
+  STATE.files = [];
+  STATE.mergedData = null;
+  STATE.excludedQuestions.clear();
+  STATE.reportData = null;
+  renderFileList();
+  document.getElementById('resultsPanel').classList.remove('visible');
+  setStatus('', '');
+  processBtn.disabled = true;
+  fileInput.value = '';
+});
+
+async function handleFiles(fileListObj) {
+  for (const file of fileListObj) {
+    if (file.name.endsWith('.zip')) {
+      await extractZip(file);
+    } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+      const buf = await file.arrayBuffer();
+      STATE.files.push({ name: file.name, data: buf });
+    }
+  }
+  renderFileList();
+  processBtn.disabled = STATE.files.length === 0;
+  autoDetectExamType();
+}
+
+async function extractZip(file) {
+  try {
+    const zip = await JSZip.loadAsync(file);
+    const entries = Object.keys(zip.files).filter(n =>
+      (n.endsWith('.xlsx') || n.endsWith('.xls')) && !n.startsWith('__MACOSX')
+    );
+    for (const entry of entries) {
+      const data = await zip.files[entry].async('arraybuffer');
+      const shortName = entry.split('/').pop();
+      STATE.files.push({ name: shortName, data });
+    }
+    // Try auto-detect from zip name
+    autoDetectFromName(file.name);
+    setStatus(`Extracted ${entries.length} file(s) from ${file.name}`, 'info');
+  } catch (err) {
+    setStatus(`Error reading ZIP: ${err.message}`, 'error');
+  }
+}
+
+function autoDetectFromName(name) {
+  const lower = name.toLowerCase().replace(/[^a-z0-9]/g, '_');
+  for (const [pattern, type] of Object.entries(FOLDER_PATTERNS)) {
+    if (lower.includes(pattern)) {
+      document.getElementById('examType').value = type;
+      return;
+    }
+  }
+}
+
+function autoDetectExamType() {
+  if (document.getElementById('examType').value) return;
+  for (const f of STATE.files) {
+    autoDetectFromName(f.name);
+    if (document.getElementById('examType').value) return;
+  }
+}
+
+function renderFileList() {
+  fileList.innerHTML = STATE.files.map((f, i) =>
+    `<div class="file-chip">
+      &#128196; ${f.name}
+      <span class="remove" onclick="removeFile(${i})">&times;</span>
+    </div>`
+  ).join('');
+}
+
+function removeFile(idx) {
+  STATE.files.splice(idx, 1);
+  renderFileList();
+  processBtn.disabled = STATE.files.length === 0;
+}
+
+function setStatus(msg, type) {
+  statusBar.className = 'status-bar' + (type ? ' ' + type : '');
+  statusBar.textContent = msg;
+}
+
+// ============================================================
+// Tab Handling
+// ============================================================
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+// ============================================================
+// Core Processing
+// ============================================================
+
+processBtn.addEventListener('click', processExamData);
+
+async function processExamData() {
+  const examType = document.getElementById('examType').value;
+  const cohort = document.getElementById('cohortName').value.trim();
+
+  if (!examType) {
+    setStatus('Please select an exam type or ensure the file name allows auto-detection.', 'error');
+    return;
+  }
+  if (!cohort) {
+    setStatus('Please enter a cohort name.', 'error');
+    return;
+  }
+
+  STATE.examType = examType;
+  STATE.cohort = cohort;
+  STATE.excludedQuestions.clear();
+
+  processBtn.disabled = true;
+  processBtn.innerHTML = '<span class="spinner"></span> Processing...';
+
+  try {
+    // Parse all XLSX files
+    const parsedFiles = STATE.files.map(f => parseXlsx(f));
+
+    // Sort files by their question range
+    parsedFiles.sort((a, b) => {
+      const aMin = a.questions.length > 0 ? a.questionStartIdx : 0;
+      const bMin = b.questions.length > 0 ? b.questionStartIdx : 0;
+      return aMin - bMin;
+    });
+
+    // Merge files by email
+    const merged = mergeFiles(parsedFiles, examType);
+
+    // Apply exam-specific transformations
+    const config = EXAM_CONFIG[examType];
+    if (config.removeQuestions.length > 0) {
+      removeQuestions(merged, config.removeQuestions);
+    }
+
+    STATE.mergedData = merged;
+
+    // Calculate scores
+    calculateScores(merged, config);
+
+    // Build report
+    STATE.reportData = buildReport(merged, config, cohort);
+
+    // Render
+    renderSummary(STATE.reportData, config);
+    renderReportTable(STATE.reportData, config);
+    renderQuestionAnalysis(merged, config);
+
+    document.getElementById('resultsPanel').classList.add('visible');
+    setStatus(`Successfully processed ${merged.students.length} student(s) across ${STATE.files.length} file(s).`, 'success');
+
+  } catch (err) {
+    setStatus(`Processing error: ${err.message}`, 'error');
+    console.error(err);
+  }
+
+  processBtn.disabled = false;
+  processBtn.innerHTML = 'Process Exam Data';
+}
+
+// ============================================================
+// XLSX Parsing
+// ============================================================
+
+function parseXlsx(fileObj) {
+  const wb = XLSX.read(fileObj.data, { type: 'array' });
+
+  // Prefer "Details" sheet, fallback to first sheet
+  let sheetName = wb.SheetNames.find(n => n.toLowerCase() === 'details') || wb.SheetNames[0];
+  const sheet = wb.Sheets[sheetName];
+
+  // Convert to array of arrays
+  const raw = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+
+  if (raw.length < 2) {
+    throw new Error(`File ${fileObj.name} has insufficient data.`);
+  }
+
+  // Detect header row - check if row 0 looks like a "filtered by" line
+  let headerRowIdx = 0;
+  let filterInfo = '';
+  const firstCell = String(raw[0][0] || '').toLowerCase();
+  if (firstCell.includes('filtered by') || firstCell.includes('filter') ||
+      (raw[0].filter(c => c !== '').length <= 2 && raw.length > 2)) {
+    // Row 0 is filter info, row 1 is headers
+    filterInfo = String(raw[0][0] || '');
+    headerRowIdx = 1;
+  }
+
+  const headers = raw[headerRowIdx].map(h => String(h || '').trim());
+  const dataRows = raw.slice(headerRowIdx + 1).filter(row =>
+    row.some(cell => cell !== '' && cell !== null && cell !== undefined)
+  );
+
+  // Identify standard columns and question columns
+  const colMap = {};
+  const questionCols = [];
+
+  headers.forEach((h, idx) => {
+    const lower = h.toLowerCase();
+    const match = STANDARD_COLS.find(sc => lower === sc || lower.includes(sc));
+    if (match) {
+      colMap[match] = idx;
+    } else if (h && !STANDARD_COLS.some(sc => lower.includes(sc))) {
+      // This is a question column
+      questionCols.push({ idx, header: h });
+    }
+  });
+
+  // The very last non-standard column is a link to the exam - remove it
+  if (questionCols.length > 0) {
+    const lastCol = questionCols[questionCols.length - 1];
+    // Check if it looks like a URL or is simply the trailing column
+    const sampleVal = dataRows.length > 0 ? String(dataRows[0][lastCol.idx] || '') : '';
+    const looksLikeLink = sampleVal.startsWith('http') || sampleVal.includes('://') || sampleVal.includes('.com');
+    const looksLikeQuestion = lastCol.header.toLowerCase().match(/^(q\d|question)/);
+    // Remove last column if it's a link OR if it's not clearly a question header
+    if (looksLikeLink || !looksLikeQuestion) {
+      questionCols.pop();
+    }
+  }
+
+  // Parse question start index from headers or filter info
+  let questionStartIdx = 1;
+  if (filterInfo) {
+    // Try to extract question range from filter info
+    const rangeMatch = filterInfo.match(/(\d+)\s*[-–]\s*(\d+)/);
+    if (rangeMatch) {
+      questionStartIdx = parseInt(rangeMatch[1]);
+    }
+  }
+  // Also try from first question header
+  if (questionCols.length > 0) {
+    const qMatch = questionCols[0].header.match(/(\d+)/);
+    if (qMatch) {
+      questionStartIdx = parseInt(qMatch[1]);
+    }
+  }
+
+  // Extract student data
+  const students = dataRows.map(row => {
+    const student = {};
+    for (const [key, idx] of Object.entries(colMap)) {
+      student[key] = row[idx] !== undefined ? row[idx] : '';
+    }
+    // Question answers (typically 0/1 or numeric score per question)
+    student._questions = questionCols.map(qc => {
+      const val = row[qc.idx];
+      if (val === '' || val === null || val === undefined) return 0;
+      if (typeof val === 'number') return val > 0 ? 1 : 0;
+      const s = String(val).toLowerCase().trim();
+      if (s === 'correct' || s === '1' || s === 'yes' || s === 'true') return 1;
+      if (s === 'incorrect' || s === '0' || s === 'no' || s === 'false') return 0;
+      // Try parse as number
+      const n = parseFloat(s);
+      if (!isNaN(n)) return n > 0 ? 1 : 0;
+      return 0;
+    });
+    return student;
+  });
+
+  return {
+    name: fileObj.name,
+    filterInfo,
+    headers,
+    students,
+    questions: questionCols.map(q => q.header),
+    questionStartIdx,
+    colMap
+  };
+}
+
+// ============================================================
+// Merge Multiple Files
+// ============================================================
+
+function mergeFiles(parsedFiles, examType) {
+  if (parsedFiles.length === 0) {
+    throw new Error('No files to process.');
+  }
+
+  if (parsedFiles.length === 1) {
+    const pf = parsedFiles[0];
+    return {
+      students: pf.students.map(s => ({
+        ...s,
+        answers: [...s._questions]
+      })),
+      questions: pf.questions.map((q, i) => `Q${pf.questionStartIdx + i}`),
+      examType
+    };
+  }
+
+  // Build student map by email
+  const studentMap = new Map();
+
+  // Use first file for base student data
+  for (const pf of parsedFiles) {
+    for (const student of pf.students) {
+      const email = String(student['email'] || '').toLowerCase().trim();
+      if (!email) continue;
+
+      if (!studentMap.has(email)) {
+        studentMap.set(email, {
+          ...student,
+          answers: [],
+          _questions: undefined
+        });
+      }
+    }
+  }
+
+  // Merge question data in file order
+  const allQuestionLabels = [];
+
+  for (const pf of parsedFiles) {
+    // Build email -> question data map for this file
+    const fileMap = new Map();
+    for (const student of pf.students) {
+      const email = String(student['email'] || '').toLowerCase().trim();
+      if (email) fileMap.set(email, student._questions);
+    }
+
+    // Add question labels
+    for (let i = 0; i < pf.questions.length; i++) {
+      allQuestionLabels.push(`Q${pf.questionStartIdx + i}`);
+    }
+
+    // Append answers for each student
+    for (const [email, merged] of studentMap) {
+      const qData = fileMap.get(email);
+      if (qData) {
+        merged.answers = merged.answers.concat(qData);
+      } else {
+        // Student not in this file - fill with zeros
+        merged.answers = merged.answers.concat(new Array(pf.questions.length).fill(0));
+      }
+    }
+  }
+
+  return {
+    students: Array.from(studentMap.values()),
+    questions: allQuestionLabels,
+    examType
+  };
+}
+
+// ============================================================
+// Remove Questions (US exam: Q22, Q25 in original numbering)
+// ============================================================
+
+function removeQuestions(merged, removeQNums) {
+  // removeQNums are 1-indexed original question numbers
+  // Convert to 0-indexed positions in the answers array
+  const removeIndices = removeQNums.map(q => q - 1).sort((a, b) => b - a);
+
+  // Remove from each student's answers
+  for (const student of merged.students) {
+    for (const idx of removeIndices) {
+      if (idx < student.answers.length) {
+        student.answers.splice(idx, 1);
+      }
+    }
+  }
+
+  // Remove from question labels and renumber
+  for (const idx of removeIndices) {
+    if (idx < merged.questions.length) {
+      merged.questions.splice(idx, 1);
+    }
+  }
+
+  // Renumber questions Q1, Q2, ...
+  merged.questions = merged.questions.map((_, i) => `Q${i + 1}`);
+}
+
+// ============================================================
+// Score Calculation
+// ============================================================
+
+function calculateScores(merged, config) {
+  for (const student of merged.students) {
+    const total = student.answers.length;
+    const correct = student.answers.reduce((sum, a) => sum + (a ? 1 : 0), 0);
+
+    student.totalScore = total > 0 ? (correct / total * 100) : 0;
+    student.rawCorrect = correct;
+    student.rawTotal = total;
+    student.rawGrade = `${correct}/${total}`;
+
+    if (config.hasTopics) {
+      for (const [topic, [start, end]] of Object.entries(config.topics)) {
+        const topicAnswers = student.answers.slice(start - 1, end);
+        const topicCorrect = topicAnswers.reduce((sum, a) => sum + (a ? 1 : 0), 0);
+        const topicTotal = topicAnswers.length;
+        student[`${topic.toLowerCase()}Score`] = topicTotal > 0 ? (topicCorrect / topicTotal * 100) : 0;
+        student[`${topic.toLowerCase()}Grade`] = `${topicCorrect}/${topicTotal}`;
+      }
+    }
+  }
+}
+
+// ============================================================
+// Adjusted Grade Calculation
+// ============================================================
+
+function calculateAdjustedGrades(merged, config) {
+  const excluded = STATE.excludedQuestions;
+
+  for (const student of merged.students) {
+    let adjTotal = 0;
+    let adjCorrect = 0;
+
+    student.answers.forEach((a, i) => {
+      if (!excluded.has(i)) {
+        adjTotal++;
+        if (a) adjCorrect++;
+      }
+    });
+
+    student.adjustedScore = adjTotal > 0 ? (adjCorrect / adjTotal * 100) : 0;
+    student.adjustedGrade = `${adjCorrect}/${adjTotal}`;
+
+    // Per-topic adjusted scores for specialized exams
+    if (config.hasTopics) {
+      for (const [topic, [start, end]] of Object.entries(config.topics)) {
+        const key = topic.toLowerCase();
+        let topicAdjTotal = 0;
+        let topicAdjCorrect = 0;
+
+        for (let i = start - 1; i < end && i < student.answers.length; i++) {
+          if (!excluded.has(i)) {
+            topicAdjTotal++;
+            if (student.answers[i]) topicAdjCorrect++;
+          }
+        }
+
+        student[`${key}AdjScore`] = topicAdjTotal > 0 ? (topicAdjCorrect / topicAdjTotal * 100) : 0;
+        student[`${key}AdjGrade`] = `${topicAdjCorrect}/${topicAdjTotal}`;
+
+        // Check if any questions were excluded in this topic range
+        let topicHasExclusion = false;
+        for (let i = start - 1; i < end; i++) {
+          if (excluded.has(i)) { topicHasExclusion = true; break; }
+        }
+        student[`${key}Adjusted`] = topicHasExclusion;
+      }
+    }
+  }
+}
+
+// ============================================================
+// Build Report Data
+// ============================================================
+
+function buildReport(merged, config, cohort) {
+  calculateAdjustedGrades(merged, config);
+  const hasExclusions = STATE.excludedQuestions.size > 0;
+
+  return merged.students.map(s => {
+    const row = {
+      form: config.formCode,
+      firstName: s['first name'] || '',
+      lastName: s['last name'] || '',
+      email: s['email'] || '',
+      siteCode: 'TalentLMS',
+      cohort: cohort,
+      dateOfExam: formatDate(s['date']),
+      totalScore: s.totalScore.toFixed(1) + '%',
+      totalScoreNum: s.totalScore,
+      // Raw topic data
+      aisScoreNum: config.hasTopics ? s.aisScore : null,
+      aisGrade: config.hasTopics ? s.aisGrade : '',
+      aiaScoreNum: config.hasTopics ? s.aiaScore : null,
+      aiaGrade: config.hasTopics ? s.aiaGrade : '',
+      irdScoreNum: config.hasTopics ? s.irdScore : null,
+      irdGrade: config.hasTopics ? s.irdGrade : '',
+      // Adjusted topic data (used when exclusions exist)
+      aisAdjScoreNum: config.hasTopics ? s.aisAdjScore : null,
+      aisAdjGrade: config.hasTopics ? s.aisAdjGrade : '',
+      aisAdjusted: config.hasTopics ? s.aisAdjusted : false,
+      aiaAdjScoreNum: config.hasTopics ? s.aiaAdjScore : null,
+      aiaAdjGrade: config.hasTopics ? s.aiaAdjGrade : '',
+      aiaAdjusted: config.hasTopics ? s.aiaAdjusted : false,
+      irdAdjScoreNum: config.hasTopics ? s.irdAdjScore : null,
+      irdAdjGrade: config.hasTopics ? s.irdAdjGrade : '',
+      irdAdjusted: config.hasTopics ? s.irdAdjusted : false,
+      // Display helpers - use adjusted scores if that topic had exclusions
+      aisScore: config.hasTopics ? (s.aisAdjusted ? s.aisAdjScore : s.aisScore).toFixed(1) + '%' : '',
+      aiaScore: config.hasTopics ? (s.aiaAdjusted ? s.aiaAdjScore : s.aiaScore).toFixed(1) + '%' : '',
+      irdScore: config.hasTopics ? (s.irdAdjusted ? s.irdAdjScore : s.irdScore).toFixed(1) + '%' : '',
+      aisDisplayGrade: config.hasTopics ? (s.aisAdjusted ? s.aisAdjGrade : s.aisGrade) : '',
+      aiaDisplayGrade: config.hasTopics ? (s.aiaAdjusted ? s.aiaAdjGrade : s.aiaGrade) : '',
+      irdDisplayGrade: config.hasTopics ? (s.irdAdjusted ? s.irdAdjGrade : s.irdGrade) : '',
+      rawGrade: s.rawGrade,
+      adjustedGrade: s.adjustedGrade,
+      adjustedScore: s.adjustedScore.toFixed(1) + '%',
+      adjustedScoreNum: s.adjustedScore,
+      isAdjusted: hasExclusions,
+      note: '',
+      paid: '',
+      digitalBadgeIssued: '',
+      certificateAssigned: ''
+    };
+    return row;
+  });
+}
+
+function formatDate(val) {
+  if (!val) return '';
+  if (val instanceof Date) {
+    return val.toLocaleDateString('en-US');
+  }
+  if (typeof val === 'number') {
+    // Excel serial date
+    const d = new Date((val - 25569) * 86400 * 1000);
+    return d.toLocaleDateString('en-US');
+  }
+  return String(val);
+}
+
+// ============================================================
+// Render Summary Cards
+// ============================================================
+
+function renderSummary(reportData, config) {
+  const container = document.getElementById('summaryCards');
+  const total = reportData.length;
+  const passed = reportData.filter(r => r.totalScoreNum >= 70).length;
+  const failed = total - passed;
+  const avg = total > 0 ? (reportData.reduce((s, r) => s + r.totalScoreNum, 0) / total).toFixed(1) : '0';
+  const excluded = STATE.excludedQuestions.size;
+
+  let html = `
+    <div class="summary-card"><div class="label">Total Students</div><div class="value">${total}</div></div>
+    <div class="summary-card"><div class="label">Passed (&ge;70%)</div><div class="value pass">${passed}</div></div>
+    <div class="summary-card"><div class="label">Failed (&lt;70%)</div><div class="value fail">${failed}</div></div>
+    <div class="summary-card"><div class="label">Average Score</div><div class="value">${avg}%</div></div>
+    <div class="summary-card"><div class="label">Questions Excluded</div><div class="value">${excluded}</div></div>
+  `;
+
+  if (config.hasTopics) {
+    const avgAIS = (reportData.reduce((s, r) => s + (r.aisAdjusted ? (r.aisAdjScoreNum || 0) : (r.aisScoreNum || 0)), 0) / total).toFixed(1);
+    const avgAIA = (reportData.reduce((s, r) => s + (r.aiaAdjusted ? (r.aiaAdjScoreNum || 0) : (r.aiaScoreNum || 0)), 0) / total).toFixed(1);
+    const avgIRD = (reportData.reduce((s, r) => s + (r.irdAdjusted ? (r.irdAdjScoreNum || 0) : (r.irdScoreNum || 0)), 0) / total).toFixed(1);
+    const aisAdj = reportData.some(r => r.aisAdjusted) ? ' *' : '';
+    const aiaAdj = reportData.some(r => r.aiaAdjusted) ? ' *' : '';
+    const irdAdj = reportData.some(r => r.irdAdjusted) ? ' *' : '';
+    html += `
+      <div class="summary-card"><div class="label">Avg AIS${aisAdj}</div><div class="value">${avgAIS}%</div></div>
+      <div class="summary-card"><div class="label">Avg AIA${aiaAdj}</div><div class="value">${avgAIA}%</div></div>
+      <div class="summary-card"><div class="label">Avg IRD${irdAdj}</div><div class="value">${avgIRD}%</div></div>
+    `;
+  }
+
+  container.innerHTML = html;
+}
+
+// ============================================================
+// Render Report Table
+// ============================================================
+
+function renderReportTable(reportData, config) {
+  const wrap = document.getElementById('reportTableWrap');
+
+  const topicHeaders = config.hasTopics
+    ? '<th>AIS Score</th><th>AIA Score</th><th>IRD Score</th>'
+    : '<th class="hidden">AIS</th><th class="hidden">AIA</th><th class="hidden">IRD</th>';
+
+  let html = `<table id="reportTable">
+    <thead><tr>
+      <th>#</th>
+      <th>Form</th>
+      <th>First Name</th>
+      <th>Last Name</th>
+      <th>Email Address</th>
+      <th>Site Code</th>
+      <th>Cohort</th>
+      <th>Date of Exam</th>
+      <th>Total Score</th>
+      ${topicHeaders}
+      <th>Raw Grade</th>
+      <th>Adjusted Grade</th>
+      <th>Note</th>
+      <th>Paid</th>
+      <th>Digital Badge Issued</th>
+      <th>Certificate Assigned</th>
+    </tr></thead><tbody>`;
+
+  reportData.forEach((r, i) => {
+    const scoreClass = r.totalScoreNum >= 70 ? 'cell-pass' : 'cell-fail';
+    const adjPfClass = r.adjustedScoreNum >= 70 ? 'cell-pass' : 'cell-fail';
+    const adjYellow = r.isAdjusted ? ' cell-adjusted' : '';
+    const adjClass = adjPfClass + adjYellow;
+
+    let topicCells = '';
+    if (config.hasTopics) {
+      // For each topic, use adjusted score if that topic had exclusions
+      const aisDispNum = r.aisAdjusted ? r.aisAdjScoreNum : r.aisScoreNum;
+      const aiaDispNum = r.aiaAdjusted ? r.aiaAdjScoreNum : r.aiaScoreNum;
+      const irdDispNum = r.irdAdjusted ? r.irdAdjScoreNum : r.irdScoreNum;
+
+      const aisPfClass = aisDispNum >= 70 ? 'cell-pass' : 'cell-fail';
+      const aiaPfClass = aiaDispNum >= 70 ? 'cell-pass' : 'cell-fail';
+      const irdPfClass = irdDispNum >= 70 ? 'cell-pass' : 'cell-fail';
+
+      const aisYellow = r.aisAdjusted ? ' cell-adjusted' : '';
+      const aiaYellow = r.aiaAdjusted ? ' cell-adjusted' : '';
+      const irdYellow = r.irdAdjusted ? ' cell-adjusted' : '';
+
+      topicCells = `
+        <td class="${aisPfClass}${aisYellow}">${r.aisDisplayGrade} (${r.aisScore})</td>
+        <td class="${aiaPfClass}${aiaYellow}">${r.aiaDisplayGrade} (${r.aiaScore})</td>
+        <td class="${irdPfClass}${irdYellow}">${r.irdDisplayGrade} (${r.irdScore})</td>`;
+    } else {
+      topicCells = '<td class="hidden"></td><td class="hidden"></td><td class="hidden"></td>';
+    }
+
+    html += `<tr>
+      <td>${i + 1}</td>
+      <td>${esc(r.form)}</td>
+      <td>${esc(r.firstName)}</td>
+      <td>${esc(r.lastName)}</td>
+      <td>${esc(r.email)}</td>
+      <td>${r.siteCode}</td>
+      <td>${esc(r.cohort)}</td>
+      <td>${esc(r.dateOfExam)}</td>
+      <td class="${scoreClass}">${r.totalScore}</td>
+      ${topicCells}
+      <td class="${scoreClass}">${r.rawGrade}</td>
+      <td class="${adjClass}">${r.adjustedGrade} (${r.adjustedScore})</td>
+      <td class="editable" contenteditable="true" data-field="note" data-idx="${i}">${esc(r.note)}</td>
+      <td class="editable" contenteditable="true" data-field="paid" data-idx="${i}">${esc(r.paid)}</td>
+      <td class="editable" contenteditable="true" data-field="digitalBadgeIssued" data-idx="${i}">${esc(r.digitalBadgeIssued)}</td>
+      <td class="editable" contenteditable="true" data-field="certificateAssigned" data-idx="${i}">${esc(r.certificateAssigned)}</td>
+    </tr>`;
+  });
+
+  html += '</tbody></table>';
+  wrap.innerHTML = html;
+
+  // Listen for edits on editable cells
+  wrap.querySelectorAll('td.editable').forEach(td => {
+    td.addEventListener('blur', () => {
+      const idx = parseInt(td.dataset.idx);
+      const field = td.dataset.field;
+      if (STATE.reportData[idx]) {
+        STATE.reportData[idx][field] = td.textContent.trim();
+      }
+    });
+  });
+}
+
+function esc(s) {
+  if (s === null || s === undefined) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ============================================================
+// Question Analysis
+// ============================================================
+
+function renderQuestionAnalysis(merged, config) {
+  const container = document.getElementById('questionGrid');
+  const threshold = parseInt(document.getElementById('thresholdSlider').value);
+  const warnThreshold = threshold - 10;
+
+  const total = merged.students.length;
+  if (total === 0) { container.innerHTML = '<p>No student data.</p>'; return; }
+
+  // Calculate per-question failure rate
+  const qStats = merged.questions.map((label, qIdx) => {
+    const incorrect = merged.students.filter(s => !s.answers[qIdx]).length;
+    const pctIncorrect = (incorrect / total * 100);
+    return { label, qIdx, incorrect, pctIncorrect, total };
+  });
+
+  // Render topic groups for specialized
+  let html = '';
+
+  if (config.hasTopics) {
+    for (const [topic, [start, end]] of Object.entries(config.topics)) {
+      html += `<h4 style="margin:16px 0 8px;color:var(--burgundy);">${topic} (Q${start} - Q${end})</h4>`;
+      html += '<div class="question-grid">';
+      for (let i = start - 1; i < end && i < qStats.length; i++) {
+        html += renderQCell(qStats[i], threshold, warnThreshold);
+      }
+      html += '</div>';
+    }
+  } else {
+    html += '<div class="question-grid">';
+    qStats.forEach(q => {
+      html += renderQCell(q, threshold, warnThreshold);
+    });
+    html += '</div>';
+  }
+
+  // Flagged questions summary
+  const flagged = qStats.filter(q => q.pctIncorrect >= threshold);
+  if (flagged.length > 0) {
+    html += `<div style="margin-top:16px;padding:16px;background:var(--fail-bg);border-radius:var(--radius);border:1px solid #ef9a9a;">
+      <strong style="color:var(--fail-red);">&#9888; ${flagged.length} Question(s) Flagged</strong>
+      <p style="font-size:13px;margin-top:6px;color:var(--gray);">
+        The following questions have an incorrect rate at or above ${threshold}%:
+        <strong>${flagged.map(q => q.label).join(', ')}</strong>.
+        Click questions in the grid above to exclude them, then use "Recalculate Adjusted Grades" to update scores.
+      </p>
+    </div>`;
+  }
+
+  container.innerHTML = html;
+
+  // Add click handlers to toggle exclusion
+  container.querySelectorAll('.q-cell').forEach(cell => {
+    cell.addEventListener('click', () => {
+      const qIdx = parseInt(cell.dataset.qidx);
+      if (STATE.excludedQuestions.has(qIdx)) {
+        STATE.excludedQuestions.delete(qIdx);
+        cell.classList.remove('excluded');
+      } else {
+        STATE.excludedQuestions.add(qIdx);
+        cell.classList.add('excluded');
+      }
+    });
+  });
+}
+
+function renderQCell(q, threshold, warnThreshold) {
+  let cls = 'good';
+  if (q.pctIncorrect >= threshold) cls = 'bad';
+  else if (q.pctIncorrect >= warnThreshold) cls = 'warn';
+
+  const excluded = STATE.excludedQuestions.has(q.qIdx) ? ' excluded' : '';
+
+  return `<div class="q-cell ${cls}${excluded}" data-qidx="${q.qIdx}" title="${q.label}: ${q.pctIncorrect.toFixed(1)}% incorrect (${q.incorrect}/${q.total})">
+    ${q.label}
+    <span class="pct">${q.pctIncorrect.toFixed(0)}%</span>
+  </div>`;
+}
+
+// Threshold slider
+document.getElementById('thresholdSlider').addEventListener('input', e => {
+  document.getElementById('thresholdVal').textContent = e.target.value + '%';
+  if (STATE.mergedData) {
+    renderQuestionAnalysis(STATE.mergedData, EXAM_CONFIG[STATE.examType]);
+  }
+});
+
+// Recalculate button
+document.getElementById('recalcBtn').addEventListener('click', () => {
+  if (!STATE.mergedData || !STATE.reportData) return;
+  const config = EXAM_CONFIG[STATE.examType];
+  calculateAdjustedGrades(STATE.mergedData, config);
+  const hasExclusions = STATE.excludedQuestions.size > 0;
+
+  // Update report data
+  STATE.mergedData.students.forEach((s, i) => {
+    if (STATE.reportData[i]) {
+      const r = STATE.reportData[i];
+      r.adjustedGrade = s.adjustedGrade;
+      r.adjustedScore = s.adjustedScore.toFixed(1) + '%';
+      r.adjustedScoreNum = s.adjustedScore;
+      r.isAdjusted = hasExclusions;
+
+      if (config.hasTopics) {
+        for (const topic of ['ais', 'aia', 'ird']) {
+          r[`${topic}AdjScoreNum`] = s[`${topic}AdjScore`];
+          r[`${topic}AdjGrade`] = s[`${topic}AdjGrade`];
+          r[`${topic}Adjusted`] = s[`${topic}Adjusted`];
+          r[`${topic}Score`] = (s[`${topic}Adjusted`] ? s[`${topic}AdjScore`] : s[`${topic}Score`]).toFixed(1) + '%';
+          r[`${topic}DisplayGrade`] = s[`${topic}Adjusted`] ? s[`${topic}AdjGrade`] : s[`${topic}Grade`];
+        }
+      }
+    }
+  });
+
+  renderSummary(STATE.reportData, config);
+  renderReportTable(STATE.reportData, config);
+  setStatus(`Adjusted grades recalculated. ${STATE.excludedQuestions.size} question(s) excluded.`, 'success');
+});
+
+// ============================================================
+// Export Functions
+// ============================================================
+
+document.getElementById('exportCsvBtn').addEventListener('click', exportCSV);
+document.getElementById('exportXlsxBtn').addEventListener('click', exportXLSX);
+document.getElementById('printBtn').addEventListener('click', () => window.print());
+
+function exportCSV() {
+  if (!STATE.reportData) return;
+  const headers = ['Form','First Name','Last Name','Email Address','Site Code','Cohort','Date of Exam','Total Score','AIS Score','AIA Score','IRD Score','Raw Grade','Adjusted Grade','Note','Paid','Digital Badge Issued','Certificate Assigned'];
+
+  const rows = STATE.reportData.map(r => {
+    return [r.form, r.firstName, r.lastName, r.email, r.siteCode, r.cohort, r.dateOfExam, r.totalScore,
+      r.aisDisplayGrade ? `${r.aisDisplayGrade} (${r.aisScore})` : '', r.aiaDisplayGrade ? `${r.aiaDisplayGrade} (${r.aiaScore})` : '', r.irdDisplayGrade ? `${r.irdDisplayGrade} (${r.irdScore})` : '',
+      r.rawGrade, `${r.adjustedGrade} (${r.adjustedScore})`, r.note, r.paid, r.digitalBadgeIssued, r.certificateAssigned];
+  });
+
+  let csv = headers.map(h => `"${h}"`).join(',') + '\n';
+  rows.forEach(row => {
+    csv += row.map(c => `"${String(c || '').replace(/"/g, '""')}"`).join(',') + '\n';
+  });
+
+  downloadFile(csv, `NCIT_Exam_Report_${STATE.cohort.replace(/\s+/g,'_')}.csv`, 'text/csv');
+}
+
+function exportXLSX() {
+  if (!STATE.reportData) return;
+  const headers = ['Form','First Name','Last Name','Email Address','Site Code','Cohort','Date of Exam','Total Score','AIS Score','AIA Score','IRD Score','Raw Grade','Adjusted Grade','Note','Paid','Digital Badge Issued','Certificate Assigned'];
+
+  const wsData = [headers];
+  STATE.reportData.forEach(r => {
+    wsData.push([
+      r.form, r.firstName, r.lastName, r.email, r.siteCode, r.cohort, r.dateOfExam, r.totalScore,
+      r.aisDisplayGrade ? `${r.aisDisplayGrade} (${r.aisScore})` : '', r.aiaDisplayGrade ? `${r.aiaDisplayGrade} (${r.aiaScore})` : '', r.irdDisplayGrade ? `${r.irdDisplayGrade} (${r.irdScore})` : '',
+      r.rawGrade, `${r.adjustedGrade} (${r.adjustedScore})`, r.note, r.paid, r.digitalBadgeIssued, r.certificateAssigned
+    ]);
+  });
+
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+  // Column widths
+  ws['!cols'] = headers.map(h => ({ wch: Math.max(h.length + 2, 14) }));
+
+  XLSX.utils.book_append_sheet(wb, ws, 'Exam Report');
+
+  // Question Analysis sheet
+  if (STATE.mergedData) {
+    const qaHeaders = ['Question', 'Incorrect Count', 'Total Students', 'Incorrect %', 'Excluded'];
+    const qaData = [qaHeaders];
+    STATE.mergedData.questions.forEach((label, qIdx) => {
+      const incorrect = STATE.mergedData.students.filter(s => !s.answers[qIdx]).length;
+      const total = STATE.mergedData.students.length;
+      qaData.push([
+        label,
+        incorrect,
+        total,
+        (incorrect / total * 100).toFixed(1) + '%',
+        STATE.excludedQuestions.has(qIdx) ? 'Yes' : 'No'
+      ]);
+    });
+    const ws2 = XLSX.utils.aoa_to_sheet(qaData);
+    ws2['!cols'] = qaHeaders.map(h => ({ wch: Math.max(h.length + 2, 12) }));
+    XLSX.utils.book_append_sheet(wb, ws2, 'Question Analysis');
+  }
+
+  XLSX.writeFile(wb, `NCIT_Exam_Report_${STATE.cohort.replace(/\s+/g,'_')}.xlsx`);
+}
+
+function downloadFile(content, filename, mimeType) {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
