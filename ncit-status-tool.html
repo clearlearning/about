@@ -95,7 +95,7 @@
   </div>
   <div class="panel hidden" id="panelMapping">
     <h2>&#128279; Module Mapping</h2>
-    <p style="font-size:13px;color:#777;margin-bottom:12px;">Auto-filtered to Self-Study, Knowledge Check, and Instructor-Led Session units. Edit display names or remove rows.</p>
+    <p style="font-size:13px;color:#777;margin-bottom:12px;">Auto-filtered to Self-Study, Knowledge Check/Assessment, and Instructor-Led Session units. Edit display names or remove rows.</p>
     <div class="module-list" id="moduleList"></div>
     <div class="btn-row"><button class="btn btn-primary" id="generateBtn">Generate Report &amp; Preview</button></div>
   </div>
@@ -113,7 +113,7 @@
 </div>
 <script>
 const STATE={workerUrl:'',authToken:'',connected:false,courses:[],groups:[],selectedCourse:null,selectedGroup:null,courseUnits:[],studentData:[],processedStudents:[],moduleMapping:[],currentPreview:0,includedStudents:new Set()};
-const INCLUDE_PATTERNS=[/self.?study/i,/knowledge.?check/i,/instructor.?led/i,/live.?session/i];
+const INCLUDE_PATTERNS=[/self.?study/i,/knowledge.?check/i,knowledge.?assessment/i,/instructor.?led/i,/live.?session/i];
 
 async function apiCall(path){const r=await fetch(STATE.workerUrl.replace(/\/+$/,'')+path,{headers:{'X-Auth-Token':STATE.authToken}});if(!r.ok){const t=await r.text();throw new Error('API '+r.status+': '+t);}return r.json();}
 
