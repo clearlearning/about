@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CLEAR Learning Status Report Generator</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Trebuchet+MS&display=swap');
+
+  :root {
+    --burgundy: #64092c;
+    --burgundy-light: #8a1e4a;
+    --gold: #dda838;
+    --gold-light: #f0c96a;
+    --blue: #084d78;
+    --blue-light: #0a6ba8;
+    --gray: #484848;
+    --gray-light: #f4f4f5;
+    --gray-mid: #e0e0e0;
+    --white: #ffffff;
+    --green: #2e7d32;
+    --green-bg: #e8f5e9;
+    --red: #c62828;
+    --red-bg: #ffebee;
+    --amber: #f57f17;
+    --amber-bg: #fff8e1;
+    --slate-bg: #eceff1;
+    --radius: 6px;
+    --shadow: 0 2px 8px rgba(0,0,0,0.08);
+    --shadow-lg: 0 4px 16px rgba(0,0,0,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Open Sans', sans-serif;
+    color: var(--gray);
+    background: var(--gray-light);
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, h4 { font-family: 'Trebuchet MS', 'Open Sans', sans-serif; }
+
+  .header {
+    background: linear-gradient(135deg, var(--blue) 0%, var(--blue-light) 100%);
+    color: var(--white);
+    padding: 24px 32px;
+    display: flex; align-items: center; gap: 16px;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .header-icon {
+    width: 48px; height: 48px; background: var(--gold);
+    border-radius: 10px; display: flex; align-items: center;
+    justify-content: center; font-size: 24px; flex-shrink: 0;
+  }
+
+  .header h1 { font-size: 22px; font-weight: 700; }
+  .header p { font-size: 13px; opacity: 0.85; margin-top: 2px; }
+
+  .main { max-width: 1400px; margin: 0 auto; padding: 24px 32px 48px; }
+
+  /* Panels */
+  .panel {
+    background: var(--white); border-radius: var(--radius);
+    padding: 28px 32px; box-shadow: var(--shadow); margin-bottom: 24px;
+  }
+
+  .panel h2 {
+    font-size: 17px; color: var(--blue); margin-bottom: 20px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .panel-section {
+    border: 1px solid var(--gray-mid); border-radius: var(--radius);
+    padding: 20px; margin-bottom: 16px;
+  }
+
+  .panel-section h3 {
+    font-size: 14px; color: var(--burgundy); margin-bottom: 12px;
+  }
+
+  /* Form */
+  .form-row {
+    display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 14px; align-items: flex-end;
+  }
+
+  .form-group {
+    display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 200px;
+  }
+
+  .form-group label {
+    font-size: 11px; font-weight: 600; color: var(--gray);
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+
+  .form-group input, .form-group select, .form-group textarea {
+    padding: 10px 14px; border: 1.5px solid var(--gray-mid);
+    border-radius: var(--radius); font-size: 14px;
+    font-family: 'Open Sans', sans-serif; transition: border-color 0.2s;
+  }
+
+  .form-group textarea { resize: vertical; min-height: 70px; }
+
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    outline: none; border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(8,77,120,0.1);
+  }
+
+  .form-group select:disabled { background: #f0f0f0; color: #aaa; }
+
+  .inline-note {
+    font-size: 12px; color: #888; margin-top: 2px; line-height: 1.4;
+  }
+
+  /* Buttons */
+  .btn {
+    padding: 11px 24px; border: none; border-radius: var(--radius);
+    font-size: 14px; font-weight: 600; font-family: 'Open Sans', sans-serif;
+    cursor: pointer; transition: all 0.2s;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+
+  .btn-primary { background: var(--blue); color: var(--white); }
+  .btn-primary:hover { background: var(--blue-light); box-shadow: var(--shadow); }
+  .btn-primary:disabled { background: #aaa; cursor: not-allowed; }
+  .btn-secondary { background: var(--white); color: var(--blue); border: 1.5px solid var(--blue); }
+  .btn-secondary:hover { background: rgba(8,77,120,0.05); }
+  .btn-gold { background: var(--gold); color: var(--burgundy); }
+  .btn-gold:hover { background: var(--gold-light); }
+  .btn-sm { padding: 7px 16px; font-size: 12px; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+
+  /* Connection indicator */
+  .connection-status {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 16px; border-radius: var(--radius); font-size: 13px;
+    margin-bottom: 16px;
+  }
+
+  .connection-status.connected { background: var(--green-bg); color: var(--green); }
+  .connection-status.disconnected { background: var(--red-bg); color: var(--red); }
+  .connection-status.loading { background: var(--amber-bg); color: var(--amber); }
+
+  .dot {
+    width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  }
+
+  .dot.green { background: var(--green); }
+  .dot.red { background: var(--red); }
+  .dot.amber { background: var(--amber); animation: pulse 1s infinite; }
+
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  /* Status badges */
+  .badge {
+    display: inline-block; padding: 3px 10px; border-radius: 12px;
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .badge-complete { background: var(--green-bg); color: var(--green); }
+  .badge-failed { background: var(--red-bg); color: var(--red); }
+  .badge-inprogress { background: var(--amber-bg); color: var(--amber); }
+  .badge-notstarted { background: var(--slate-bg); color: #78909c; }
+
+  /* Progress bar */
+  .progress-wrap {
+    height: 8px; background: var(--gray-mid); border-radius: 4px;
+    overflow: hidden; margin: 12px 0 8px;
+  }
+
+  .progress-fill {
+    height: 100%; background: var(--blue); border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+
+  .progress-text { font-size: 12px; color: #888; }
+
+  /* Table */
+  .table-wrap {
+    overflow-x: auto; border: 1px solid var(--gray-mid); border-radius: var(--radius);
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 12px; white-space: nowrap; }
+
+  thead th {
+    background: var(--blue); color: var(--white); padding: 10px 12px;
+    text-align: left; font-weight: 600; font-size: 11px;
+    position: sticky; top: 0; z-index: 2;
+  }
+
+  tbody td { padding: 8px 12px; border-bottom: 1px solid var(--gray-mid); }
+  tbody tr:hover { background: rgba(8,77,120,0.03); }
+  tbody tr:nth-child(even) { background: #fafafa; }
+
+  /* Module mapping list */
+  .module-list { margin-top: 12px; }
+
+  .module-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 8px 12px; border-bottom: 1px solid var(--gray-light);
+    font-size: 13px;
+  }
+
+  .module-item:hover { background: var(--gray-light); }
+
+  .module-item .idx { color: #aaa; font-size: 11px; min-width: 24px; }
+
+  .module-item input {
+    flex: 1; padding: 5px 10px; border: 1px solid var(--gray-mid);
+    border-radius: 4px; font-size: 12px; font-family: 'Open Sans', sans-serif;
+  }
+
+  .module-item .src { font-size: 11px; color: #999; min-width: 120px; }
+
+  .module-item .remove-btn {
+    background: none; border: none; color: var(--red); font-size: 16px;
+    cursor: pointer; padding: 2px 6px;
+  }
+
+  /* Preview */
+  .preview-nav {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
+    padding: 12px 16px; background: var(--gray-light); border-radius: var(--radius);
+  }
+
+  .preview-nav .count { font-size: 13px; font-weight: 600; color: var(--gray); }
+
+  .preview-frame {
+    border: 1px solid var(--gray-mid); border-radius: var(--radius);
+    padding: 32px; background: var(--white); max-height: 600px;
+    overflow-y: auto; font-size: 14px; line-height: 1.6;
+  }
+
+  .preview-frame table { white-space: normal; }
+  .preview-frame th { background: #222; color: #fff; padding: 10px 14px; font-size: 13px; }
+  .preview-frame td { padding: 8px 14px; border-bottom: 1px solid #eee; font-size: 13px; }
+
+  .note-block {
+    margin-top: 16px; padding: 12px 16px; background: var(--amber-bg);
+    border-left: 4px solid var(--gold); border-radius: 0 var(--radius) var(--radius) 0;
+    font-size: 13px;
+  }
+
+  /* Summary cards */
+  .summary-row {
+    display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px;
+  }
+
+  .summary-card {
+    flex: 1; min-width: 120px; background: var(--gray-light);
+    border-radius: var(--radius); padding: 14px; text-align: center;
+  }
+
+  .summary-card .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #888; margin-bottom: 4px; }
+  .summary-card .val { font-size: 22px; font-weight: 700; color: var(--blue); }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 768px) {
+    .header { padding: 16px; }
+    .main { padding: 16px; }
+    .panel { padding: 16px; }
+    .form-row { flex-direction: column; }
+  }
+
+  @media print {
+    .header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .badge, thead th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-icon">&#128231;</div>
+  <div>
+    <h1>CLEAR Learning Status Report Generator</h1>
+    <p>Pull student progress from TalentLMS and generate mail-merge-ready status reports</p>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- Connection & Course Selection -->
+  <div class="panel" id="panelSetup">
+    <h2>&#9881;&#65039; Setup &amp; Data Pull</h2>
+
+    <div class="panel-section">
+      <h3>1. API Connection</h3>
+      <div class="form-row">
+        <div class="form-group" style="flex:2;">
+          <label>Worker URL</label>
+          <input type="text" id="workerUrl" placeholder="https://your-worker.your-subdomain.workers.dev">
+          <span class="inline-note">The Cloudflare Worker URL from the setup guide</span>
+        </div>
+        <div class="form-group" style="flex:1;">
+          <label>Auth Token</label>
+          <input type="password" id="authToken" placeholder="Your secret auth token">
+        </div>
+        <div class="form-group" style="flex:0 0 auto;">
+          <label>&nbsp;</label>
+          <button class="btn btn-sm btn-secondary" id="connectBtn">Test Connection</button>
+        </div>
+      </div>
+      <div class="connection-status disconnected" id="connectionStatus">
+        <span class="dot red"></span> Not connected
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <h3>2. Select Course &amp; Group</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Course</label>
+          <select id="courseSelect" disabled>
+            <option value="">Connect to API first</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Group (Cohort)</label>
+          <select id="groupSelect" disabled>
+            <option value="">Select a course first</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <h3>3. Email Template Settings</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Program Name</label>
+          <input type="text" id="programName" value="NCIT Basic">
+        </div>
+        <div class="form-group">
+          <label>Program End Date</label>
+          <input type="text" id="programEndDate" placeholder="e.g., February 11, 2026">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Final Session Name</label>
+          <input type="text" id="finalSession" value="Program Review & Test Prep">
+        </div>
+        <div class="form-group">
+          <label>Data As-Of Date/Time</label>
+          <input type="text" id="asOfDate" placeholder="e.g., February 5, 2026, at 2:45 PM EST">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group" style="flex:2;">
+          <label>Opening Paragraph</label>
+          <textarea id="openingPara">The final day of the {programName} program is {programEndDate}. Following the final {finalSession} session on that date, you will be granted access to take the final exam if our records show you have completed all required program content. To help you prepare, we've included your program progress report below. This report reflects your status as of {asOfDate}.</textarea>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group" style="flex:2;">
+          <label>Review Paragraph</label>
+          <textarea id="reviewPara">Please take a moment to review the information carefully. If you notice any discrepancies or believe any details are incorrect, simply reply to this email so we can assist. Please note: if you have completed modules after {asOfDate} they will not be reflected in this email.</textarea>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group" style="flex:2;">
+          <label>Note Paragraph (shown only when student has incomplete/failed items)</label>
+          <textarea id="notePara">An "In Progress" status indicates that our records show you did not complete all elements of the module. If you missed any instructor-led live sessions, you must complete the corresponding make-up work located in the "Instructor-Led Session Make-Up Modules – Required if missed live session" section of the learning portal. If you did attend or review the required materials for a session but have not received credit, please let me know and I will work with you to update your account.</textarea>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Closing Name</label>
+          <input type="text" id="closingName" placeholder="e.g., Amanda">
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" id="pullDataBtn" disabled>
+        Pull Student Progress Data
+      </button>
+    </div>
+
+    <div class="progress-wrap hidden" id="progressWrap">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+    <p class="progress-text hidden" id="progressText"></p>
+  </div>
+
+  <!-- Module Mapping -->
+  <div class="panel hidden" id="panelMapping">
+    <h2>&#128279; Module Mapping</h2>
+    <p style="font-size:13px;color:#777;margin-bottom:12px;">
+      The tool pulled unit data from TalentLMS and auto-mapped it to status report modules.
+      Edit the display names or remove irrelevant rows. Only the modules listed below will appear in the status email.
+    </p>
+    <div class="module-list" id="moduleList"></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="generateBtn">Generate Report &amp; Preview</button>
+    </div>
+  </div>
+
+  <!-- Results: Data Table + Preview -->
+  <div class="panel hidden" id="panelResults">
+    <h2>&#128203; Results</h2>
+
+    <div class="summary-row" id="summaryRow"></div>
+
+    <div style="display:flex;gap:10px;margin-bottom:16px;">
+      <button class="btn btn-sm" id="tabTableBtn" style="background:var(--blue);color:#fff;">Data Table</button>
+      <button class="btn btn-sm btn-secondary" id="tabPreviewBtn">Email Preview</button>
+    </div>
+
+    <!-- Data Table View -->
+    <div id="viewTable">
+      <div class="table-wrap" id="dataTableWrap" style="max-height:500px;overflow-y:auto;"></div>
+    </div>
+
+    <!-- Email Preview View -->
+    <div id="viewPreview" class="hidden">
+      <div class="preview-nav">
+        <button class="btn btn-sm btn-secondary" id="prevBtn">&#8592;</button>
+        <span class="count" id="previewCount">1 of 1</span>
+        <button class="btn btn-sm btn-secondary" id="nextBtn">&#8594;</button>
+        <span style="flex:1;"></span>
+        <button class="btn btn-sm btn-secondary" id="copyBtn">Copy This Email</button>
+      </div>
+      <div class="preview-frame" id="previewFrame"></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-gold" id="exportXlsxBtn">Export Mail Merge XLSX</button>
+      <button class="btn btn-primary" id="exportCsvBtn">Export Mail Merge CSV</button>
+      <button class="btn btn-secondary" id="exportHtmlBtn">Export All Emails HTML</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+const STATE = {
+  workerUrl: '',
+  authToken: '',
+  connected: false,
+  courses: [],
+  groups: [],
+  selectedCourse: null,
+  selectedGroup: null,
+  courseUnits: [],
+  groupUsers: [],
+  studentData: [],    // final processed: [{firstName, lastName, email, statuses:[{label,status}]}]
+  moduleMapping: [],  // [{unitId, unitName, label, include}]
+  currentPreview: 0
+};
+
+// Patterns for units to exclude from the status email by default
+const EXCLUDE_PATTERNS = [
+  /module evaluation/i,
+  /program evaluation/i,
+  /overall.*evaluation/i,
+  /make.?up/i,
+  /q\s*&\s*a/i,
+  /apply for/i,
+  /certification/i,
+  /program review/i,
+  /exam info/i,
+  /self.?awareness surv/i,
+  /case stud.*discuss/i
+];
+
+// ============================================================
+// API HELPER
+// ============================================================
+async function apiCall(path) {
+  const resp = await fetch(STATE.workerUrl.replace(/\/+$/, '') + path, {
+    headers: { 'X-Auth-Token': STATE.authToken }
+  });
+  if (!resp.ok) {
+    const text = await resp.text();
+    throw new Error(`API ${resp.status}: ${text}`);
+  }
+  return resp.json();
+}
+
+// ============================================================
+// CONNECTION
+// ============================================================
+document.getElementById('connectBtn').addEventListener('click', async () => {
+  const url = document.getElementById('workerUrl').value.trim();
+  const token = document.getElementById('authToken').value.trim();
+  if (!url || !token) { setConnection('disconnected', 'Please enter Worker URL and Auth Token'); return; }
+
+  STATE.workerUrl = url;
+  STATE.authToken = token;
+  setConnection('loading', 'Connecting...');
+
+  try {
+    const info = await apiCall('/v1/siteinfo');
+    STATE.connected = true;
+    setConnection('connected', `Connected to ${info.site_name || info.domain || 'TalentLMS'}`);
+
+    // Save to localStorage for convenience
+    localStorage.setItem('clear_worker_url', url);
+    localStorage.setItem('clear_auth_token', token);
+
+    // Load courses
+    await loadCourses();
+  } catch (err) {
+    STATE.connected = false;
+    setConnection('disconnected', `Connection failed: ${err.message}`);
+  }
+});
+
+// Auto-fill from localStorage
+(function() {
+  const savedUrl = localStorage.getItem('clear_worker_url');
+  const savedToken = localStorage.getItem('clear_auth_token');
+  if (savedUrl) document.getElementById('workerUrl').value = savedUrl;
+  if (savedToken) document.getElementById('authToken').value = savedToken;
+})();
+
+function setConnection(status, text) {
+  const el = document.getElementById('connectionStatus');
+  el.className = `connection-status ${status}`;
+  const dotClass = status === 'connected' ? 'green' : status === 'loading' ? 'amber' : 'red';
+  el.innerHTML = `<span class="dot ${dotClass}"></span> ${esc(text)}`;
+}
+
+// ============================================================
+// LOAD COURSES & GROUPS
+// ============================================================
+async function loadCourses() {
+  try {
+    STATE.courses = await apiCall('/v1/courses');
+    const sel = document.getElementById('courseSelect');
+    sel.disabled = false;
+    sel.innerHTML = '<option value="">-- Select a course --</option>' +
+      STATE.courses.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
+  } catch (err) {
+    setConnection('disconnected', `Failed to load courses: ${err.message}`);
+  }
+}
+
+document.getElementById('courseSelect').addEventListener('change', async (e) => {
+  const courseId = e.target.value;
+  if (!courseId) { document.getElementById('groupSelect').disabled = true; return; }
+
+  STATE.selectedCourse = STATE.courses.find(c => String(c.id) === courseId);
+
+  // Load groups
+  try {
+    const allGroups = await apiCall('/v1/groups');
+    STATE.groups = allGroups;
+    const sel = document.getElementById('groupSelect');
+    sel.disabled = false;
+    sel.innerHTML = '<option value="">-- Select a group (cohort) --</option>' +
+      allGroups.map(g => `<option value="${g.id}">${esc(g.name)}</option>`).join('');
+  } catch (err) {
+    setConnection('disconnected', `Failed to load groups: ${err.message}`);
+  }
+
+  updatePullButton();
+});
+
+document.getElementById('groupSelect').addEventListener('change', (e) => {
+  STATE.selectedGroup = STATE.groups.find(g => String(g.id) === e.target.value) || null;
+  updatePullButton();
+});
+
+function updatePullButton() {
+  document.getElementById('pullDataBtn').disabled =
+    !(STATE.connected && document.getElementById('courseSelect').value && document.getElementById('groupSelect').value);
+}
+
+// ============================================================
+// PULL STUDENT DATA
+// ============================================================
+document.getElementById('pullDataBtn').addEventListener('click', pullStudentData);
+
+async function pullStudentData() {
+  const courseId = document.getElementById('courseSelect').value;
+  const groupId = document.getElementById('groupSelect').value;
+  if (!courseId || !groupId) return;
+
+  const btn = document.getElementById('pullDataBtn');
+  btn.disabled = true;
+  btn.textContent = 'Pulling data...';
+  showProgress(true);
+
+  try {
+    // 1. Get group details (member list)
+    setProgressText('Fetching group members...');
+    setProgressPct(5);
+    const groupDetail = await apiCall(`/v1/groups/id:${groupId}`);
+    const memberIds = (groupDetail.users || []).map(u => u.user_id || u.id);
+
+    if (memberIds.length === 0) throw new Error('No users found in this group.');
+
+    // 2. Get course details (unit structure)
+    setProgressText('Fetching course structure...');
+    setProgressPct(10);
+    const courseDetail = await apiCall(`/v1/courses/id:${courseId}`);
+    STATE.courseUnits = courseDetail.units || [];
+
+    // 3. For each user, get their course status
+    STATE.studentData = [];
+    for (let i = 0; i < memberIds.length; i++) {
+      const userId = memberIds[i];
+      setProgressText(`Fetching progress for user ${i + 1} of ${memberIds.length}...`);
+      setProgressPct(10 + Math.round((i / memberIds.length) * 85));
+
+      try {
+        const userStatus = await apiCall(`/v1/getuserstatusincourse/course_id:${courseId},user_id:${userId}`);
+        const userInfo = await apiCall(`/v1/users/id:${userId}`);
+
+        const unitStatuses = {};
+        if (userStatus.units) {
+          userStatus.units.forEach(u => {
+            unitStatuses[u.id] = u.completion_status_formatted || u.completion_status || 'Not Started';
+          });
+        }
+
+        STATE.studentData.push({
+          userId,
+          firstName: userInfo.first_name || '',
+          lastName: userInfo.last_name || '',
+          email: userInfo.email || '',
+          unitStatuses
+        });
+      } catch (userErr) {
+        console.warn(`Skipped user ${userId}: ${userErr.message}`);
+      }
+    }
+
+    setProgressPct(100);
+    setProgressText(`Loaded ${STATE.studentData.length} students.`);
+
+    // 4. Build module mapping
+    buildModuleMapping();
+
+    // Show mapping panel
+    document.getElementById('panelMapping').classList.remove('hidden');
+
+  } catch (err) {
+    alert(`Error pulling data: ${err.message}`);
+    console.error(err);
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Pull Student Progress Data';
+}
+
+function showProgress(show) {
+  document.getElementById('progressWrap').classList.toggle('hidden', !show);
+  document.getElementById('progressText').classList.toggle('hidden', !show);
+}
+
+function setProgressPct(pct) {
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+function setProgressText(text) {
+  document.getElementById('progressText').textContent = text;
+}
+
+// ============================================================
+// MODULE MAPPING
+// ============================================================
+function buildModuleMapping() {
+  STATE.moduleMapping = STATE.courseUnits
+    .filter(u => u.name && !EXCLUDE_PATTERNS.some(p => p.test(u.name)))
+    .map(u => ({
+      unitId: u.id,
+      unitName: u.name,
+      label: buildFriendlyLabel(u.name),
+      include: true
+    }));
+
+  renderModuleList();
+}
+
+function buildFriendlyLabel(name) {
+  // Clean up TalentLMS unit names into friendly module labels
+  let label = name;
+
+  // Remove leading "Module XX:" if present
+  label = label.replace(/^Module\s+\d+[:\s]*/i, '');
+
+  // Capitalize first letter
+  if (label.length > 0) label = label.charAt(0).toUpperCase() + label.slice(1);
+
+  // Truncate if very long
+  if (label.length > 70) label = label.substring(0, 67) + '...';
+
+  return label;
+}
+
+function renderModuleList() {
+  const container = document.getElementById('moduleList');
+  let html = '';
+
+  STATE.moduleMapping.forEach((mod, idx) => {
+    if (!mod.include) return;
+    html += `<div class="module-item">
+      <span class="idx">${idx + 1}.</span>
+      <input type="text" value="${esc(mod.label)}" onchange="STATE.moduleMapping[${idx}].label=this.value">
+      <span class="src" title="${esc(mod.unitName)}">${truncate(mod.unitName, 30)}</span>
+      <button class="remove-btn" onclick="removeModule(${idx})" title="Remove">&times;</button>
+    </div>`;
+  });
+
+  container.innerHTML = html || '<p style="color:#999;font-size:13px;">No modules mapped.</p>';
+}
+
+function removeModule(idx) {
+  STATE.moduleMapping[idx].include = false;
+  renderModuleList();
+}
+
+// ============================================================
+// GENERATE REPORT
+// ============================================================
+document.getElementById('generateBtn').addEventListener('click', () => {
+  generateReport();
+  document.getElementById('panelResults').classList.remove('hidden');
+  document.getElementById('panelResults').scrollIntoView({ behavior: 'smooth' });
+});
+
+function generateReport() {
+  const activeModules = STATE.moduleMapping.filter(m => m.include);
+
+  const processed = STATE.studentData.map(s => {
+    const statuses = activeModules.map(mod => {
+      const rawStatus = s.unitStatuses[mod.unitId] || 'Not Started';
+      return {
+        label: mod.label,
+        status: normalizeStatus(rawStatus)
+      };
+    });
+
+    const completed = statuses.filter(st => st.status === 'Completed').length;
+
+    return {
+      firstName: s.firstName,
+      lastName: s.lastName,
+      email: s.email,
+      statuses,
+      completed,
+      total: statuses.length,
+      pctComplete: statuses.length > 0 ? Math.round(completed / statuses.length * 100) : 0
+    };
+  });
+
+  // Sort by last name
+  processed.sort((a, b) => a.lastName.localeCompare(b.lastName));
+
+  STATE.processedStudents = processed;
+
+  renderSummary();
+  renderDataTable();
+  STATE.currentPreview = 0;
+  renderPreview();
+}
+
+function normalizeStatus(raw) {
+  const lower = (raw || '').toLowerCase().trim();
+  if (lower === 'completed' || lower === 'complete' || lower === 'passed') return 'Completed';
+  if (lower === 'failed') return 'Failed';
+  if (lower === 'incomplete' || lower === 'in progress' || lower === 'in_progress') return 'In Progress';
+  return 'Not Started';
+}
+
+function statusToBadge(status) {
+  switch (status) {
+    case 'Completed': return '<span class="badge badge-complete">Completed</span>';
+    case 'Failed': return '<span class="badge badge-failed">Failed</span>';
+    case 'In Progress': return '<span class="badge badge-inprogress">In Progress</span>';
+    default: return '<span class="badge badge-notstarted">Not Started</span>';
+  }
+}
+
+// ============================================================
+// RENDER: Summary, Table, Preview
+// ============================================================
+function renderSummary() {
+  const s = STATE.processedStudents;
+  const total = s.length;
+  const allDone = s.filter(x => x.pctComplete === 100).length;
+  const avgPct = total > 0 ? Math.round(s.reduce((a, x) => a + x.pctComplete, 0) / total) : 0;
+
+  document.getElementById('summaryRow').innerHTML = `
+    <div class="summary-card"><div class="lbl">Students</div><div class="val">${total}</div></div>
+    <div class="summary-card"><div class="lbl">All Complete</div><div class="val" style="color:var(--green);">${allDone}</div></div>
+    <div class="summary-card"><div class="lbl">Avg Progress</div><div class="val">${avgPct}%</div></div>
+    <div class="summary-card"><div class="lbl">Modules Tracked</div><div class="val">${STATE.moduleMapping.filter(m=>m.include).length}</div></div>
+  `;
+}
+
+function renderDataTable() {
+  const students = STATE.processedStudents;
+  const modules = STATE.moduleMapping.filter(m => m.include);
+
+  let html = '<table><thead><tr><th>#</th><th>First Name</th><th>Last Name</th><th>Email</th><th>Progress</th>';
+  modules.forEach(m => {
+    const short = m.label.length > 25 ? m.label.substring(0, 23) + '...' : m.label;
+    html += `<th title="${esc(m.label)}">${esc(short)}</th>`;
+  });
+  html += '</tr></thead><tbody>';
+
+  students.forEach((s, i) => {
+    html += `<tr><td>${i+1}</td><td>${esc(s.firstName)}</td><td>${esc(s.lastName)}</td>
+      <td>${esc(s.email)}</td>
+      <td>${statusToBadge(s.pctComplete === 100 ? 'Completed' : 'In Progress')} ${s.pctComplete}%</td>`;
+    s.statuses.forEach(st => { html += `<td>${statusToBadge(st.status)}</td>`; });
+    html += '</tr>';
+  });
+
+  html += '</tbody></table>';
+  document.getElementById('dataTableWrap').innerHTML = html;
+}
+
+// Tab switching
+document.getElementById('tabTableBtn').addEventListener('click', () => {
+  document.getElementById('viewTable').classList.remove('hidden');
+  document.getElementById('viewPreview').classList.add('hidden');
+  document.getElementById('tabTableBtn').style.background = 'var(--blue)';
+  document.getElementById('tabTableBtn').style.color = '#fff';
+  document.getElementById('tabPreviewBtn').style.background = '';
+  document.getElementById('tabPreviewBtn').style.color = '';
+});
+
+document.getElementById('tabPreviewBtn').addEventListener('click', () => {
+  document.getElementById('viewTable').classList.add('hidden');
+  document.getElementById('viewPreview').classList.remove('hidden');
+  document.getElementById('tabPreviewBtn').style.background = 'var(--blue)';
+  document.getElementById('tabPreviewBtn').style.color = '#fff';
+  document.getElementById('tabTableBtn').style.background = '';
+  document.getElementById('tabTableBtn').style.color = '';
+  renderPreview();
+});
+
+// Preview navigation
+document.getElementById('prevBtn').addEventListener('click', () => {
+  if (STATE.currentPreview > 0) { STATE.currentPreview--; renderPreview(); }
+});
+document.getElementById('nextBtn').addEventListener('click', () => {
+  if (STATE.currentPreview < (STATE.processedStudents || []).length - 1) { STATE.currentPreview++; renderPreview(); }
+});
+
+function renderPreview() {
+  const students = STATE.processedStudents || [];
+  if (students.length === 0) return;
+  const idx = STATE.currentPreview;
+  const s = students[idx];
+  document.getElementById('previewCount').textContent = `${idx+1} of ${students.length} - ${s.firstName} ${s.lastName}`;
+  document.getElementById('previewFrame').innerHTML = buildEmailHtml(s);
+}
+
+function buildEmailHtml(student) {
+  const vars = {
+    programName: document.getElementById('programName').value,
+    programEndDate: document.getElementById('programEndDate').value,
+    finalSession: document.getElementById('finalSession').value,
+    asOfDate: document.getElementById('asOfDate').value
+  };
+  const closingName = document.getElementById('closingName').value;
+
+  const fill = (t) => t.replace(/\{(\w+)\}/g, (_, k) => vars[k] || '');
+  const opening = fill(document.getElementById('openingPara').value);
+  const review = fill(document.getElementById('reviewPara').value);
+  const note = document.getElementById('notePara').value;
+
+  const hasIssues = student.statuses.some(st => st.status !== 'Completed');
+
+  let html = `<p style="font-size:15px;">Hello ${esc(student.firstName)} ${esc(student.lastName)},</p>`;
+  html += `<p style="margin:12px 0;color:#484848;">${esc(opening)}</p>`;
+  html += `<p style="margin:12px 0;color:#484848;">${esc(review)}</p>`;
+
+  html += '<table style="width:100%;border-collapse:collapse;margin:16px 0;"><thead><tr>';
+  html += '<th style="background:#222;color:#fff;padding:10px 14px;text-align:left;">Module</th>';
+  html += '<th style="background:#222;color:#fff;padding:10px 14px;text-align:left;">Status</th>';
+  html += '</tr></thead><tbody>';
+
+  student.statuses.forEach(st => {
+    let color = '#78909c', bg = '#eceff1';
+    if (st.status === 'Completed') { color = '#2e7d32'; bg = '#e8f5e9'; }
+    else if (st.status === 'Failed') { color = '#c62828'; bg = '#ffebee'; }
+    else if (st.status === 'In Progress') { color = '#f57f17'; bg = '#fff8e1'; }
+
+    html += `<tr><td style="padding:8px 14px;border-bottom:1px solid #eee;">${esc(st.label)}</td>`;
+    html += `<td style="padding:8px 14px;border-bottom:1px solid #eee;color:${color};font-weight:700;background:${bg};">${st.status}</td></tr>`;
+  });
+
+  html += '</tbody></table>';
+
+  if (hasIssues) {
+    html += `<div style="margin-top:16px;padding:12px 16px;background:#fff8e1;border-left:4px solid #dda838;border-radius:0 6px 6px 0;font-size:13px;">
+      <strong>Note:</strong> ${esc(note)}
+    </div>`;
+  }
+
+  html += `<p style="margin-top:20px;">Thank you for your time,</p>`;
+  html += `<p><strong>${esc(closingName)}</strong></p>`;
+
+  return html;
+}
+
+// Copy email
+document.getElementById('copyBtn').addEventListener('click', () => {
+  const frame = document.getElementById('previewFrame');
+  const range = document.createRange();
+  range.selectNodeContents(frame);
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+  document.execCommand('copy');
+  sel.removeAllRanges();
+  const btn = document.getElementById('copyBtn');
+  btn.textContent = 'Copied!';
+  setTimeout(() => btn.textContent = 'Copy This Email', 1500);
+});
+
+// ============================================================
+// EXPORTS
+// ============================================================
+document.getElementById('exportCsvBtn').addEventListener('click', () => {
+  const students = STATE.processedStudents;
+  const modules = STATE.moduleMapping.filter(m => m.include);
+  const headers = ['First Name', 'Last Name', 'Email', ...modules.map(m => m.label)];
+
+  let csv = headers.map(h => `"${h}"`).join(',') + '\n';
+  students.forEach(s => {
+    const row = [s.firstName, s.lastName, s.email, ...s.statuses.map(st => st.status)];
+    csv += row.map(c => `"${String(c||'').replace(/"/g,'""')}"`).join(',') + '\n';
+  });
+
+  download(csv, 'Status_Report_Mail_Merge.csv', 'text/csv');
+});
+
+document.getElementById('exportXlsxBtn').addEventListener('click', () => {
+  const students = STATE.processedStudents;
+  const modules = STATE.moduleMapping.filter(m => m.include);
+  const headers = ['First Name', 'Last Name', 'Email', ...modules.map(m => m.label)];
+
+  const data = [headers];
+  students.forEach(s => {
+    data.push([s.firstName, s.lastName, s.email, ...s.statuses.map(st => st.status)]);
+  });
+
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  ws['!cols'] = headers.map(h => ({ wch: Math.max(h.length + 2, 14) }));
+  XLSX.utils.book_append_sheet(wb, ws, 'Mail Merge Data');
+  XLSX.writeFile(wb, 'Status_Report_Mail_Merge.xlsx');
+});
+
+document.getElementById('exportHtmlBtn').addEventListener('click', () => {
+  const students = STATE.processedStudents;
+  let html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+    <style>body{font-family:'Segoe UI',Arial,sans-serif;color:#333;}
+    .block{page-break-after:always;padding:32px;max-width:700px;margin:0 auto 40px;border:1px solid #ddd;border-radius:8px;}
+    .hdr{background:#f5f5f5;padding:12px 16px;border-radius:6px;margin-bottom:20px;font-size:13px;}
+    .hdr strong{color:#084d78;}
+    table{width:100%;border-collapse:collapse;margin:16px 0;}
+    th{background:#222;color:#fff;padding:10px 14px;text-align:left;font-size:13px;}
+    td{padding:8px 14px;border-bottom:1px solid #eee;font-size:13px;}
+    .note{margin-top:16px;padding:12px 16px;background:#fff8e1;border-left:4px solid #dda838;font-size:13px;}
+    .c{color:#2e7d32;font-weight:700;background:#e8f5e9} .f{color:#c62828;font-weight:700;background:#ffebee}
+    .ip{color:#f57f17;font-weight:700;background:#fff8e1} .ns{color:#78909c;font-weight:700;background:#eceff1}</style></head><body>`;
+
+  students.forEach(s => {
+    html += `<div class="block"><div class="hdr"><strong>To:</strong> ${esc(s.email)||'(none)'} | <strong>${esc(s.firstName)} ${esc(s.lastName)}</strong> | ${s.pctComplete}% complete</div>`;
+    html += buildEmailHtml(s);
+    html += '</div>';
+  });
+
+  html += '</body></html>';
+  download(html, 'All_Status_Emails.html', 'text/html');
+});
+
+// ============================================================
+// UTILITIES
+// ============================================================
+function esc(s) {
+  if (s === null || s === undefined) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function truncate(s, n) {
+  return s && s.length > n ? s.substring(0, n - 3) + '...' : (s || '');
+}
+
+function download(content, filename, mimeType) {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
