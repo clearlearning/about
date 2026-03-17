@@ -113,7 +113,7 @@
 </div>
 <script>
 const STATE={workerUrl:'',authToken:'',connected:false,courses:[],groups:[],selectedCourse:null,selectedGroup:null,courseUnits:[],studentData:[],processedStudents:[],moduleMapping:[],currentPreview:0,includedStudents:new Set()};
-const INCLUDE_PATTERNS=[/self.?study/i,/knowledge.?check/i,knowledge.?assessment/i,/instructor.?led/i,/live.?session/i];
+const INCLUDE_PATTERNS=[/self.?study/i,/knowledge.?assessment/i,/knowledge.?check/i,/instructor.?led/i,/live.?session/i];
 
 async function apiCall(path){const r=await fetch(STATE.workerUrl.replace(/\/+$/,'')+path,{headers:{'X-Auth-Token':STATE.authToken}});if(!r.ok){const t=await r.text();throw new Error('API '+r.status+': '+t);}return r.json();}
 
