@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CLEAR Learning Status Report Generator</title>
+  <link rel="icon" type="image/png" href="https://assets-002.noviams.com/novi-file-uploads/clear/structure/clearlogo.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Trebuchet+MS&display=swap');
@@ -293,12 +294,12 @@
       <div class="form-row">
         <div class="form-group" style="flex:2;">
           <label>Worker URL</label>
-          <input type="text" id="workerUrl" placeholder="https://your-worker.your-subdomain.workers.dev">
-          <span class="inline-note">The Cloudflare Worker URL from the setup guide</span>
+          <input type="text" id="workerUrl" value="https://clear-lms-proxy.avance.workers.dev">
+          <span class="inline-note">Pre-configured. Do not change unless instructed.</span>
         </div>
         <div class="form-group" style="flex:1;">
           <label>Auth Token</label>
-          <input type="password" id="authToken" placeholder="Your secret auth token">
+          <input type="password" id="authToken" placeholder="Enter access token (first time only)">
         </div>
         <div class="form-group" style="flex:0 0 auto;">
           <label>&nbsp;</label>
@@ -517,7 +518,7 @@ document.getElementById('connectBtn').addEventListener('click', async () => {
 
 // Auto-fill from localStorage
 (function() {
-  const savedUrl = localStorage.getItem('clear_worker_url');
+  const savedUrl = localStorage.getItem('clear_worker_url') || 'https://clear-lms-proxy.avance.workers.dev';
   const savedToken = localStorage.getItem('clear_auth_token');
   if (savedUrl) document.getElementById('workerUrl').value = savedUrl;
   if (savedToken) document.getElementById('authToken').value = savedToken;
