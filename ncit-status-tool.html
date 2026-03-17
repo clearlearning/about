@@ -6,6 +6,7 @@
 <title>CLEAR Learning Status Report Generator</title>
 <link rel="icon" type="image/png" href="https://assets-002.noviams.com/novi-file-uploads/clear/structure/clearlogo.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Trebuchet+MS&display=swap');
   :root { --burgundy:#64092c; --burgundy-light:#8a1e4a; --gold:#dda838; --gold-light:#f0c96a; --blue:#084d78; --blue-light:#0a6ba8; --gray:#484848; --gray-light:#f4f4f5; --gray-mid:#e0e0e0; --white:#ffffff; --green:#2e7d32; --green-bg:#e8f5e9; --red:#c62828; --red-bg:#ffebee; --amber:#f57f17; --amber-bg:#fff8e1; --slate-bg:#eceff1; --radius:6px; --shadow:0 2px 8px rgba(0,0,0,0.08); --shadow-lg:0 4px 16px rgba(0,0,0,0.12); }
@@ -50,8 +51,8 @@
   .module-item select.src-select{flex:1;padding:5px 10px;border:1px solid var(--gray-mid);border-radius:4px;font-size:12px;font-family:'Open Sans',sans-serif;min-width:200px;} .module-item .remove-btn{background:none;border:none;color:var(--red);font-size:16px;cursor:pointer;padding:2px 6px;}
   .preview-nav{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding:12px 16px;background:var(--gray-light);border-radius:var(--radius);}
   .preview-nav .nav-left{display:flex;align-items:center;gap:8px;flex-shrink:0;} .preview-nav .nav-info{flex:1;font-size:13px;font-weight:600;color:var(--gray);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;} .preview-nav .nav-right{flex-shrink:0;}
-  .preview-frame{border:1px solid var(--gray-mid);border-radius:var(--radius);padding:32px;background:var(--white);max-height:600px;overflow-y:auto;font-size:14px;line-height:1.6;}
-  .preview-frame table{white-space:normal;} .preview-frame th{background:#222;color:#fff;padding:10px 14px;font-size:13px;} .preview-frame td{padding:8px 14px;border-bottom:1px solid #eee;font-size:13px;}
+  .preview-frame{border:1px solid var(--gray-mid);border-radius:var(--radius);padding:0;background:var(--white);max-height:700px;overflow-y:auto;font-size:14px;line-height:1.6;}
+  .preview-frame table{white-space:normal;}
   .summary-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;} .summary-card{flex:1;min-width:120px;background:var(--gray-light);border-radius:var(--radius);padding:14px;text-align:center;}
   .summary-card .lbl{font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:#888;margin-bottom:4px;} .summary-card .val{font-size:22px;font-weight:700;color:var(--blue);}
   .hidden{display:none !important;}
@@ -86,8 +87,11 @@
       <div class="form-row" style="align-items:flex-start;"><div class="form-group"><label>Final Session Name</label><input type="text" id="finalSession" value="Program Review &amp; Test Prep"></div><div class="form-group"><label>Data As-Of Date/Time</label><input type="text" id="asOfDate" placeholder="Auto-set when data is pulled" readonly style="background:#f0f0f0;"><span class="inline-note">Automatically set when you click "Pull Student Progress Data."</span></div></div>
       <div class="instruction-text">The field values above populate the <strong>{placeholders}</strong> in the paragraphs below. <strong>{programName}</strong> and <strong>{asOfDate}</strong> are set automatically. You can edit <strong>{programEndDate}</strong> and <strong>{finalSession}</strong> manually.</div>
       <div class="form-row"><div class="form-group" style="flex:2;"><label>Opening Paragraph</label><textarea id="openingPara">The final day of the {programName} program is {programEndDate}. Following the final {finalSession} session on that date, you will be granted access to take the final exam if our records show you have completed all required program content. To help you prepare, we've included your program progress report below. This report reflects your status as of {asOfDate}.</textarea></div></div>
-      <div class="form-row"><div class="form-group" style="flex:2;"><label>Review Paragraph</label><textarea id="reviewPara">Please take a moment to review the information carefully. If you notice any discrepancies or believe any details are incorrect, simply reply to this email so we can assist. Please note: if you have completed modules after {asOfDate} they will not be reflected in this email.</textarea></div></div>
-      <div class="form-row"><div class="form-group" style="flex:2;"><label>Note Paragraph (shown only when student has incomplete/failed items)</label><textarea id="notePara">An "In Progress" status indicates that our records show you did not complete all elements of the module. If you missed any instructor-led live sessions, you must complete the corresponding make-up work located in the "Instructor-Led Session Make-Up Modules - Required if missed live session" section of the learning portal. If you did attend or review the required materials for a session but have not received credit, please let me know and I will work with you to update your account.</textarea></div></div>
+      <div class="form-row"><div class="form-group" style="flex:2;"><label>Review Paragraph</label><textarea id="reviewPara">Please take a moment to review the information carefully. If you notice any discrepancies or believe any details are incorrect, please forward this email to your program facilitator and let them know what should be corrected.</textarea></div></div>
+      <div class="form-row"><div class="form-group" style="flex:2;"><label>Disclaimer Paragraph</label><textarea id="reviewPara2">Please note: if you have completed modules after {asOfDate} they will not be reflected in this email.</textarea></div></div>
+      <div class="form-row"><div class="form-group" style="flex:2;"><label>Note Paragraph (shown only when student has incomplete/not started items)</label><textarea id="notePara" style="min-height:120px;">Note: An "In Progress" status indicates that our records show you did not complete all elements of the module.
+If you missed any instructor-led live sessions, you must complete the corresponding make-up work located in the "Instructor-Led Session Make-Up Modules - Required if missed live session" section of the learning portal.
+If you did attend or review the required materials for a session but have not received credit, please let me know and I will work with you to update your account.</textarea></div></div>
     </div>
     <div class="btn-row"><button class="btn btn-primary" id="pullDataBtn" disabled>Pull Student Progress Data</button></div>
     <div class="progress-wrap hidden" id="progressWrap"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
@@ -95,7 +99,7 @@
   </div>
   <div class="panel hidden" id="panelMapping">
     <h2>&#128279; Module Mapping</h2>
-    <p style="font-size:13px;color:#777;margin-bottom:12px;">Auto-filtered to Self-Study, Knowledge Check/Assessment, and Instructor-Led Session units. Edit display names or remove rows.</p>
+    <p style="font-size:13px;color:#777;margin-bottom:12px;">Auto-filtered to Self-Study, Knowledge Check, and Instructor-Led Session units. Edit display names or remove rows.</p>
     <div class="module-list" id="moduleList"></div>
     <div class="btn-row"><button class="btn btn-primary" id="generateBtn">Generate Report &amp; Preview</button></div>
   </div>
@@ -108,12 +112,12 @@
       <div class="preview-nav"><div class="nav-left"><button class="btn btn-sm btn-secondary" id="prevBtn">&#8592;</button><button class="btn btn-sm btn-secondary" id="nextBtn">&#8594;</button></div><span class="nav-info" id="previewCount">1 of 1</span><div class="nav-right"><button class="btn btn-sm btn-secondary" id="copyBtn">Copy This Email</button></div></div>
       <div class="preview-frame" id="previewFrame"></div>
     </div>
-    <div class="btn-row"><button class="btn btn-gold" id="exportXlsxBtn">Export Mail Merge XLSX</button><button class="btn btn-primary" id="exportCsvBtn">Export Mail Merge CSV</button><button class="btn btn-secondary" id="exportHtmlBtn">Export All Emails HTML</button></div>
+    <div class="btn-row"><button class="btn btn-gold" id="exportXlsxBtn">Export Mail Merge XLSX</button><button class="btn btn-primary" id="exportCsvBtn">Export Mail Merge CSV</button><button class="btn btn-secondary" id="exportHtmlBtn">Export All Emails HTML</button><button class="btn btn-primary" id="exportPABtn" style="background:var(--burgundy);">&#9993; Export Emails for Power Automate</button></div>
   </div>
 </div>
 <script>
 const STATE={workerUrl:'',authToken:'',connected:false,courses:[],groups:[],selectedCourse:null,selectedGroup:null,courseUnits:[],studentData:[],processedStudents:[],moduleMapping:[],currentPreview:0,includedStudents:new Set()};
-const INCLUDE_PATTERNS=[/self.?study/i,/knowledge.?assessment/i,/knowledge.?check/i,/instructor.?led/i,/live.?session/i];
+const INCLUDE_PATTERNS=[/self.?study/i,/knowledge.?check/i,/instructor.?led/i,/live.?session/i];
 
 async function apiCall(path){const r=await fetch(STATE.workerUrl.replace(/\/+$/,'')+path,{headers:{'X-Auth-Token':STATE.authToken}});if(!r.ok){const t=await r.text();throw new Error('API '+r.status+': '+t);}return r.json();}
 
@@ -163,16 +167,238 @@ document.getElementById('tabPreviewBtn').addEventListener('click',()=>{document.
 document.getElementById('prevBtn').addEventListener('click',()=>{if(STATE.currentPreview>0){STATE.currentPreview--;renderPreview();}});
 document.getElementById('nextBtn').addEventListener('click',()=>{if(STATE.currentPreview<(STATE.processedStudents||[]).length-1){STATE.currentPreview++;renderPreview();}});
 
-function renderPreview(){const students=STATE.processedStudents||[];if(students.length===0)return;const idx=STATE.currentPreview;const s=students[idx];const inc=STATE.includedStudents.has(idx);const tag=inc?'':' <span class="badge badge-notstarted">EXCLUDED</span>';document.getElementById('previewCount').innerHTML=(idx+1)+' of '+students.length+' &mdash; '+esc(s.firstName)+' '+esc(s.lastName)+tag;document.getElementById('previewFrame').innerHTML=buildEmailHtml(s);}
+function renderPreview(){const students=STATE.processedStudents||[];if(students.length===0)return;const idx=STATE.currentPreview;const s=students[idx];const inc=STATE.includedStudents.has(idx);const tag=inc?'':' <span class="badge badge-notstarted">EXCLUDED</span>';document.getElementById('previewCount').innerHTML=(idx+1)+' of '+students.length+' &mdash; '+esc(s.firstName)+' '+esc(s.lastName)+tag;document.getElementById('previewFrame').innerHTML=buildEmailHtml(s,false);}
 
-function buildEmailHtml(student){const vars={programName:document.getElementById('programName').value,programEndDate:document.getElementById('programEndDate').value,finalSession:document.getElementById('finalSession').value,asOfDate:document.getElementById('asOfDate').value};const fill=t=>t.replace(/\{(\w+)\}/g,(_,k)=>vars[k]||'');const opening=fill(document.getElementById('openingPara').value);const review=fill(document.getElementById('reviewPara').value);const note=document.getElementById('notePara').value;const hasIssues=student.statuses.some(st=>st.status!=='Completed');let h='<p style="font-size:15px;">Hello '+esc(student.firstName)+' '+esc(student.lastName)+',</p>';h+='<p style="margin:12px 0;color:#484848;">'+esc(opening)+'</p>';h+='<p style="margin:12px 0;color:#484848;">'+esc(review)+'</p>';h+='<table style="width:100%;border-collapse:collapse;margin:16px 0;"><thead><tr><th style="background:#222;color:#fff;padding:10px 14px;text-align:left;">Module</th><th style="background:#222;color:#fff;padding:10px 14px;text-align:left;">Status</th></tr></thead><tbody>';student.statuses.forEach(st=>{let color='#78909c',bg='#eceff1';if(st.status==='Completed'){color='#2e7d32';bg='#e8f5e9';}else if(st.status==='In Progress'){color='#f57f17';bg='#fff8e1';}h+='<tr><td style="padding:8px 14px;border-bottom:1px solid #eee;">'+esc(st.label)+'</td><td style="padding:8px 14px;border-bottom:1px solid #eee;color:'+color+';font-weight:700;background:'+bg+';">'+st.status+'</td></tr>';});h+='</tbody></table>';if(hasIssues){h+='<div style="margin-top:16px;padding:12px 16px;background:#fff8e1;border-left:4px solid #dda838;border-radius:0 6px 6px 0;font-size:13px;"><strong>Note:</strong> '+esc(note)+'</div>';}h+='<p style="margin-top:20px;">Thank you for your time,</p>';return h;}
+function buildEmailHtml(student,wrapDoc){
+const vars={programName:document.getElementById('programName').value,programEndDate:document.getElementById('programEndDate').value,finalSession:document.getElementById('finalSession').value,asOfDate:document.getElementById('asOfDate').value};
+const fill=t=>t.replace(/\{(\w+)\}/g,(_,k)=>vars[k]||'');
+const opening=fill(document.getElementById('openingPara').value);
+const review=fill(document.getElementById('reviewPara').value);
+const review2=fill(document.getElementById('reviewPara2').value);
+const noteRaw=document.getElementById('notePara').value;
+const noteLines=noteRaw.split('\n').filter(l=>l.trim());
+const hasIssues=student.statuses.some(st=>st.status!=='Completed');
+const completed=student.statuses.filter(st=>st.status==='Completed').length;
+const inProg=student.statuses.filter(st=>st.status==='In Progress').length;
+const notStart=student.statuses.filter(st=>st.status==='Not Started').length;
+const total=student.statuses.length;
+const pct=total>0?Math.round(completed/total*100):0;
+
+let openingHtml=esc(opening);
+if(vars.programName)openingHtml=openingHtml.replace(esc(vars.programName),'<strong>'+esc(vars.programName)+'</strong>');
+if(vars.programEndDate)openingHtml=openingHtml.split(esc(vars.programEndDate)).join('<strong>'+esc(vars.programEndDate)+'</strong>');
+if(vars.finalSession)openingHtml=openingHtml.replace(esc(vars.finalSession),'<strong>'+esc(vars.finalSession)+'</strong>');
+if(vars.asOfDate)openingHtml=openingHtml.split(esc(vars.asOfDate)).join('<strong>'+esc(vars.asOfDate)+'</strong>');
+openingHtml=openingHtml.replace('if our records show you have completed all required program content','<strong style="color:#64092c;"><em>if our records show you have completed all required program content</em></strong>');
+
+let review2Html=esc(review2);
+review2Html=review2Html.replace('Please note:','<strong>Please note:</strong>');
+if(vars.asOfDate)review2Html=review2Html.replace(esc(vars.asOfDate),'<strong>'+esc(vars.asOfDate)+'</strong>');
+
+const F="font-family:'Open Sans',Arial,Helvetica,sans-serif;";
+const FH="font-family:'Trebuchet MS',Arial,Helvetica,sans-serif;";
+const SP='<tr><td style="height:24px;font-size:1px;line-height:1px;mso-line-height-rule:exactly;">&nbsp;</td></tr>';
+
+let h='';
+if(wrapDoc){
+h+='<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">';
+h+='<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">';
+h+='<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>';
+h+='<meta name="viewport" content="width=device-width, initial-scale=1.0"/>';
+h+='<!--[if gte mso 9]><xml><o:OfficeDocumentSettings><o:AllowPNG/><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml><![endif]-->';
+h+='<style type="text/css">';
+h+='body,table,td,p,a{-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;}';
+h+='table,td{mso-table-lspace:0pt;mso-table-rspace:0pt;}';
+h+='img{-ms-interpolation-mode:bicubic;border:0;outline:none;text-decoration:none;}';
+h+='body{margin:0;padding:0;width:100%!important;-webkit-font-smoothing:antialiased;}';
+h+='#outlook a{padding:0;}';
+h+='.ReadMsgBody{width:100%;}.ExternalClass{width:100%;}';
+h+='.ExternalClass,.ExternalClass p,.ExternalClass span,.ExternalClass font,.ExternalClass td,.ExternalClass div{line-height:100%;}';
+h+='</style>';
+h+='</head><body style="margin:0;padding:0;background-color:#ffffff;">';
+}
+
+// === HEADER ===
+h+='<table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation" style="background-color:#64092c;"><tr><td align="center">';
+h+='<!--[if mso]><table width="680" cellpadding="0" cellspacing="0" border="0" role="presentation"><tr><td><![endif]-->';
+h+='<table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation" style="max-width:680px;"><tr>';
+h+='<td style="padding:24px 36px;">';
+h+='<table cellpadding="0" cellspacing="0" border="0" role="presentation"><tr>';
+h+='<td width="74" valign="middle" style="padding-right:18px;">';
+h+='<!--[if mso]><table cellpadding="0" cellspacing="0" border="0"><tr><td width="56" height="56"><![endif]-->';
+h+='<img src="https://assets-002.noviams.com/novi-file-uploads/clear/logos/ClearLogo.png" alt="CLEAR" width="56" height="56" style="display:block;width:56px;height:56px;border:0;"/>';
+h+='<!--[if mso]></td></tr></table><![endif]-->';
+h+='</td>';
+h+='<td valign="middle">';
+h+='<table cellpadding="0" cellspacing="0" border="0" role="presentation">';
+h+='<tr><td style="'+FH+'font-size:20px;font-weight:700;color:#ffffff;line-height:24px;mso-line-height-rule:exactly;">Program Status Report</td></tr>';
+h+='<tr><td style="'+F+'font-size:12px;color:rgba(255,255,255,0.7);line-height:16px;mso-line-height-rule:exactly;padding-top:3px;">CLEAR Learning Portal</td></tr>';
+h+='</table></td>';
+h+='</tr></table></td></tr></table>';
+h+='<!--[if mso]></td></tr></table><![endif]-->';
+h+='</td></tr></table>';
+
+// === GOLD ACCENT ===
+h+='<table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation"><tr><td style="height:4px;background-color:#dda838;font-size:1px;line-height:1px;mso-line-height-rule:exactly;">&nbsp;</td></tr></table>';
+
+// === BODY WRAPPER ===
+h+='<table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation"><tr><td align="center">';
+h+='<!--[if mso]><table width="680" cellpadding="0" cellspacing="0" border="0" role="presentation"><tr><td><![endif]-->';
+h+='<table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation" style="max-width:680px;"><tr><td style="padding:32px 36px 0;">';
+
+// === GREETING ===
+h+='<table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation"><tr><td style="'+F+'font-size:16px;color:#333333;line-height:24px;mso-line-height-rule:exactly;padding-bottom:20px;">';
+h+='Hello <strong>'+esc(student.firstName)+' '+esc(student.lastName)+'</strong>,';
+h+='</td></tr></table>';
+
+// === OPENING ===
+h+='<table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation"><tr><td style="'+F+'font-size:14px;color:#484848;line-height:23px;mso-line-height-rule:exactly;padding-bottom:16px;">';
+h+=openingHtml;
+h+='</td></tr></table>';
+
+// === REVIEW ===
+h+='<table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation"><tr><td style="'+F+'font-size:14px;color:#484848;line-height:23px;mso-line-height-rule:exactly;padding-bottom:16px;">';
+h+=esc(review);
+h+='</td></tr></table>';
+
+// === DISCLAIMER ===
+h+='<table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation"><tr><td style="'+F+'font-size:14px;color:#484848;line-height:23px;mso-line-height-rule:exactly;padding-bottom:28px;">';
+h+=review2Html;
+h+='</td></tr></table>';
+
+// === PROGRESS SUMMARY ===
+h+='<table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation" style="border:1px solid #e8d5dc;background-color:rgba(100,9,44,0.02);"><tr><td style="padding:20px 24px;">';
+h+='<table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation"><tr>';
+
+// Left: percentage
+h+='<td valign="top" width="50%">';
+h+='<table cellpadding="0" cellspacing="0" border="0" role="presentation">';
+h+='<tr><td style="'+F+'font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:#888888;line-height:14px;mso-line-height-rule:exactly;padding-bottom:6px;">Overall Progress</td></tr>';
+h+='<tr><td style="'+FH+'font-size:32px;font-weight:700;color:#64092c;line-height:32px;mso-line-height-rule:exactly;">'+pct+'%</td></tr>';
+h+='<tr><td style="'+F+'font-size:12px;color:#888888;line-height:16px;mso-line-height-rule:exactly;padding-top:4px;">'+completed+' of '+total+' modules completed</td></tr>';
+h+='</table></td>';
+
+// Right: counts
+h+='<td valign="top" width="50%" align="right">';
+h+='<table cellpadding="0" cellspacing="0" border="0" role="presentation" align="right"><tr>';
+h+='<td valign="top" style="text-align:center;padding:0 14px;"><table cellpadding="0" cellspacing="0" border="0" role="presentation"><tr><td align="center" style="'+FH+'font-size:24px;font-weight:700;color:#084d78;line-height:28px;mso-line-height-rule:exactly;">'+completed+'</td></tr><tr><td align="center" style="'+F+'font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:#084d78;line-height:14px;mso-line-height-rule:exactly;">Complete</td></tr></table></td>';
+h+='<td valign="top" style="text-align:center;padding:0 14px;border-left:1px solid #e0e0e0;"><table cellpadding="0" cellspacing="0" border="0" role="presentation"><tr><td align="center" style="'+FH+'font-size:24px;font-weight:700;color:#6f4e1a;line-height:28px;mso-line-height-rule:exactly;">'+inProg+'</td></tr><tr><td align="center" style="'+F+'font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:#6f4e1a;line-height:14px;mso-line-height-rule:exactly;">In Progress</td></tr></table></td>';
+h+='<td valign="top" style="text-align:center;padding:0 14px;border-left:1px solid #e0e0e0;"><table cellpadding="0" cellspacing="0" border="0" role="presentation"><tr><td align="center" style="'+FH+'font-size:24px;font-weight:700;color:#484848;line-height:28px;mso-line-height-rule:exactly;">'+notStart+'</td></tr><tr><td align="center" style="'+F+'font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:#484848;line-height:14px;mso-line-height-rule:exactly;">Not Started</td></tr></table></td>';
+h+='</tr></table></td>';
+
+h+='</tr></table>';
+
+// Progress bar
+h+='<table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation" style="margin-top:16px;"><tr>';
+h+='<td style="background-color:rgba(100,9,44,0.20);border-radius:6px;height:12px;font-size:1px;line-height:1px;mso-line-height-rule:exactly;" width="100%">';
+h+='<table cellpadding="0" cellspacing="0" border="0" role="presentation" width="'+Math.max(pct,2)+'%"><tr>';
+h+='<td style="background-color:#64092c;border-radius:6px;height:12px;font-size:1px;line-height:1px;mso-line-height-rule:exactly;">&nbsp;</td>';
+h+='</tr></table></td></tr></table>';
+
+h+='</td></tr></table>';
+
+// === SPACER ===
+h+='<table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">'+SP+'</table>';
+
+// === MODULE TABLE ===
+h+='<table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation" style="border:1px solid #e4e7ec;">';
+h+='<tr><td style="background-color:#64092c;padding:12px 18px;'+F+'font-size:12px;font-weight:700;color:#ffffff;text-transform:uppercase;letter-spacing:0.5px;" width="65%">Module</td>';
+h+='<td style="background-color:#64092c;padding:12px 18px;'+F+'font-size:12px;font-weight:700;color:#ffffff;text-transform:uppercase;letter-spacing:0.5px;text-align:center;">Status</td></tr>';
+student.statuses.forEach((st,i)=>{
+const bg=i%2===0?'#ffffff':'#fafbfc';
+const bdr=i<student.statuses.length-1?'border-bottom:1px solid #f0f0f0;':'';
+let badge='';
+if(st.status==='Completed')badge='<span style="display:inline-block;padding:4px 14px;border-radius:20px;'+F+'font-size:11px;font-weight:700;background-color:#e3eef5;color:#084d78;text-transform:uppercase;letter-spacing:0.3px;">&#10003; Completed</span>';
+else if(st.status==='In Progress')badge='<span style="display:inline-block;padding:4px 14px;border-radius:20px;'+F+'font-size:11px;font-weight:700;background-color:rgba(221,168,56,0.15);color:#6f4e1a;text-transform:uppercase;letter-spacing:0.3px;">&#9679; In Progress</span>';
+else badge='<span style="display:inline-block;padding:4px 14px;border-radius:20px;'+F+'font-size:11px;font-weight:700;background-color:#efefef;color:#484848;text-transform:uppercase;letter-spacing:0.3px;">&#8212; Not Started</span>';
+h+='<tr><td style="padding:11px 18px;'+F+'font-size:13px;color:#333333;'+bdr+'background-color:'+bg+';">'+esc(st.label)+'</td>';
+h+='<td style="padding:11px 18px;text-align:center;'+bdr+'background-color:'+bg+';">'+badge+'</td></tr>';
+});
+h+='</table>';
+
+// === SPACER ===
+h+='<table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">'+SP+'</table>';
+
+// === NOTE CALLOUT ===
+if(hasIssues){
+h+='<table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation"><tr>';
+h+='<td style="background-color:rgba(221,168,56,.05);border-left:4px solid #dda838;padding:14px 18px;">';
+noteLines.forEach(line=>{
+let lh=esc(line);
+lh=lh.replace(/^Note:/,'<strong style="color:#484848;">Note:</strong>');
+lh=lh.replace('In Progress','<strong style="color:#484848;">In Progress</strong>');
+lh=lh.replace('corresponding make-up work','<strong style="color:#484848;">corresponding make-up work</strong>');
+lh=lh.replace('Instructor-Led Session Make-Up Modules - Required if missed live session','<strong style="color:#484848;">Instructor-Led Session Make-Up Modules - Required if missed live session</strong>');
+h+='<table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation"><tr><td style="'+F+'font-size:14px;color:#484848;line-height:22px;mso-line-height-rule:exactly;padding-top:15px;">'+lh+'</td></tr></table>';
+});
+h+='</td></tr></table>';
+h+='<table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">'+SP+'</table>';
+}
+
+// === SIGN-OFF ===
+h+='<table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation"><tr><td style="'+F+'font-size:14px;color:#484848;line-height:21px;mso-line-height-rule:exactly;padding-bottom:20px;">';
+h+='Thank you for your time,</td></tr></table>';
+
+// === SIGNATURE ===
+h+='<table border="0" cellspacing="0" cellpadding="3" role="presentation" style="width:100%;max-width:620px;"><tbody>';
+h+='<tr><td rowspan="4" valign="top" width="110" style="text-align:center;">';
+h+='<a href="https://www.portal.clearhq.org" target="_blank" rel="noopener noreferrer"><img src="https://assets-002.noviams.com/novi-file-uploads/clear/TalentLMS/Email_CLEAR_Logo.png" alt="CLEAR Logo" width="100" style="display:block;width:100px;border:0;"/></a>';
+h+='</td>';
+h+='<td colspan="3" valign="middle"><table cellpadding="0" cellspacing="0" border="0" role="presentation"><tr><td style="'+F+'font-size:12px;padding:3px;"><strong style="color:#64092c;font-weight:700;font-size:16px;">CLEAR Learning Staff</strong></td></tr></table></td></tr>';
+h+='<tr><td colspan="3" valign="top">';
+h+='<table cellpadding="0" cellspacing="0" border="0" role="presentation">';
+h+='<tr><td style="'+F+'font-size:12px;padding:3px;line-height:18px;mso-line-height-rule:exactly;"><a href="https://www.clearhq.org" target="_blank" rel="noopener noreferrer" style="color:#084d78;">www.clearhq.org</a><br/>Council on Licensure, Enforcement and Regulation</td></tr>';
+h+='<tr><td style="'+F+'font-size:12px;padding:3px;line-height:18px;mso-line-height-rule:exactly;"><strong style="color:#64092c;font-weight:700;">Phone</strong>: 859.269.1401<br/><strong style="color:#64092c;font-weight:700;">Email</strong>: <a href="mailto:clearlearning@clearhq.org" style="color:#084d78;">clearlearning@clearhq.org</a></td></tr>';
+h+='<tr><td style="'+F+'font-size:12px;padding:3px;line-height:18px;mso-line-height-rule:exactly;">108 Wind Haven Dr., Ste. A, Nicholasville, KY 40356</td></tr>';
+h+='</table></td></tr>';
+h+='<tr><td valign="middle" width="75"><table cellpadding="0" cellspacing="0" border="0" role="presentation"><tr>';
+h+='<td style="padding:3px;"><a href="https://twitter.com/CLEARHQ" target="_blank" rel="noopener noreferrer"><img src="https://assets-002.noviams.com/novi-file-uploads/clear/TalentLMS/email_x.png" alt="X" width="20" height="20" style="display:inline-block;width:20px;height:20px;vertical-align:middle;border:0;"/></a>';
+h+='<a href="https://facebook.com/CLEARHQ/" target="_blank" rel="noopener noreferrer"><img src="https://assets-002.noviams.com/novi-file-uploads/clear/TalentLMS/email_facebook.png" alt="Facebook" width="20" height="20" style="display:inline-block;width:20px;height:20px;vertical-align:middle;border:0;"/></a>';
+h+='<a href="https://www.linkedin.com/company/council-on-licensure-enforcement-and-regulation-clear-/" target="_blank" rel="noopener noreferrer"><img src="https://assets-002.noviams.com/novi-file-uploads/clear/TalentLMS/Email_linkedin.png" alt="LinkedIn" width="20" height="20" style="display:inline-block;width:20px;height:20px;vertical-align:middle;border:0;"/></a>';
+h+='</td></tr></table></td>';
+h+='<td colspan="2" valign="middle"><table cellpadding="0" cellspacing="0" border="0" role="presentation"><tr><td style="'+F+'font-size:12px;padding:3px;"><i style="color:#64092c;">Promoting Regulatory Excellence</i></td></tr></table></td></tr>';
+h+='</tbody></table>';
+
+// Close body wrapper
+h+='</td></tr></table>';
+h+='<!--[if mso]></td></tr></table><![endif]-->';
+h+='</td></tr></table>';
+
+if(wrapDoc){
+h+='</body></html>';
+}
+return h;
+}
 
 document.getElementById('copyBtn').addEventListener('click',()=>{const frame=document.getElementById('previewFrame');const range=document.createRange();range.selectNodeContents(frame);const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);document.execCommand('copy');sel.removeAllRanges();const btn=document.getElementById('copyBtn');btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy This Email',1500);});
 
 function getIncludedStudents(){return STATE.processedStudents.filter((_,i)=>STATE.includedStudents.has(i));}
 document.getElementById('exportCsvBtn').addEventListener('click',()=>{const students=getIncludedStudents();const modules=STATE.moduleMapping.filter(m=>m.include);const headers=['First Name','Last Name','Email',...modules.map(m=>m.label)];let csv=headers.map(h=>'"'+h+'"').join(',')+'\n';students.forEach(s=>{const row=[s.firstName,s.lastName,s.email,...s.statuses.map(st=>st.status)];csv+=row.map(c=>'"'+String(c||'').replace(/"/g,'""')+'"').join(',')+'\n';});download(csv,'Status_Report_Mail_Merge.csv','text/csv');});
 document.getElementById('exportXlsxBtn').addEventListener('click',()=>{const students=getIncludedStudents();const modules=STATE.moduleMapping.filter(m=>m.include);const headers=['First Name','Last Name','Email',...modules.map(m=>m.label)];const data=[headers];students.forEach(s=>{data.push([s.firstName,s.lastName,s.email,...s.statuses.map(st=>st.status)]);});const wb=XLSX.utils.book_new();const ws=XLSX.utils.aoa_to_sheet(data);ws['!cols']=headers.map(h=>({wch:Math.max(h.length+2,14)}));XLSX.utils.book_append_sheet(wb,ws,'Mail Merge Data');XLSX.writeFile(wb,'Status_Report_Mail_Merge.xlsx');});
-document.getElementById('exportHtmlBtn').addEventListener('click',()=>{const students=getIncludedStudents();let h='<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:"Segoe UI",Arial,sans-serif;color:#333;}.block{page-break-after:always;padding:32px;max-width:700px;margin:0 auto 40px;border:1px solid #ddd;border-radius:8px;}.hdr{background:#f5f5f5;padding:12px 16px;border-radius:6px;margin-bottom:20px;font-size:13px;}.hdr strong{color:#084d78;}table{width:100%;border-collapse:collapse;margin:16px 0;}th{background:#222;color:#fff;padding:10px 14px;text-align:left;font-size:13px;}td{padding:8px 14px;border-bottom:1px solid #eee;font-size:13px;}</style></head><body>';students.forEach(s=>{h+='<div class="block"><div class="hdr"><strong>To:</strong> '+(esc(s.email)||'(none)')+' | <strong>'+esc(s.firstName)+' '+esc(s.lastName)+'</strong> | '+s.pctComplete+'% complete</div>';h+=buildEmailHtml(s);h+='</div>';});h+='</body></html>';download(h,'All_Status_Emails.html','text/html');});
+document.getElementById('exportHtmlBtn').addEventListener('click',()=>{const students=getIncludedStudents();let h='<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:"Segoe UI",Arial,sans-serif;color:#333;background:#e0e0e0;padding:40px 20px;}.block{max-width:680px;margin:0 auto 40px;background:#fff;border-radius:6px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.12);}.hdr{background:#f5f5f5;padding:12px 16px;font-size:13px;max-width:680px;margin:0 auto 8px;border-radius:6px;}.hdr strong{color:#64092c;}</style></head><body>';students.forEach(s=>{h+='<div class="hdr"><strong>To:</strong> '+(esc(s.email)||'(none)')+' | <strong>'+esc(s.firstName)+' '+esc(s.lastName)+'</strong> | '+s.pctComplete+'% complete</div>';h+='<div class="block">'+buildEmailHtml(s,false)+'</div>';});h+='</body></html>';download(h,'All_Status_Emails.html','text/html');});
+
+document.getElementById('exportPABtn').addEventListener('click',async()=>{
+const students=getIncludedStudents();
+if(students.length===0){alert('No students included in the report.');return;}
+const btn=document.getElementById('exportPABtn');
+btn.disabled=true;btn.innerHTML='&#9993; Generating ZIP...';
+try{
+const zip=new JSZip();
+const folder=zip.folder('StatusReportEmails');
+students.forEach(s=>{
+const fullHtml=buildEmailHtml(s,true);
+const safeEmail=(s.email||'unknown').replace(/[^a-zA-Z0-9@._-]/g,'_');
+folder.file('StatusReport_'+safeEmail+'.html',fullHtml);
+});
+const manifest=students.map(s=>({email:s.email,firstName:s.firstName,lastName:s.lastName,file:'StatusReport_'+(s.email||'unknown').replace(/[^a-zA-Z0-9@._-]/g,'_')+'.html',pctComplete:s.pctComplete}));
+folder.file('_manifest.json',JSON.stringify(manifest,null,2));
+const blob=await zip.generateAsync({type:'blob'});
+const url=URL.createObjectURL(blob);
+const a=document.createElement('a');a.href=url;a.download='StatusReportEmails.zip';
+document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+}catch(err){alert('Error generating ZIP: '+err.message);console.error(err);}
+btn.disabled=false;btn.innerHTML='&#9993; Export Emails for Power Automate';
+});
 
 function esc(s){if(s===null||s===undefined)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function truncate(s,n){return s&&s.length>n?s.substring(0,n-3)+'...':(s||'');}
