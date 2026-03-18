@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NCIT User Import Tool</title>
+<link rel="icon" type="image/png" href="https://assets-002.noviams.com/novi-file-uploads/clear/structure/clearlogo.png">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Trebuchet+MS&display=swap');
+  :root{--burgundy:#64092c;--burgundy-light:#8a1e4a;--gold:#dda838;--gold-light:#f0c96a;--blue:#084d78;--blue-light:#0a6ba8;--gray:#484848;--gray-light:#f4f4f5;--gray-mid:#e0e0e0;--white:#ffffff;--green:#2e7d32;--green-bg:#e8f5e9;--red:#c62828;--red-bg:#ffebee;--amber:#f57f17;--amber-bg:#fff8e1;--radius:6px;--shadow:0 2px 8px rgba(0,0,0,0.08);--shadow-lg:0 4px 16px rgba(0,0,0,0.12);}
+  *{margin:0;padding:0;box-sizing:border-box;}body{font-family:'Open Sans',sans-serif;color:var(--gray);background:var(--gray-light);min-height:100vh;}h1,h2,h3,h4{font-family:'Trebuchet MS','Open Sans',sans-serif;}
+  .header{background:linear-gradient(135deg,var(--blue) 0%,var(--blue-light) 100%);color:var(--white);padding:24px 32px;display:flex;align-items:center;gap:16px;box-shadow:var(--shadow-lg);}
+  .header-icon{width:48px;height:48px;background:var(--gold);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+  .header h1{font-size:22px;font-weight:700;}.header p{font-size:13px;opacity:0.85;margin-top:2px;}.main{max-width:1400px;margin:0 auto;padding:24px 32px 48px;}
+  .panel{background:var(--white);border-radius:var(--radius);padding:28px 32px;box-shadow:var(--shadow);margin-bottom:24px;}
+  .panel h2{font-size:17px;color:var(--blue);margin-bottom:20px;display:flex;align-items:center;gap:8px;}
+  .panel-section{border:1px solid var(--gray-mid);border-radius:var(--radius);padding:20px;margin-bottom:16px;}
+  .panel-section h3{font-size:14px;color:var(--burgundy);margin-bottom:12px;}
+  .form-row{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:14px;align-items:flex-end;}
+  .form-group{display:flex;flex-direction:column;gap:5px;flex:1;min-width:200px;}
+  .form-group label{font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;}
+  .form-group input,.form-group select{padding:10px 14px;border:1.5px solid var(--gray-mid);border-radius:var(--radius);font-size:14px;font-family:'Open Sans',sans-serif;transition:border-color 0.2s;}
+  .form-group input:focus,.form-group select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(8,77,120,0.1);}
+  .form-group input:disabled{background:#f0f0f0;color:#aaa;}.inline-note{font-size:12px;color:#888;margin-top:2px;line-height:1.4;}
+  .connection-status{display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:var(--radius);font-size:13px;margin-bottom:16px;}
+  .connection-status.connected{background:var(--green-bg);color:var(--green);}.connection-status.disconnected{background:var(--red-bg);color:var(--red);}.connection-status.loading{background:var(--amber-bg);color:var(--amber);}
+  .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}.dot.green{background:var(--green);}.dot.red{background:var(--red);}.dot.amber{background:var(--amber);animation:pulse 1s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+  .search-select{position:relative;}.search-select input{width:100%;padding:10px 14px;border:1.5px solid var(--gray-mid);border-radius:var(--radius);font-size:14px;font-family:'Open Sans',sans-serif;background:var(--white);}
+  .search-select input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(8,77,120,0.1);}.search-select input:disabled{background:#f0f0f0;color:#aaa;}
+  .search-select .dropdown{position:absolute;top:100%;left:0;right:0;z-index:100;background:var(--white);border:1.5px solid var(--blue);border-top:none;border-radius:0 0 var(--radius) var(--radius);max-height:220px;overflow-y:auto;box-shadow:var(--shadow-lg);display:none;}
+  .search-select .dropdown.open{display:block;}.search-select .dropdown .opt{padding:9px 14px;font-size:13px;cursor:pointer;border-bottom:1px solid var(--gray-light);}
+  .search-select .dropdown .opt:hover{background:#e3f2fd;}.search-select .dropdown .no-match{padding:9px 14px;font-size:13px;color:#999;font-style:italic;}
+  .drop-zone{border:2px dashed var(--gray-mid);border-radius:var(--radius);padding:32px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--gray-light);margin-bottom:16px;}
+  .drop-zone:hover,.drop-zone.dragover{border-color:var(--blue);background:rgba(8,77,120,0.04);}
+  .drop-zone .icon{font-size:36px;margin-bottom:8px;}.drop-zone p{font-size:14px;color:var(--gray);}.drop-zone .sub{font-size:12px;color:#999;margin-top:4px;}
+  .btn{padding:11px 28px;border:none;border-radius:var(--radius);font-size:14px;font-weight:600;font-family:'Open Sans',sans-serif;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:8px;}
+  .btn-primary{background:var(--blue);color:var(--white);}.btn-primary:hover{background:var(--blue-light);}.btn-primary:disabled{background:#aaa;cursor:not-allowed;}
+  .btn-secondary{background:var(--white);color:var(--blue);border:1.5px solid var(--blue);}.btn-secondary:hover{background:rgba(8,77,120,0.05);}
+  .btn-gold{background:var(--gold);color:var(--burgundy);}.btn-gold:hover{background:var(--gold-light);}
+  .btn-burgundy{background:var(--burgundy);color:var(--white);}.btn-burgundy:hover{background:var(--burgundy-light);}
+  .btn-sm{padding:7px 16px;font-size:12px;}
+  .status-bar{padding:12px 16px;border-radius:var(--radius);font-size:13px;margin-top:12px;display:none;}
+  .status-bar.info{background:#e3f2fd;color:#1565c0;border:1px solid #90caf9;display:block;}
+  .status-bar.success{background:var(--green-bg);color:var(--green);border:1px solid #a5d6a7;display:block;}
+  .status-bar.error{background:var(--red-bg);color:var(--red);border:1px solid #ef9a9a;display:block;}
+  .summary-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;}
+  .summary-card{flex:1;min-width:120px;background:var(--gray-light);border-radius:var(--radius);padding:14px;text-align:center;}
+  .summary-card .lbl{font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:#888;margin-bottom:4px;}.summary-card .val{font-size:22px;font-weight:700;color:var(--blue);}
+  .table-wrap{overflow-x:auto;border:1px solid var(--gray-mid);border-radius:var(--radius);max-height:500px;overflow-y:auto;}
+  table{width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap;}
+  thead th{background:var(--blue);color:var(--white);padding:10px 12px;text-align:left;font-weight:600;font-size:11px;position:sticky;top:0;z-index:2;}
+  tbody td{padding:8px 12px;border-bottom:1px solid var(--gray-mid);}tbody tr:hover{background:rgba(8,77,120,0.03);}tbody tr:nth-child(even){background:#fafafa;}
+  .badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;}.badge-paid{background:var(--green-bg);color:var(--green);}
+  .course-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;min-height:32px;}
+  .course-chip{background:var(--green-bg);border:1px solid #a5d6a7;padding:5px 12px;border-radius:20px;font-size:12px;display:flex;align-items:center;gap:6px;color:var(--green);font-weight:600;}
+  .course-chip .remove{cursor:pointer;font-weight:700;font-size:14px;line-height:1;color:var(--red);}
+  .progress-wrap{height:8px;background:var(--gray-mid);border-radius:4px;overflow:hidden;margin:12px 0 8px;}.progress-fill{height:100%;background:var(--blue);border-radius:4px;transition:width 0.4s ease;}.progress-text{font-size:12px;color:#888;}
+  .hidden{display:none!important;}
+  .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.6s linear infinite;}@keyframes spin{to{transform:rotate(360deg);}}
+  @media(max-width:768px){.header{padding:16px;}.main{padding:16px;}.panel{padding:16px;}.form-row{flex-direction:column;}}
+</style>
+</head>
+<body>
+<div class="header"><div class="header-icon">&#128100;</div><div><h1>TalentLMS User Import Interface</h1><p>Process attendee data, generate TalentLMS import files, and provision users via API</p></div></div>
+<div class="main">
+  <div class="panel">
+    <h2>&#9881;&#65039; Setup</h2>
+    <div class="panel-section">
+      <h3>1. API Connection</h3>
+      <div class="form-row">
+        <div class="form-group" style="flex:2;"><label>Worker URL</label><input type="text" id="workerUrl" value="https://clear-lms-proxy.avance.workers.dev"><span class="inline-note">Pre-configured. Do not change unless instructed.</span></div>
+        <div class="form-group" style="flex:1;"><label>Auth Token</label><input type="password" id="authToken" placeholder="Enter access token (first time only)"></div>
+        <div class="form-group" style="flex:0 0 auto;"><label>&nbsp;</label><button class="btn btn-sm btn-secondary" id="connectBtn">Test Connection</button></div>
+      </div>
+      <div class="connection-status disconnected" id="connectionStatus"><span class="dot red"></span> Not connected</div>
+    </div>
+    <div class="panel-section">
+      <h3>2. Upload Attendee File</h3>
+      <div class="drop-zone" id="dropZone">
+        <div class="icon">&#128196;</div>
+        <p>Drop the attendee CSV file here, or click to browse</p>
+        <p class="sub">Accepts .csv files exported from the ecommerce platform</p>
+        <input type="file" id="fileInput" accept=".csv" style="display:none">
+      </div>
+      <div id="fileStatus" class="status-bar"></div>
+    </div>
+    <div class="panel-section">
+      <h3>3. Group &amp; Course Configuration</h3>
+      <div class="form-row">
+        <div class="form-group"><label>Group Name</label><input type="text" id="groupName" placeholder="e.g., NCITB US Spring 2026"></div>
+        <div class="form-group"><label>Group Description</label><input type="text" id="groupDesc" placeholder="e.g., Spring 2026 NCIT Basic US Cohort"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Add Courses to Group</label>
+          <div class="search-select"><input type="text" id="courseSearchInput" placeholder="Connect to API to load courses" disabled><div class="dropdown" id="courseSearchDropdown"></div></div>
+          <span class="inline-note">Search and select courses. Each selected course will be assigned to the group.</span>
+        </div>
+      </div>
+      <div class="course-chips" id="selectedCourses"></div>
+    </div>
+  </div>
+  <div class="panel hidden" id="panelResults">
+    <h2>&#128203; Import Preview</h2>
+    <div class="summary-row" id="summaryRow"></div>
+    <div class="table-wrap" id="previewTable"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;">
+      <button class="btn btn-gold" id="exportXlsxBtn">&#128229; Export Import XLSX</button>
+      <button class="btn btn-burgundy" id="apiUploadBtn">&#9889; Upload Users</button>
+      <button class="btn btn-primary" id="apiCohortBtn" disabled>&#128101; Add Users to Cohort</button>
+    </div>
+    <div class="progress-wrap hidden" id="apiProgressWrap"><div class="progress-fill" id="apiProgressFill" style="width:0%"></div></div>
+    <p class="progress-text hidden" id="apiProgressText"></p>
+    <div id="apiStatus" class="status-bar"></div>
+  </div>
+</div>
+<script>
+const STATE={workerUrl:'',authToken:'',connected:false,courses:[],selectedCourses:[],attendees:[],importUsers:[],groupKey:''};
+const US_STATES='AL,AK,AZ,AR,CA,CO,CT,DE,FL,GA,HI,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI,WY,DC,PR,VI,GU,AS,MP'.split(',');
+const CA_PROVS='AB,BC,MB,NB,NL,NS,NT,NU,ON,PE,QC,SK,YT'.split(',');
+function inferCountry(st,existing){if(existing&&existing.trim())return existing.trim();const s=(st||'').toUpperCase().trim();if(US_STATES.includes(s))return'United States';if(CA_PROVS.includes(s))return'Canada';return'';}
+function genPw(){const U='ABCDEFGHIJKLMNOPQRSTUVWXYZ',L='abcdefghijklmnopqrstuvwxyz',D='0123456789',S='!@#$%&',A=U+L+D+S;let p='';p+=U[Math.floor(Math.random()*U.length)];p+=L[Math.floor(Math.random()*L.length)];p+=D[Math.floor(Math.random()*D.length)];p+=S[Math.floor(Math.random()*S.length)];for(let i=4;i<9;i++)p+=A[Math.floor(Math.random()*A.length)];return p.split('').sort(()=>Math.random()-0.5).join('');}
+function genGroupKey(){const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';let k='';for(let i=0;i<9;i++)k+=chars[Math.floor(Math.random()*chars.length)];return k;}
+
+// API
+async function apiCall(path,opts){const o=opts||{};const h=Object.assign({'X-Auth-Token':STATE.authToken},o.headers||{});const r=await fetch(STATE.workerUrl.replace(/\/+$/,'')+path,{...o,headers:h});if(!r.ok){const t=await r.text();throw new Error('API '+r.status+': '+t);}return r.json();}
+async function apiPost(path,body){return apiCall(path,{method:'POST',headers:{'X-Auth-Token':STATE.authToken,'Content-Type':'application/x-www-form-urlencoded'},body});}
+function setCon(s,t){const el=document.getElementById('connectionStatus');el.className='connection-status '+s;const d=s==='connected'?'green':s==='loading'?'amber':'red';el.innerHTML='<span class="dot '+d+'"></span> '+esc(t);}
+async function doConnect(){const url=document.getElementById('workerUrl').value.trim();const tok=document.getElementById('authToken').value.trim();if(!url||!tok){setCon('disconnected','Enter Auth Token and click Test Connection');return;}STATE.workerUrl=url;STATE.authToken=tok;setCon('loading','Connecting...');try{const info=await apiCall('/v1/siteinfo');STATE.connected=true;setCon('connected','Connected to '+(info.site_name||info.domain||'TalentLMS'));localStorage.setItem('clear_worker_url',url);localStorage.setItem('clear_auth_token',tok);await loadCourses();}catch(e){STATE.connected=false;setCon('disconnected','Connection failed: '+e.message);}}
+document.getElementById('connectBtn').addEventListener('click',doConnect);
+(function(){const u=localStorage.getItem('clear_worker_url')||'https://clear-lms-proxy.avance.workers.dev';const t=localStorage.getItem('clear_auth_token');if(u)document.getElementById('workerUrl').value=u;if(t){document.getElementById('authToken').value=t;setTimeout(doConnect,200);}})();
+
+// Course search multi-select
+async function loadCourses(){try{STATE.courses=await apiCall('/v1/courses');setupCourseSearch();}catch(e){setCon('disconnected','Failed to load courses: '+e.message);}}
+function setupCourseSearch(){const inp=document.getElementById('courseSearchInput');const dd=document.getElementById('courseSearchDropdown');inp.disabled=false;inp.placeholder='Type to search courses...';
+function rend(f){const avail=STATE.courses.filter(c=>!STATE.selectedCourses.find(s=>s.id===c.id));const m=f?avail.filter(c=>c.name.toLowerCase().includes(f.toLowerCase())):avail;dd.innerHTML=m.length===0?'<div class="no-match">No matches</div>':m.map(c=>'<div class="opt" data-id="'+c.id+'" data-name="'+esc(c.name)+'">'+esc(c.name)+'</div>').join('');dd.querySelectorAll('.opt').forEach(o=>{o.addEventListener('mousedown',e=>{e.preventDefault();STATE.selectedCourses.push({id:parseInt(o.dataset.id),name:o.dataset.name});inp.value='';dd.classList.remove('open');renderChips();rend('');});});}
+inp.addEventListener('focus',()=>{rend(inp.value);dd.classList.add('open');});inp.addEventListener('input',()=>{rend(inp.value);dd.classList.add('open');});inp.addEventListener('blur',()=>{setTimeout(()=>dd.classList.remove('open'),150);});rend('');}
+function renderChips(){document.getElementById('selectedCourses').innerHTML=STATE.selectedCourses.map((c,i)=>'<div class="course-chip">'+esc(c.name)+' <span class="remove" onclick="rmCourse('+i+')">&times;</span></div>').join('');}
+function rmCourse(i){STATE.selectedCourses.splice(i,1);renderChips();}
+
+// File upload
+const dz=document.getElementById('dropZone');const fi=document.getElementById('fileInput');
+dz.addEventListener('click',()=>fi.click());dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('dragover');});dz.addEventListener('dragleave',()=>dz.classList.remove('dragover'));dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('dragover');if(e.dataTransfer.files.length)procFile(e.dataTransfer.files[0]);});fi.addEventListener('change',e=>{if(e.target.files.length)procFile(e.target.files[0]);});
+
+function setFS(m,t){const el=document.getElementById('fileStatus');el.className='status-bar'+(t?' '+t:'');el.innerHTML=m;}
+
+function procFile(file){if(!file.name.endsWith('.csv')){setFS('Please upload a CSV file.','error');return;}
+const reader=new FileReader();reader.onload=function(e){try{
+const rows=parseCSV(e.target.result);if(rows.length<2){setFS('File has no data rows.','error');return;}
+const hdr=rows[0];const data=rows.slice(1);
+const col=n=>hdr.findIndex(h=>h.trim()===n);
+const iE=col('Email'),iF=col('First Name'),iL=col('Last Name'),iSx=col('Suffix'),iCo=col('Company'),iSt=col('Billing State Abbreviation'),iCn=col('Billing Country'),iJt=col('Job Title');
+if(iE<0||iF<0||iL<0){setFS('Missing required columns (Email, First Name, Last Name).','error');return;}
+STATE.attendees=data.filter(r=>r.some(c=>c&&c.trim())).map(r=>{
+  const email=(r[iE]||'').trim(),fn=(r[iF]||'').trim(),ln=(r[iL]||'').trim(),sx=(iSx>=0?(r[iSx]||'').trim():''),fl=sx?ln+' '+sx:ln;
+  const co=iCo>=0?(r[iCo]||'').trim():'',st=iSt>=0?(r[iSt]||'').trim():'';
+  const cn=inferCountry(st,iCn>=0?(r[iCn]||'').trim():''),jt=iJt>=0?(r[iJt]||'').trim():'';
+  return{email,firstName:fn,lastName:fl,company:co,state:st,country:cn,jobTitle:jt};
+});
+STATE.importUsers=STATE.attendees.filter(a=>a.email).map(a=>{const pw=genPw();return{...a,password:pw,status:'active',language:'en'};});
+const tot=STATE.importUsers.length;
+setFS('Loaded <strong>'+tot+'</strong> attendee(s) to import.','success');
+renderSummary();renderPreview();document.getElementById('panelResults').classList.remove('hidden');
+}catch(err){setFS('Error: '+err.message,'error');console.error(err);}};reader.readAsText(file,'utf-8');}
+
+function parseCSV(t){const rows=[];let row=[],f='',q=false;if(t.charCodeAt(0)===0xFEFF)t=t.substring(1);for(let i=0;i<t.length;i++){const c=t[i],n=t[i+1];if(q){if(c==='"'&&n==='"'){f+='"';i++;}else if(c==='"')q=false;else f+=c;}else{if(c==='"')q=true;else if(c===','){row.push(f);f='';}else if(c==='\n'||(c==='\r'&&n==='\n')){row.push(f);f='';rows.push(row);row=[];if(c==='\r')i++;}else if(c==='\r'){row.push(f);f='';rows.push(row);row=[];}else f+=c;}}if(f||row.length)rows.push([...row,f]);return rows;}
+
+function renderSummary(){const el=document.getElementById('summaryRow');const cs=[...new Set(STATE.importUsers.map(u=>u.country).filter(Boolean))];
+el.innerHTML='<div class="summary-card"><div class="lbl">Users to Import</div><div class="val">'+STATE.importUsers.length+'</div></div><div class="summary-card"><div class="lbl">Courses Selected</div><div class="val">'+STATE.selectedCourses.length+'</div></div><div class="summary-card"><div class="lbl">Countries</div><div class="val">'+cs.length+'</div></div><div class="summary-card"><div class="lbl">Group</div><div class="val" style="font-size:14px;">'+esc(document.getElementById('groupName').value||'(auto-generated)')+'</div></div>';}
+
+function renderPreview(){const el=document.getElementById('previewTable');let h='<table><thead><tr><th>#</th><th>Email (Login)</th><th>First Name</th><th>Last Name</th><th>Organization</th><th>Title</th><th>State</th><th>Country</th><th>Password</th></tr></thead><tbody>';
+STATE.importUsers.forEach((u,i)=>{h+='<tr><td>'+(i+1)+'</td><td>'+esc(u.email)+'</td><td>'+esc(u.firstName)+'</td><td>'+esc(u.lastName)+'</td><td>'+esc(u.company)+'</td><td>'+esc(u.jobTitle)+'</td><td>'+esc(u.state)+'</td><td>'+esc(u.country)+'</td><td style="font-family:monospace;font-size:11px;">'+esc(u.password)+'</td></tr>';});
+h+='</tbody></table>';el.innerHTML=h;}
+
+// Export XLSX - 3 tabs: Users, Groups (with Key), Course-to-groups
+document.getElementById('exportXlsxBtn').addEventListener('click',()=>{
+if(STATE.importUsers.length===0){alert('No users to export.');return;}
+const gn=document.getElementById('groupName').value.trim(),gd=document.getElementById('groupDesc').value.trim();
+if(!gn){alert('Please enter a Group Name.');return;}
+// Generate group key if not already set
+if(!STATE.groupKey)STATE.groupKey=genGroupKey();
+const wb=XLSX.utils.book_new();
+// Users tab
+const uh=['Login','Firstname','Lastname','Email','Status','Language','custom_field: Organization','custom_field: Title','custom_field: State/Province','custom_field: Country','custom_field: Temporary Password','Password '];
+const ud=[uh];STATE.importUsers.forEach(u=>{ud.push([u.email,u.firstName,u.lastName,u.email,u.status,u.language,u.company,u.jobTitle,u.state,u.country,u.password,u.password]);});
+const ws1=XLSX.utils.aoa_to_sheet(ud);ws1['!cols']=uh.map(h=>({wch:Math.max(h.length+2,16)}));XLSX.utils.book_append_sheet(wb,ws1,'Users');
+// Groups tab (with Key column)
+const ws2=XLSX.utils.aoa_to_sheet([['Group','Description','Key'],[gn,gd,STATE.groupKey]]);ws2['!cols']=[{wch:30},{wch:50},{wch:14}];XLSX.utils.book_append_sheet(wb,ws2,'Groups');
+// Course-to-groups tab
+const ctg=[['Coursetogroups','Group']];STATE.selectedCourses.forEach(c=>{ctg.push([c.name,gn]);});
+const ws3=XLSX.utils.aoa_to_sheet(ctg);ws3['!cols']=[{wch:50},{wch:30}];XLSX.utils.book_append_sheet(wb,ws3,'Course-to-groups');
+XLSX.writeFile(wb,'TalentLMS_Import_'+gn.replace(/\s+/g,'_')+'.xlsx');
+});
+
+// ============================================================
+// Step 1: Upload Users - create users, group, assign courses
+// ============================================================
+document.getElementById('apiUploadBtn').addEventListener('click',async()=>{
+if(STATE.importUsers.length===0){alert('No users to upload.');return;}
+if(!STATE.connected){alert('Connect to the API first.');return;}
+const gn=document.getElementById('groupName').value.trim(),gd=document.getElementById('groupDesc').value.trim();
+if(!gn){alert('Please enter a Group Name.');return;}
+// Generate group key
+if(!STATE.groupKey)STATE.groupKey=genGroupKey();
+const btn=document.getElementById('apiUploadBtn');btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Uploading...';
+const pw=document.getElementById('apiProgressWrap'),pf=document.getElementById('apiProgressFill'),pt=document.getElementById('apiProgressText');
+pw.classList.remove('hidden');pt.classList.remove('hidden');
+const total=STATE.importUsers.length+1+STATE.selectedCourses.length;let step=0;
+function prog(m){step++;pf.style.width=Math.round(step/total*100)+'%';pt.textContent=m;}
+const res={created:0,existing:0,failed:0,errors:[]};
+try{
+// Create users
+for(let i=0;i<STATE.importUsers.length;i++){const u=STATE.importUsers[i];prog('Creating user '+(i+1)+'/'+STATE.importUsers.length+'...');
+try{const p=new URLSearchParams();p.set('first_name',u.firstName);p.set('last_name',u.lastName);p.set('email',u.email);p.set('login',u.email);p.set('password',u.password);p.set('language',u.language);await apiPost('/v1/usersignup',p.toString());res.created++;}
+catch(e){if(e.message.includes('already exists')||e.message.includes('409'))res.existing++;else{res.failed++;res.errors.push(u.email+': '+e.message);}}}
+// Create group with key
+prog('Creating group...');
+try{const p=new URLSearchParams();p.set('name',gn);if(gd)p.set('description',gd);p.set('key',STATE.groupKey);const g=await apiPost('/v1/creategroup',p.toString());STATE.groupId=g.id||'';}
+catch(e){try{const gs=await apiCall('/v1/groups');const ex=gs.find(g=>g.name.toLowerCase()===gn.toLowerCase());if(ex){STATE.groupId=ex.id||'';STATE.groupKey=ex.key||STATE.groupKey;}else throw e;}catch(e2){setApiSt('Failed to create group: '+e.message,'error');btn.disabled=false;btn.innerHTML='&#9889; Upload Users';return;}}
+// Add courses to group
+for(let i=0;i<STATE.selectedCourses.length;i++){const c=STATE.selectedCourses[i];prog('Adding course to group...');
+try{const p=new URLSearchParams();p.set('course_id',c.id);p.set('group_id',STATE.groupId);await apiPost('/v1/addcoursetogroup',p.toString());}
+catch(e){if(!e.message.includes('already'))res.errors.push('Course '+c.name+': '+e.message);}}
+let msg='<strong>Upload complete.</strong> '+res.created+' user(s) created. ';
+if(res.existing>0)msg+=res.existing+' already existed. ';if(res.failed>0)msg+=res.failed+' failed. ';
+msg+='Group "'+esc(gn)+'" and course assignments processed.';
+msg+='<br><strong>Next step:</strong> Click "Add Users to Cohort" to assign users to the group.';
+if(res.errors.length>0){msg+='<br><br><strong>Errors:</strong><br>'+res.errors.map(e=>'&bull; '+esc(e)).join('<br>');setApiSt(msg,'error');}else setApiSt(msg,'success');
+// Enable the cohort button
+document.getElementById('apiCohortBtn').disabled=false;
+}catch(e){setApiSt('Upload error: '+e.message,'error');console.error(e);}
+btn.disabled=false;btn.innerHTML='&#9889; Upload Users';});
+
+// ============================================================
+// Step 2: Add Users to Cohort - assign users to group
+// ============================================================
+document.getElementById('apiCohortBtn').addEventListener('click',async()=>{
+if(STATE.importUsers.length===0){alert('No users to assign.');return;}
+if(!STATE.connected){alert('Connect to the API first.');return;}
+const gn=document.getElementById('groupName').value.trim();
+if(!gn){alert('Please enter a Group Name.');return;}
+if(!STATE.groupKey){alert('Please run "Upload Users" first to create the group.');return;}
+const btn=document.getElementById('apiCohortBtn');btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Adding to cohort...';
+const pw=document.getElementById('apiProgressWrap'),pf=document.getElementById('apiProgressFill'),pt=document.getElementById('apiProgressText');
+pw.classList.remove('hidden');pt.classList.remove('hidden');pf.style.width='0%';
+const total=STATE.importUsers.length;let step=0;
+function prog(m){step++;pf.style.width=Math.round(step/total*100)+'%';pt.textContent=m;}
+const res={added:0,errors:[]};
+try{
+// Look up group key if we don't have the ID
+if(!STATE.groupId){
+  try{const gs=await apiCall('/v1/groups');const ex=gs.find(g=>g.name.toLowerCase()===gn.toLowerCase());if(ex){STATE.groupId=ex.id||'';STATE.groupKey=ex.key||STATE.groupKey;}}catch(e){}}
+for(let i=0;i<STATE.importUsers.length;i++){const u=STATE.importUsers[i];prog('Adding user '+(i+1)+'/'+STATE.importUsers.length+' to cohort...');
+try{const p=new URLSearchParams();p.set('user_login',u.email);p.set('group_key',STATE.groupKey);await apiPost('/v1/addusertogroup',p.toString());res.added++;}
+catch(e){
+  // If user_login doesn't work, try looking up user_id
+  if(e.message.includes('invalid_request')||e.message.includes('400')){
+    try{
+      let uid=null;
+      try{const ui=await apiCall('/v1/users/email:'+u.email);uid=ui.id;}catch(e2){}
+      if(!uid){try{const ui=await apiCall('/v1/users/username:'+u.email);uid=ui.id;}catch(e2){}}
+      if(uid){const p2=new URLSearchParams();p2.set('user_id',uid);p2.set('group_key',STATE.groupKey);await apiPost('/v1/addusertogroup',p2.toString());res.added++;}
+      else{res.errors.push(u.email+': Could not find user');}
+    }catch(e2){if(!e2.message.includes('already'))res.errors.push(u.email+': '+e2.message);}
+  }else if(!e.message.includes('already')){res.errors.push(u.email+': '+e.message);}
+  else{res.added++;}// already in group counts as success
+}}
+let msg='<strong>Cohort assignment complete.</strong> '+res.added+' user(s) added to group "'+esc(gn)+'".';
+if(res.errors.length>0){msg+='<br><br><strong>Errors:</strong><br>'+res.errors.map(e=>'&bull; '+esc(e)).join('<br>');setApiSt(msg,'error');}else setApiSt(msg,'success');
+}catch(e){setApiSt('Cohort error: '+e.message,'error');console.error(e);}
+btn.disabled=false;btn.innerHTML='&#128101; Add Users to Cohort';});
+
+function setApiSt(m,t){const el=document.getElementById('apiStatus');el.className='status-bar'+(t?' '+t:'');el.innerHTML=m;}
+function esc(s){if(s==null)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+</script>
+</body>
+</html>
