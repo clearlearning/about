@@ -121,6 +121,7 @@
     <div class="tab-bar">
       <button class="tab-btn active" data-tab="report">Exam Report</button>
       <button class="tab-btn" data-tab="questions">Question Analysis</button>
+      <button class="tab-btn" data-tab="payment">Payment Import</button>
     </div>
     <div class="tab-content active" id="tab-report">
       <div class="summary-cards" id="summaryCards"></div>
@@ -147,10 +148,26 @@
       </div>
       <div id="questionGrid"></div>
     </div>
+
+    <!-- Payment Import -->
+    <div class="tab-content" id="tab-payment">
+      <div style="max-width:600px;">
+        <p style="font-size:13px;color:var(--gray);margin-bottom:16px;">Upload the ecommerce transaction report (.xlsx) to auto-populate the <strong>Paid</strong> column. Records are matched by email address.</p>
+        <div id="paymentDropZone" style="border:2px dashed var(--gray-mid);border-radius:var(--radius);padding:24px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--gray-light);margin-bottom:16px;">
+          <div style="font-size:28px;margin-bottom:6px;">&#128179;</div>
+          <p style="font-size:14px;color:var(--gray);">Drop ecommerce report here, or click to browse</p>
+          <p style="font-size:12px;color:#999;margin-top:4px;">Accepts .xlsx files with an Email and Payment Status column</p>
+          <input type="file" id="paymentFileInput" accept=".xlsx,.xls" style="display:none">
+        </div>
+        <div id="paymentStatus" class="status-bar"></div>
+      </div>
+    </div>
+
     <div class="actions-bar">
       <button class="btn btn-primary" id="exportCsvBtn">Export Report CSV</button>
       <button class="btn btn-gold" id="exportXlsxBtn">Export Report XLSX</button>
       <button class="btn btn-secondary" id="printBtn">Print Report</button>
+      <button class="btn btn-primary" id="exportCredlyBtn" style="background:var(--burgundy);">&#127942; Export Credly CSV</button>
     </div>
   </div>
 </div>
@@ -160,6 +177,19 @@
 // STATE & CONFIG (preserved from original)
 // ============================================================
 const STATE = { workerUrl:'', authToken:'', connected:false, courses:[], groups:[], selectedCourse:null, selectedGroup:null, examType:'', cohort:'', mergedData:null, excludedQuestions:new Set(), reportData:null };
+
+// ============================================================
+// CREDLY BADGE TEMPLATE IDS
+// Replace each placeholder with the actual Credly template ID.
+// Leave blank ('') to skip that badge in the export.
+// ============================================================
+const BADGE_TEMPLATE_IDS = {
+  NCIT_BASIC:              'e711e87d-24a9-4309-af54-b0a98484fed9',           // Covers both US and Canadian
+  NCIT_SPECIALIZED_OVERALL:'d17bebd1-1850-4a60-be1b-55b5e92340bd',      // Specialized overall pass
+  NCIT_SPECIALIZED_AIS:    '798db787-f804-462d-906c-5a55bcb1ce5a',          // Advanced Interviewing Skills
+  NCIT_SPECIALIZED_AIA:    '60466608-4af1-43f9-b1aa-97e358e22c15',          // Advanced Investigative Analysis
+  NCIT_SPECIALIZED_IRD:    '0bd3fed4-8e27-4afb-ad9e-061d7b25f8ab'           // Investigative Report Development
+};
 
 const EXAM_CONFIG = {
   canadian: { label:'NCIT Basic Canadian Final Exam', formCode:'NCITBCAN', totalQuestions:72, removeQuestions:[], hasTopics:false },
@@ -620,6 +650,236 @@ function exportXLSX(){
 
 function downloadFile(content,filename,mimeType){const blob=new Blob([content],{type:mimeType});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);}
 function esc(s){if(s===null||s===undefined)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+// ============================================================
+// Credly Badge Export
+// ============================================================
+document.getElementById('exportCredlyBtn').addEventListener('click',exportCredlyCSV);
+
+function exportCredlyCSV(){
+  if(!STATE.reportData||STATE.reportData.length===0){alert('No report data. Pull exam data first.');return;}
+
+  const config=EXAM_CONFIG[STATE.examType];
+  const isSpecialized=config.hasTopics;
+  const hasExclusions=STATE.excludedQuestions.size>0;
+
+  // Get badge template IDs from constants
+  const badgeBasic=BADGE_TEMPLATE_IDS.NCIT_BASIC&&!BADGE_TEMPLATE_IDS.NCIT_BASIC.startsWith('REPLACE')?BADGE_TEMPLATE_IDS.NCIT_BASIC:'';
+  const badgeSpecOverall=BADGE_TEMPLATE_IDS.NCIT_SPECIALIZED_OVERALL&&!BADGE_TEMPLATE_IDS.NCIT_SPECIALIZED_OVERALL.startsWith('REPLACE')?BADGE_TEMPLATE_IDS.NCIT_SPECIALIZED_OVERALL:'';
+  const badgeAIS=BADGE_TEMPLATE_IDS.NCIT_SPECIALIZED_AIS&&!BADGE_TEMPLATE_IDS.NCIT_SPECIALIZED_AIS.startsWith('REPLACE')?BADGE_TEMPLATE_IDS.NCIT_SPECIALIZED_AIS:'';
+  const badgeAIA=BADGE_TEMPLATE_IDS.NCIT_SPECIALIZED_AIA&&!BADGE_TEMPLATE_IDS.NCIT_SPECIALIZED_AIA.startsWith('REPLACE')?BADGE_TEMPLATE_IDS.NCIT_SPECIALIZED_AIA:'';
+  const badgeIRD=BADGE_TEMPLATE_IDS.NCIT_SPECIALIZED_IRD&&!BADGE_TEMPLATE_IDS.NCIT_SPECIALIZED_IRD.startsWith('REPLACE')?BADGE_TEMPLATE_IDS.NCIT_SPECIALIZED_IRD:'';
+
+  // Validate at least one badge ID is configured
+  if(!isSpecialized && !badgeBasic){
+    alert('The NCIT Basic Badge Template ID has not been configured. Contact your administrator to update the tool.');
+    return;
+  }
+  if(isSpecialized && !badgeSpecOverall && !badgeAIS && !badgeAIA && !badgeIRD){
+    alert('No Specialized Badge Template IDs have been configured. Contact your administrator to update the tool.');
+    return;
+  }
+
+  // Filter to passed + paid
+  const eligible=STATE.reportData.filter(r=>{
+    const score=hasExclusions?r.adjustedScoreNum:r.totalScoreNum;
+    const passed=score>=70;
+    const paid=String(r.paid||'').toLowerCase()==='yes';
+    return passed && paid;
+  });
+
+  if(eligible.length===0){
+    alert('No eligible candidates found. Candidates must have a passing score (\u226570%) and Paid = Yes to be included in the Credly export.');
+    return;
+  }
+
+  // Build Credly CSV rows
+  const credlyHeaders=['Badge Template ID','Recipient Email','Issued To First Name','Issued To Middle Name','Issued To Last Name','Issued at','Expires at','Issuer Earner ID','Group Tag','Country or Territory','State or Province','Evidence Name','Evidence URL','URL Evidence Description','Text Evidence Title','Text Evidence Description','Id Evidence Title','Id Evidence Description','Locale'];
+  const credlyRows=[];
+
+  // Format today's date as M/D/YYYY for the "Issued at" field
+  const now=new Date();
+  const issuedAt=(now.getMonth()+1)+'/'+now.getDate()+'/'+now.getFullYear();
+
+  eligible.forEach(r=>{
+    let badgesIssued=false;
+
+    if(!isSpecialized){
+      // Basic exam: one badge per candidate
+      if(badgeBasic){
+        const score=hasExclusions?r.adjustedScoreNum:r.totalScoreNum;
+        const programName=r.form==='NCITBCAN'?'NCIT Basic Canadian Program':'NCIT Basic Program';
+        credlyRows.push([badgeBasic,r.email,r.firstName,'',r.lastName,issuedAt,'','','','','','','','',programName,score.toFixed(1)+'%','','','en']);
+        badgesIssued=true;
+      }
+    }else{
+      // Specialized exam: up to 4 badges per candidate
+
+      // Overall badge
+      if(badgeSpecOverall){
+        const overallScore=hasExclusions?r.adjustedScoreNum:r.totalScoreNum;
+        if(overallScore>=70){
+          credlyRows.push([badgeSpecOverall,r.email,r.firstName,'',r.lastName,issuedAt,'','','','','','','','','NCIT Specialized Program',overallScore.toFixed(1)+'%','','','en']);
+          badgesIssued=true;
+        }
+      }
+
+      // AIS badge
+      if(badgeAIS){
+        const aisScore=r.aisAdjusted?r.aisAdjScoreNum:r.aisScoreNum;
+        if(aisScore!==null && aisScore>=70){
+          credlyRows.push([badgeAIS,r.email,r.firstName,'',r.lastName,issuedAt,'','','','','','','','','NCIT Specialized Program - AIS',aisScore.toFixed(1)+'%','','','en']);
+          badgesIssued=true;
+        }
+      }
+
+      // AIA badge
+      if(badgeAIA){
+        const aiaScore=r.aiaAdjusted?r.aiaAdjScoreNum:r.aiaScoreNum;
+        if(aiaScore!==null && aiaScore>=70){
+          credlyRows.push([badgeAIA,r.email,r.firstName,'',r.lastName,issuedAt,'','','','','','','','','NCIT Specialized Program - AIA',aiaScore.toFixed(1)+'%','','','en']);
+          badgesIssued=true;
+        }
+      }
+
+      // IRD badge
+      if(badgeIRD){
+        const irdScore=r.irdAdjusted?r.irdAdjScoreNum:r.irdScoreNum;
+        if(irdScore!==null && irdScore>=70){
+          credlyRows.push([badgeIRD,r.email,r.firstName,'',r.lastName,issuedAt,'','','','','','','','','NCIT Specialized Program - IRD',irdScore.toFixed(1)+'%','','','en']);
+          badgesIssued=true;
+        }
+      }
+    }
+
+    // Update Digital Badge Issued column in the report
+    if(badgesIssued) r.digitalBadgeIssued=issuedAt;
+  });
+
+  if(credlyRows.length===0){
+    alert('No badge rows were generated. Check that Badge Template IDs are entered and that eligible candidates exist.');
+    return;
+  }
+
+  // Generate CSV
+  let csv='\uFEFF'+credlyHeaders.map(h=>'"'+h+'"').join(',')+'\n';
+  credlyRows.forEach(row=>{
+    csv+=row.map(c=>'"'+String(c||'').replace(/"/g,'""')+'"').join(',')+'\n';
+  });
+
+  downloadFile(csv,'Credly_Bulk_Issue_'+STATE.cohort.replace(/\s+/g,'_')+'.csv','text/csv');
+
+  // Re-render report table to show updated Digital Badge Issued dates
+  const config2=EXAM_CONFIG[STATE.examType];
+  renderReportTable(STATE.reportData,config2);
+
+  // Show summary
+  const badgeCount=credlyRows.length;
+  const candidateCount=eligible.length;
+  setStatus('Credly export complete: '+badgeCount+' badge(s) for '+candidateCount+' candidate(s).','success');
+}
+
+// ============================================================
+// Payment Import
+// ============================================================
+const paymentDrop=document.getElementById('paymentDropZone');
+const paymentInput=document.getElementById('paymentFileInput');
+
+paymentDrop.addEventListener('click',()=>paymentInput.click());
+paymentDrop.addEventListener('dragover',e=>{e.preventDefault();paymentDrop.style.borderColor='var(--blue)';paymentDrop.style.background='rgba(8,77,120,0.04)';});
+paymentDrop.addEventListener('dragleave',()=>{paymentDrop.style.borderColor='var(--gray-mid)';paymentDrop.style.background='var(--gray-light)';});
+paymentDrop.addEventListener('drop',e=>{e.preventDefault();paymentDrop.style.borderColor='var(--gray-mid)';paymentDrop.style.background='var(--gray-light)';if(e.dataTransfer.files.length)processPaymentFile(e.dataTransfer.files[0]);});
+paymentInput.addEventListener('change',e=>{if(e.target.files.length)processPaymentFile(e.target.files[0]);});
+
+function setPaymentStatus(msg,type){
+  const el=document.getElementById('paymentStatus');
+  el.className='status-bar'+(type?' '+type:'');
+  el.innerHTML=msg;
+}
+
+function processPaymentFile(file){
+  if(!STATE.reportData||STATE.reportData.length===0){
+    setPaymentStatus('Please pull exam data first before importing payment data.','error');
+    return;
+  }
+
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const wb=XLSX.read(e.target.result,{type:'array'});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const rows=XLSX.utils.sheet_to_json(ws,{defval:''});
+
+      if(rows.length===0){setPaymentStatus('The uploaded file contains no data.','error');return;}
+
+      // Find the email and payment status columns (case-insensitive)
+      const sampleRow=rows[0];
+      const keys=Object.keys(sampleRow);
+      const emailKey=keys.find(k=>k.toLowerCase().trim()==='email');
+      const paymentKey=keys.find(k=>k.toLowerCase().trim()==='payment status');
+
+      if(!emailKey){setPaymentStatus('Could not find an "Email" column in the uploaded file. Found columns: '+keys.join(', '),'error');return;}
+      if(!paymentKey){setPaymentStatus('Could not find a "Payment Status" column in the uploaded file. Found columns: '+keys.join(', '),'error');return;}
+
+      // Build email -> payment status map
+      const paymentMap=new Map();
+      rows.forEach(row=>{
+        const email=String(row[emailKey]||'').toLowerCase().trim();
+        const status=String(row[paymentKey]||'').trim();
+        if(email) paymentMap.set(email,status);
+      });
+
+      // Match to report data
+      let matched=0,unmatched=0,notInReport=0;
+      const unmatchedNames=[];
+
+      STATE.reportData.forEach(r=>{
+        const email=String(r.email||'').toLowerCase().trim();
+        if(paymentMap.has(email)){
+          const status=paymentMap.get(email);
+          // Map common payment statuses to Yes/No
+          const lower=status.toLowerCase();
+          if(lower==='completed'||lower==='paid'||lower==='approved'||lower==='success'||lower==='yes'){
+            r.paid='Yes';
+          }else if(lower==='pending'||lower==='processing'){
+            r.paid='Pending';
+          }else if(lower==='refunded'||lower==='cancelled'||lower==='canceled'||lower==='declined'||lower==='failed'||lower==='no'){
+            r.paid='No';
+          }else{
+            r.paid=status; // Keep the original value if we can't map it
+          }
+          matched++;
+        }else{
+          unmatched++;
+          unmatchedNames.push(r.firstName+' '+r.lastName);
+        }
+      });
+
+      notInReport=paymentMap.size-matched;
+
+      // Re-render the table
+      const config=EXAM_CONFIG[STATE.examType];
+      renderReportTable(STATE.reportData,config);
+
+      // Show results
+      let msg='<strong>'+matched+'</strong> of '+STATE.reportData.length+' student(s) matched by email.';
+      if(unmatched>0) msg+=' <strong>'+unmatched+'</strong> student(s) had no matching payment record: '+unmatchedNames.join(', ')+'.';
+      if(notInReport>0) msg+=' '+notInReport+' payment record(s) in the file did not match any student in the exam report.';
+      setPaymentStatus(msg,matched>0?'success':'error');
+
+      // Switch to report tab to show the updated Paid column
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+      document.querySelector('.tab-btn[data-tab="report"]').classList.add('active');
+      document.getElementById('tab-report').classList.add('active');
+
+    }catch(err){
+      setPaymentStatus('Error reading file: '+err.message,'error');
+      console.error(err);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
 </script>
 </body>
 </html>
