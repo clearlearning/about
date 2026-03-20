@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TalentLMS User Lookup Tool</title>
+<link rel="icon" type="image/png" href="https://assets-002.noviams.com/novi-file-uploads/clear/structure/clearlogo.png">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Trebuchet+MS&display=swap');
+  :root{--burgundy:#64092c;--burgundy-light:#8a1e4a;--gold:#dda838;--gold-light:#f0c96a;--blue:#084d78;--blue-light:#0a6ba8;--gray:#484848;--gray-light:#f4f4f5;--gray-mid:#e0e0e0;--white:#ffffff;--green:#2e7d32;--green-bg:#e8f5e9;--red:#c62828;--red-bg:#ffebee;--amber:#f57f17;--amber-bg:#fff8e1;--slate-bg:#eceff1;--radius:6px;--shadow:0 2px 8px rgba(0,0,0,0.08);--shadow-lg:0 4px 16px rgba(0,0,0,0.12);}
+  *{margin:0;padding:0;box-sizing:border-box;}body{font-family:'Open Sans',sans-serif;color:var(--gray);background:var(--gray-light);min-height:100vh;}h1,h2,h3,h4{font-family:'Trebuchet MS','Open Sans',sans-serif;}
+  .header{background:linear-gradient(135deg,var(--burgundy) 0%,var(--burgundy-light) 100%);color:var(--white);padding:24px 32px;display:flex;align-items:center;gap:16px;box-shadow:var(--shadow-lg);}
+  .header-icon{width:48px;height:48px;background:var(--gold);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+  .header h1{font-size:22px;font-weight:700;}.header p{font-size:13px;opacity:0.85;margin-top:2px;}.main{max-width:1200px;margin:0 auto;padding:24px 32px 48px;}
+  .panel{background:var(--white);border-radius:var(--radius);padding:28px 32px;box-shadow:var(--shadow);margin-bottom:24px;}
+  .panel h2{font-size:17px;color:var(--burgundy);margin-bottom:20px;display:flex;align-items:center;gap:8px;}
+  .panel-section{border:1px solid var(--gray-mid);border-radius:var(--radius);padding:20px;margin-bottom:16px;}
+  .panel-section h3{font-size:14px;color:var(--burgundy);margin-bottom:12px;}
+  .form-row{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:14px;align-items:flex-end;}
+  .form-group{display:flex;flex-direction:column;gap:5px;flex:1;min-width:200px;}
+  .form-group label{font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;}
+  .form-group input,.form-group select{padding:10px 14px;border:1.5px solid var(--gray-mid);border-radius:var(--radius);font-size:14px;font-family:'Open Sans',sans-serif;transition:border-color 0.2s;}
+  .form-group input:focus,.form-group select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(8,77,120,0.1);}
+  .form-group input:disabled{background:#f0f0f0;color:#aaa;}.inline-note{font-size:12px;color:#888;margin-top:2px;}
+  .connection-status{display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:var(--radius);font-size:13px;margin-bottom:16px;}
+  .connection-status.connected{background:var(--green-bg);color:var(--green);}.connection-status.disconnected{background:var(--red-bg);color:var(--red);}.connection-status.loading{background:var(--amber-bg);color:var(--amber);}
+  .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}.dot.green{background:var(--green);}.dot.red{background:var(--red);}.dot.amber{background:var(--amber);animation:pulse 1s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+  .btn{padding:11px 24px;border:none;border-radius:var(--radius);font-size:14px;font-weight:600;font-family:'Open Sans',sans-serif;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:8px;}
+  .btn-primary{background:var(--blue);color:var(--white);}.btn-primary:hover{background:var(--blue-light);}.btn-primary:disabled{background:#aaa;cursor:not-allowed;}
+  .btn-secondary{background:var(--white);color:var(--blue);border:1.5px solid var(--blue);}.btn-secondary:hover{background:rgba(8,77,120,0.05);}
+  .btn-gold{background:var(--gold);color:var(--burgundy);}.btn-gold:hover{background:var(--gold-light);}
+  .btn-burgundy{background:var(--burgundy);color:var(--white);}.btn-burgundy:hover{background:var(--burgundy-light);}
+  .btn-sm{padding:7px 16px;font-size:12px;}
+  .search-box{display:flex;gap:10px;align-items:stretch;}
+  .search-box input{flex:1;padding:12px 16px;border:2px solid var(--gray-mid);border-radius:var(--radius);font-size:15px;font-family:'Open Sans',sans-serif;}
+  .search-box input:focus{outline:none;border-color:var(--burgundy);box-shadow:0 0 0 3px rgba(100,9,44,0.1);}
+  .search-results{margin-top:12px;}.search-result{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border:1px solid var(--gray-mid);border-radius:var(--radius);margin-bottom:8px;cursor:pointer;transition:all 0.15s;}
+  .search-result:hover{border-color:var(--blue);background:rgba(8,77,120,0.03);}
+  .search-result .sr-name{font-weight:700;font-size:14px;color:var(--gray);}.search-result .sr-email{font-size:13px;color:#888;margin-top:2px;}.search-result .sr-arrow{color:var(--blue);font-size:18px;font-weight:700;}
+  .user-header{display:flex;align-items:center;gap:16px;padding:20px;background:linear-gradient(135deg,var(--burgundy),var(--burgundy-light));border-radius:var(--radius);color:var(--white);margin-bottom:20px;}
+  .user-avatar{width:56px;height:56px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:var(--burgundy);flex-shrink:0;}
+  .user-name{font-size:20px;font-weight:700;font-family:'Trebuchet MS',sans-serif;}.user-email{font-size:13px;opacity:0.8;margin-top:2px;}
+  .course-card{border:1px solid var(--gray-mid);border-radius:var(--radius);margin-bottom:16px;overflow:hidden;}
+  .course-card-header{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;background:var(--gray-light);cursor:pointer;transition:background 0.15s;}
+  .course-card-header:hover{background:#e8e8e8;}
+  .course-card-header .cc-name{font-weight:700;font-size:14px;color:var(--gray);flex:1;}.course-card-header .cc-status{margin-left:12px;}
+  .course-card-body{padding:20px;display:none;border-top:1px solid var(--gray-mid);}
+  .course-card-body.open{display:block;}
+  .badge{display:inline-block;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.3px;}
+  .badge-complete{background:var(--green-bg);color:var(--green);}.badge-inprogress{background:var(--amber-bg);color:var(--amber);}.badge-notstarted{background:var(--slate-bg);color:#78909c;}.badge-failed{background:var(--red-bg);color:var(--red);}
+  .module-table{width:100%;border-collapse:collapse;font-size:13px;white-space:normal;}
+  .module-table th{background:var(--burgundy);color:var(--white);padding:10px 14px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;}
+  .module-table td{padding:9px 14px;border-bottom:1px solid var(--gray-mid);}.module-table tr:nth-child(even){background:#fafafa;}
+  .exam-card{background:var(--gray-light);border-radius:var(--radius);padding:16px 20px;margin-top:16px;}
+  .exam-card h4{font-size:13px;color:var(--burgundy);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;}
+  .exam-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--gray-mid);font-size:13px;}
+  .exam-row:last-child{border-bottom:none;}.exam-score{font-weight:700;font-size:15px;}
+  .exam-score.pass{color:var(--green);}.exam-score.fail{color:var(--red);}
+  .action-bar{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;padding:20px;background:var(--gray-light);border-radius:var(--radius);margin-top:20px;}
+  .status-bar{padding:12px 16px;border-radius:var(--radius);font-size:13px;margin-top:12px;display:none;}
+  .status-bar.info{background:#e3f2fd;color:#1565c0;border:1px solid #90caf9;display:block;}
+  .status-bar.success{background:var(--green-bg);color:var(--green);border:1px solid #a5d6a7;display:block;}
+  .status-bar.error{background:var(--red-bg);color:var(--red);border:1px solid #ef9a9a;display:block;}
+  .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.6s linear infinite;}@keyframes spin{to{transform:rotate(360deg);}}
+  .hidden{display:none!important;}
+  .search-select{position:relative;}.search-select input{width:100%;padding:10px 14px;border:1.5px solid var(--gray-mid);border-radius:var(--radius);font-size:14px;font-family:'Open Sans',sans-serif;background:var(--white);}
+  .search-select input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(8,77,120,0.1);}.search-select input:disabled{background:#f0f0f0;color:#aaa;}
+  .search-select .dropdown{position:absolute;top:100%;left:0;right:0;z-index:100;background:var(--white);border:1.5px solid var(--blue);border-top:none;border-radius:0 0 var(--radius) var(--radius);max-height:220px;overflow-y:auto;box-shadow:var(--shadow-lg);display:none;}
+  .search-select .dropdown.open{display:block;}.search-select .dropdown .opt{padding:9px 14px;font-size:13px;cursor:pointer;border-bottom:1px solid var(--gray-light);}
+  .search-select .dropdown .opt:hover{background:#e3f2fd;}.search-select .dropdown .no-match{padding:9px 14px;font-size:13px;color:#999;font-style:italic;}
+  @media(max-width:768px){.header{padding:16px;}.main{padding:16px;}.panel{padding:16px;}.form-row{flex-direction:column;}.user-header{flex-direction:column;text-align:center;}}
+</style>
+</head>
+<body>
+<div class="header"><div class="header-icon">&#128269;</div><div><h1>TalentLMS User Lookup Tool</h1><p>Search users, review course progress and exam scores, and assign certificates of completion.</p></div></div>
+<div class="main">
+  <div class="panel">
+    <h2>&#9881;&#65039; API Connection</h2>
+    <div class="form-row">
+      <div class="form-group" style="flex:2;"><label>Worker URL</label><input type="text" id="workerUrl" value="https://clear-lms-proxy.avance.workers.dev"><span class="inline-note">Pre-configured. Do not change unless instructed.</span></div>
+      <div class="form-group" style="flex:1;"><label>Auth Token</label><input type="password" id="authToken" placeholder="Enter access token"></div>
+      <div class="form-group" style="flex:0 0 auto;"><label>&nbsp;</label><button class="btn btn-sm btn-secondary" id="connectBtn">Test Connection</button></div>
+    </div>
+    <div class="connection-status disconnected" id="connectionStatus"><span class="dot red"></span> Not connected</div>
+  </div>
+  <div class="panel">
+    <h2>&#128270; Search Users</h2>
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Search by name or email..." disabled>
+      <button class="btn btn-primary" id="searchBtn" disabled>Search</button>
+    </div>
+    <div class="search-results" id="searchResults"></div>
+  </div>
+  <div class="panel hidden" id="panelUser">
+    <div class="user-header" id="userHeader"></div>
+    <div id="courseCards"></div>
+    <div class="action-bar">
+      <div class="form-group" style="min-width:320px;flex:1;margin-bottom:0;">
+        <label>Mark Course as Complete</label>
+        <div class="search-select"><input type="text" id="markCourseInput" placeholder="Select a course to mark complete" disabled><div class="dropdown" id="markCourseDropdown"></div></div>
+        <input type="hidden" id="markCourseValue">
+      </div>
+      <button class="btn btn-burgundy" id="markCompleteBtn" disabled>&#10003; Open in Portal</button>
+      <span style="font-size:12px;color:#888;max-width:220px;line-height:1.4;">Opens the course page in TalentLMS where you can mark the user's course as complete.</span>
+    </div>
+    <div id="actionStatus" class="status-bar"></div>
+  </div>
+</div>
+<script>
+const STATE={workerUrl:'',authToken:'',connected:false,allUsers:null,selectedUser:null,userCourses:[],courseDetails:{}};
+
+// Module filters
+const INCLUDE_PATTERNS=[/knowledge\s*check/i,/knowledge\s*assessment/i,/live\s*session/i,/instructor[\s-]*led[\s-]*session/i,/self[\s-]*study/i];
+const EXCLUDE_PATTERNS=[/week\s*one/i,/required/i,/program\s*review/i];
+function shouldIncludeUnit(name){if(!name)return false;const matchesInclude=INCLUDE_PATTERNS.some(p=>p.test(name));const matchesExclude=EXCLUDE_PATTERNS.some(p=>p.test(name));return matchesInclude&&!matchesExclude;}
+
+// API
+async function apiCall(path){const r=await fetch(STATE.workerUrl.replace(/\/+$/,'')+path,{headers:{'X-Auth-Token':STATE.authToken}});if(!r.ok){const t=await r.text();throw new Error('API '+r.status+': '+t);}return r.json();}
+async function apiPost(path,body){return fetch(STATE.workerUrl.replace(/\/+$/,'')+path,{method:'POST',headers:{'X-Auth-Token':STATE.authToken,'Content-Type':'application/x-www-form-urlencoded'},body}).then(async r=>{if(!r.ok){const t=await r.text();throw new Error('API '+r.status+': '+t);}return r.json();});}
+
+function setCon(s,t){const el=document.getElementById('connectionStatus');el.className='connection-status '+s;const d=s==='connected'?'green':s==='loading'?'amber':'red';el.innerHTML='<span class="dot '+d+'"></span> '+esc(t);}
+
+async function doConnect(){const url=document.getElementById('workerUrl').value.trim();const tok=document.getElementById('authToken').value.trim();if(!url||!tok){setCon('disconnected','Enter Auth Token and click Test Connection');return;}STATE.workerUrl=url;STATE.authToken=tok;setCon('loading','Connecting...');try{const info=await apiCall('/v1/siteinfo');STATE.connected=true;STATE.domain=info.domain||'';setCon('connected','Connected to '+(info.site_name||info.domain||'TalentLMS'));localStorage.setItem('clear_worker_url',url);localStorage.setItem('clear_auth_token',tok);document.getElementById('searchInput').disabled=false;document.getElementById('searchBtn').disabled=false;}catch(e){STATE.connected=false;setCon('disconnected','Connection failed: '+e.message);}}
+document.getElementById('connectBtn').addEventListener('click',doConnect);
+(function(){const u=localStorage.getItem('clear_worker_url')||'https://clear-lms-proxy.avance.workers.dev';const t=localStorage.getItem('clear_auth_token');if(u)document.getElementById('workerUrl').value=u;if(t){document.getElementById('authToken').value=t;setTimeout(doConnect,200);}})();
+
+// Search
+document.getElementById('searchBtn').addEventListener('click',doSearch);
+document.getElementById('searchInput').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch();});
+
+async function doSearch(){
+  const q=document.getElementById('searchInput').value.trim();
+  if(!q){return;}
+  const el=document.getElementById('searchResults');
+  el.innerHTML='<p style="color:#888;padding:8px 0;">Searching...</p>';
+  document.getElementById('panelUser').classList.add('hidden');
+  try{
+    // Cache all users on first search
+    if(!STATE.allUsers)STATE.allUsers=await apiCall('/v1/users');
+    const lower=q.toLowerCase();
+    const matches=STATE.allUsers.filter(u=>{
+      const fn=(u.first_name||'').toLowerCase();const ln=(u.last_name||'').toLowerCase();const em=(u.email||'').toLowerCase();const full=fn+' '+ln;
+      return fn.includes(lower)||ln.includes(lower)||em.includes(lower)||full.includes(lower);
+    }).slice(0,20);
+    if(matches.length===0){el.innerHTML='<p style="color:#888;padding:8px 0;">No users found matching "'+esc(q)+'".</p>';return;}
+    el.innerHTML=matches.map(u=>'<div class="search-result" data-id="'+u.id+'"><div><div class="sr-name">'+esc(u.first_name||'')+' '+esc(u.last_name||'')+'</div><div class="sr-email">'+esc(u.email||'')+'</div></div><div class="sr-arrow">&#8594;</div></div>').join('');
+    el.querySelectorAll('.search-result').forEach(sr=>{sr.addEventListener('click',()=>loadUser(sr.dataset.id));});
+  }catch(e){el.innerHTML='<p style="color:var(--red);">Error: '+esc(e.message)+'</p>';}
+}
+
+// Load user detail
+async function loadUser(userId){
+  const panel=document.getElementById('panelUser');panel.classList.remove('hidden');
+  document.getElementById('courseCards').innerHTML='<p style="color:#888;">Loading user data...</p>';
+  document.getElementById('actionStatus').className='status-bar';document.getElementById('actionStatus').style.display='none';
+  try{
+    const user=await apiCall('/v1/users/id:'+userId);
+    STATE.selectedUser=user;
+    const initials=((user.first_name||'')[0]||'')+((user.last_name||'')[0]||'');
+
+    // Build user header with groups
+    let headerHtml='<div class="user-avatar">'+esc(initials.toUpperCase())+'</div><div style="flex:1;"><div class="user-name">'+esc(user.first_name||'')+' '+esc(user.last_name||'')+'</div><div class="user-email">'+esc(user.email||'')+(user.login?' &middot; Login: '+esc(user.login):'')+'</div>';
+    // Fetch groups
+    const userGroups=(user.groups||[]);
+    if(userGroups.length>0){
+      const groupNames=[];
+      for(const g of userGroups){try{const gd=await apiCall('/v1/groups/id:'+(g.id||g.group_id||g));groupNames.push(gd.name||'Group '+gd.id);}catch(e){groupNames.push('Group '+(g.id||g.group_id||g));}}
+      headerHtml+='<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;">'+groupNames.map(n=>'<span style="display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.9);">'+esc(n)+'</span>').join('')+'</div>';
+    }else{
+      // Try fetching all groups and filtering
+      try{const allGroups=await apiCall('/v1/groups');const memberOf=[];
+      for(const g of allGroups){try{const gd=await apiCall('/v1/groups/id:'+g.id);if(gd.users&&gd.users.some(u=>(u.user_id||u.id)==userId))memberOf.push(g.name);}catch(e){}}
+      if(memberOf.length>0){headerHtml+='<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;">'+memberOf.map(n=>'<span style="display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.9);">'+esc(n)+'</span>').join('')+'</div>';}
+      }catch(e){}
+    }
+    headerHtml+='</div>';
+    document.getElementById('userHeader').innerHTML=headerHtml;
+
+    // Get enrolled courses
+    const courses=user.courses||[];
+    STATE.userCourses=courses;
+    if(courses.length===0){document.getElementById('courseCards').innerHTML='<p style="color:#888;">This user is not enrolled in any courses.</p>';setupMarkCourse([]);panel.scrollIntoView({behavior:'smooth'});return;}
+
+    // Fetch details for each course
+    let html='';
+    STATE.courseDetails={};
+    for(let i=0;i<courses.length;i++){
+      const c=courses[i];
+      try{
+        const status=await apiCall('/v1/getuserstatusincourse/course_id:'+c.id+',user_id:'+userId);
+        STATE.courseDetails[c.id]=status;
+        const units=status.units||[];
+        const filteredUnits=units.filter(u=>shouldIncludeUnit(u.name));
+        const testUnits=units.filter(u=>u.type&&u.type.toLowerCase()==='test');
+        const completionStatus=c.completion_status_formatted||c.completion_status||status.completion_status||'Not Started';
+        const completionPct=c.completion_percentage||status.completion_percentage||'0';
+        const enrolledDate=c.enrolled_on||c.enrolled_on_timestamp||status.enrolled_on||'';
+        const dateStr=enrolledDate?'<span style="font-size:12px;color:#888;margin-left:12px;">Enrolled: '+esc(enrolledDate)+'</span>':'';
+
+        html+='<div class="course-card"><div class="course-card-header" onclick="this.nextElementSibling.classList.toggle(\'open\')"><span class="cc-name">'+esc(c.name)+dateStr+'</span><span class="cc-status">'+statusBadge(normalizeStatus(completionStatus))+' '+esc(completionPct)+'%</span></div>';
+        html+='<div class="course-card-body">';
+
+        // Module table
+        if(filteredUnits.length>0){
+          html+='<table class="module-table"><thead><tr><th style="width:65%;">Module</th><th>Status</th></tr></thead><tbody>';
+          filteredUnits.forEach(u=>{
+            const s=normalizeStatus(u.completion_status_formatted||u.completion_status||'Not Started');
+            html+='<tr><td>'+esc(u.name)+'</td><td>'+statusBadge(s)+'</td></tr>';
+          });
+          html+='</tbody></table>';
+        }else{
+          html+='<p style="font-size:13px;color:#888;margin-bottom:12px;">No matching modules in this course.</p>';
+        }
+
+        // Exam scores
+        if(testUnits.length>0){
+          html+='<div class="exam-card"><h4>&#128221; Exam Scores</h4>';
+          for(const tu of testUnits){
+            let scoreText='Not taken';let scoreClass='';
+            try{
+              const ta=await apiCall('/v1/gettestanswers/test_id:'+tu.id+',user_id:'+userId);
+              if(ta.score!==undefined&&ta.score!==null&&ta.score!==''){
+                const pct=parseFloat(ta.score);
+                scoreText=pct.toFixed(1)+'%';
+                scoreClass=pct>=70?'pass':'fail';
+              }else if(ta.completion_status){
+                scoreText=ta.completion_status;
+              }
+            }catch(te){scoreText='Not taken';}
+            html+='<div class="exam-row"><span>'+esc(tu.name)+'</span><span class="exam-score '+scoreClass+'">'+scoreText+'</span></div>';
+          }
+          html+='</div>';
+        }
+
+        html+='</div></div>';
+      }catch(ce){
+        html+='<div class="course-card"><div class="course-card-header"><span class="cc-name">'+esc(c.name)+'</span><span class="cc-status"><span class="badge badge-notstarted">Error loading</span></span></div></div>';
+      }
+    }
+
+    document.getElementById('courseCards').innerHTML=html;
+    setupMarkCourse(courses);
+    panel.scrollIntoView({behavior:'smooth'});
+
+  }catch(e){document.getElementById('courseCards').innerHTML='<p style="color:var(--red);">Error loading user: '+esc(e.message)+'</p>';}
+}
+
+function normalizeStatus(raw){const l=(raw||'').toLowerCase().trim();if(l==='completed'||l==='complete'||l==='passed')return'Completed';if(l==='failed')return'Failed';if(l==='incomplete'||l==='in progress'||l==='in_progress')return'In Progress';return'Not Started';}
+function statusBadge(s){switch(s){case'Completed':return'<span class="badge badge-complete">Completed</span>';case'Failed':return'<span class="badge badge-failed">Failed</span>';case'In Progress':return'<span class="badge badge-inprogress">In Progress</span>';default:return'<span class="badge badge-notstarted">Not Started</span>';}}
+
+// Mark course complete
+function setupMarkCourse(courses){
+  const input=document.getElementById('markCourseInput');const dropdown=document.getElementById('markCourseDropdown');const hidden=document.getElementById('markCourseValue');const btn=document.getElementById('markCompleteBtn');
+  input.disabled=false;input.placeholder=courses.length>0?'Type to search enrolled courses...':'No courses available';input.value='';hidden.value='';btn.disabled=true;
+  const items=courses.map(c=>({value:String(c.id),label:c.name}));
+  function renderOpts(filter){const f=filter?items.filter(it=>it.label.toLowerCase().includes(filter.toLowerCase())):items;if(f.length===0){dropdown.innerHTML='<div class="no-match">No matches</div>';}else{dropdown.innerHTML=f.map(it=>'<div class="opt" data-val="'+it.value+'">'+esc(it.label)+'</div>').join('');}dropdown.querySelectorAll('.opt').forEach(opt=>{opt.addEventListener('mousedown',e=>{e.preventDefault();input.value=opt.textContent;hidden.value=opt.dataset.val;dropdown.classList.remove('open');btn.disabled=false;});});}
+  input.addEventListener('focus',()=>{renderOpts(input.value);dropdown.classList.add('open');});input.addEventListener('input',()=>{hidden.value='';btn.disabled=true;renderOpts(input.value);dropdown.classList.add('open');});input.addEventListener('blur',()=>{setTimeout(()=>dropdown.classList.remove('open'),150);});renderOpts('');
+}
+
+document.getElementById('markCompleteBtn').addEventListener('click',()=>{
+  const courseId=document.getElementById('markCourseValue').value;
+  const courseName=document.getElementById('markCourseInput').value;
+  if(!courseId||!STATE.selectedUser){return;}
+  const portalUrl='https://portal.clearhq.org/trainer/users/id:'+courseId;
+  window.open(portalUrl,'_blank');
+  setActionSt('Opened "'+esc(courseName)+'" in TalentLMS. Find <strong>'+esc(STATE.selectedUser.first_name)+' '+esc(STATE.selectedUser.last_name)+'</strong> in the course users list and click "Complete course" next to their name.','info');
+});
+
+function setActionSt(m,t){const el=document.getElementById('actionStatus');el.className='status-bar'+(t?' '+t:'');el.style.display='block';el.innerHTML=m;}
+function esc(s){if(s==null)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+</script>
+</body>
+</html>
