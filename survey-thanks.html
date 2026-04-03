@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thank You – CLEAR Learning</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --burgundy:    #64092c;
+    --burgundy-dk: #4a0620;
+    --burgundy-lt: #7d1038;
+    --gold:        #dda839;
+    --gold-lt:     #e8c06a;
+    --gold-dk:     #c08e20;
+    --blue:        #084d78;
+    --cream:       #faf7f2;
+    --stone:       #ede8e0;
+    --white:       #ffffff;
+    --ink:         #1c1410;
+    --ink-mid:     #4a3f38;
+    --ink-soft:    #7a6e67;
+    --shadow-sm:   0 2px 8px rgba(28,20,16,0.08);
+    --shadow-md:   0 6px 24px rgba(28,20,16,0.12);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Open Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* CARD */
+  .card {
+    background: var(--white);
+    border-radius: 4px;
+    box-shadow: var(--shadow-md);
+    max-width: 520px;
+    width: 100%;
+    overflow: hidden;
+    animation: fadeUp 0.4s ease both;
+  }
+  @keyframes fadeUp {
+    from { transform: translateY(14px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+
+  /* HEADER BAND */
+  .card-header {
+    background: var(--burgundy);
+    padding: 28px 36px 24px;
+    position: relative;
+  }
+  /* Gold rule at bottom of header */
+  .card-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--gold-dk), var(--gold), var(--gold-lt), var(--gold));
+  }
+
+  .header-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .logo-mark {
+    width: 42px; height: 42px;
+    background: var(--gold);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 700; font-size: 14px;
+    color: var(--burgundy);
+    letter-spacing: -0.5px;
+    flex-shrink: 0;
+  }
+  .logo-text {
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+  }
+  .logo-sub {
+    font-size: 11px;
+    font-weight: 300;
+    color: rgba(255,255,255,0.65);
+    margin-top: 2px;
+    letter-spacing: 0.3px;
+  }
+
+  /* CHECKMARK */
+  .check-wrap {
+    display: flex;
+    justify-content: center;
+  }
+  .check-circle {
+    width: 60px; height: 60px;
+    background: var(--gold);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 3px 16px rgba(221,168,57,0.35);
+    animation: popIn 0.45s cubic-bezier(0.34,1.56,0.64,1) 0.15s both;
+  }
+  @keyframes popIn {
+    from { transform: scale(0.5); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+  }
+  .check-circle svg {
+    width: 30px; height: 30px;
+    stroke: var(--burgundy);
+    stroke-width: 3;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .check-circle svg path {
+    stroke-dasharray: 42;
+    stroke-dashoffset: 42;
+    animation: drawCheck 0.35s ease 0.5s forwards;
+  }
+  @keyframes drawCheck {
+    to { stroke-dashoffset: 0; }
+  }
+
+  /* BODY */
+  .card-body {
+    padding: 32px 36px 36px;
+    text-align: center;
+  }
+
+  .thank-heading {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--burgundy);
+    margin-bottom: 10px;
+    letter-spacing: -0.2px;
+  }
+
+  .gold-rule {
+    width: 44px; height: 2px;
+    background: linear-gradient(90deg, var(--gold-dk), var(--gold));
+    border-radius: 1px;
+    margin: 0 auto 20px;
+  }
+
+  .thank-body {
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--ink-mid);
+    line-height: 1.75;
+    margin-bottom: 26px;
+  }
+  .thank-body strong {
+    color: var(--burgundy);
+    font-weight: 600;
+  }
+
+  /* NAV NOTE */
+  .nav-note {
+    background: var(--cream);
+    border: 1px solid var(--stone);
+    border-left: 4px solid var(--gold);
+    border-radius: 3px;
+    padding: 16px 20px;
+    text-align: left;
+  }
+  .nav-note-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--burgundy);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 5px;
+  }
+  .nav-note-text {
+    font-size: 14px;
+    color: var(--ink-mid);
+    line-height: 1.6;
+  }
+
+  @media (max-width: 480px) {
+    .card-header { padding: 22px 24px 20px; }
+    .card-body   { padding: 24px 24px 28px; }
+    .thank-heading { font-size: 21px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+
+  <div class="card-header">
+    <div class="header-top">
+      <div class="logo-mark">CL</div>
+      <div>
+        <div class="logo-text">CLEAR Learning</div>
+        <div class="logo-sub">Council on Licensure, Enforcement and Regulation</div>
+      </div>
+    </div>
+    <div class="check-wrap">
+      <div class="check-circle">
+        <svg viewBox="0 0 32 32"><path d="M7 16 l7 7 l11 -13"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <h1 class="thank-heading">Thank You!</h1>
+    <div class="gold-rule"></div>
+    <p class="thank-body">
+      Your evaluation has been submitted successfully. <strong>Your input truly matters.</strong>
+      Feedback like yours helps CLEAR continuously improve the quality of our programs
+      and ensures our training remains relevant, effective, and valuable to the
+      regulatory community.
+    </p>
+
+    <div class="nav-note">
+      <div class="nav-note-title">Ready to continue?</div>
+      <div class="nav-note-text">
+        Use the <strong>back button in the top left corner</strong> of your screen to return to the course homepage.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
