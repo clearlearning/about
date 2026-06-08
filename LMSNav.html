@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welcome to CLEAR Learning | Getting Started</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="https://assets-002.noviams.com/novi-file-uploads/clear/structure/clearlogo.png">
+<style>
+  :root {
+    --burgundy: #64092C;
+    --burgundy-dark: #4a0620;
+    --burgundy-light: #8a1040;
+    --gold: #DDA838;
+    --gold-light: #f0c45e;
+    --charcoal: #484848;
+    --blue: #084D78;
+    --white: #ffffff;
+    --off-white: #faf8f5;
+    --light-gray: #f2f0ed;
+    --border: #e0dbd4;
+    --text-muted: #7a6e68;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Source Sans 3', sans-serif;
+    background: var(--off-white);
+    color: var(--charcoal);
+    line-height: 1.7;
+  }
+
+  /* HEADER */
+  .page-header {
+    background: var(--burgundy);
+    color: var(--white);
+    padding: 48px 40px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .page-header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 300px; height: 300px;
+    background: var(--burgundy-light);
+    border-radius: 50%;
+    opacity: 0.3;
+  }
+  .page-header::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: 40%;
+    width: 200px; height: 200px;
+    background: var(--gold);
+    border-radius: 50%;
+    opacity: 0.12;
+  }
+  .header-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+  .header-eyebrow {
+    font-family: 'Source Sans 3', sans-serif;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 12px;
+  }
+  .header-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 38px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 14px;
+  }
+  .header-subtitle {
+    font-size: 16px;
+    color: rgba(255,255,255,0.8);
+    font-weight: 300;
+    max-width: 560px;
+  }
+  .gold-rule {
+    height: 3px;
+    background: linear-gradient(90deg, var(--gold), transparent);
+    margin: 24px 0 0;
+    border: none;
+  }
+
+  /* LAYOUT */
+  .page-body {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* SECTION HEADINGS */
+  .section {
+    margin-bottom: 40px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border);
+  }
+  .section-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--burgundy);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .section-icon svg {
+    width: 18px; height: 18px;
+    fill: var(--white);
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--burgundy);
+  }
+
+  /* PROSE */
+  .prose p {
+    margin-bottom: 12px;
+    font-size: 15px;
+    color: var(--charcoal);
+  }
+  .prose p:last-child { margin-bottom: 0; }
+
+  /* CALLOUT BOXES */
+  .callout {
+    border-left: 4px solid var(--gold);
+    background: var(--white);
+    padding: 16px 20px;
+    border-radius: 0 8px 8px 0;
+    margin: 16px 0;
+    font-size: 14.5px;
+  }
+  .callout.info {
+    border-color: var(--blue);
+    background: #f0f6fb;
+  }
+  .callout.warning {
+    border-color: var(--gold);
+    background: #fdf8ee;
+  }
+  .callout strong {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+
+  /* CARD GRIDS */
+  .card-grid {
+    display: grid;
+    gap: 16px;
+  }
+  .card-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+  .card-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+  .card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    font-size: 14.5px;
+  }
+  .card-title {
+    font-weight: 600;
+    color: var(--burgundy);
+    margin-bottom: 8px;
+    font-size: 15px;
+  }
+  .card ul {
+    padding-left: 18px;
+    color: var(--charcoal);
+  }
+  .card ul li { margin-bottom: 4px; }
+
+  /* REQUIREMENT ITEMS */
+  .req-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+  }
+  .req-list2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .req-item {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 16px;
+    text-align: center;
+    font-size: 14px;
+  }
+  .req-item .req-icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+    display: block;
+  }
+  .req-item .req-label {
+    font-weight: 600;
+    color: var(--burgundy);
+    display: block;
+    margin-bottom: 4px;
+    font-size: 14px;
+  }
+  .req-item .req-detail {
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+
+  /* EXAM BOX */
+  .exam-box {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-top: 4px solid var(--burgundy);
+    border-radius: 10px;
+    padding: 24px;
+  }
+  .exam-box .exam-label {
+    display: inline-block;
+    background: var(--burgundy);
+    color: var(--white);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+  }
+  .exam-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 16px;
+  }
+  .exam-detail-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 14.5px;
+  }
+  .exam-detail-item .dot {
+    width: 8px; height: 8px;
+    background: var(--gold);
+    border-radius: 50%;
+    margin-top: 7px;
+    flex-shrink: 0;
+  }
+
+  /* PORTAL SECTION — trigger cards */
+  .portal-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+  }
+  .portal-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 20px 16px;
+    font-size: 14.5px;
+    cursor: pointer;
+    transition: box-shadow 0.15s, border-color 0.15s, transform 0.1s;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: left;
+    width: 100%;
+    font-family: inherit;
+  }
+  .portal-card:hover {
+    box-shadow: 0 4px 16px rgba(100,9,44,0.12);
+    border-color: var(--burgundy);
+    transform: translateY(-1px);
+  }
+  .portal-card:focus-visible {
+    outline: 2px solid var(--burgundy);
+    outline-offset: 2px;
+  }
+  .portal-card .pc-title {
+    font-weight: 600;
+    color: var(--blue);
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .portal-card .pc-title::before {
+    content: '';
+    display: inline-block;
+    width: 6px; height: 6px;
+    background: var(--gold);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .portal-card .pc-desc {
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .portal-card .pc-cta {
+    margin-top: auto;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--burgundy);
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .portal-card .pc-cta::after { content: ' →'; }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(40, 10, 20, 0.55);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--white);
+    border-radius: 14px;
+    width: 100%;
+    max-width: 620px;
+    max-height: 88vh;
+    overflow-y: auto;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.25);
+    animation: modalIn 0.18s ease;
+  }
+  @keyframes modalIn {
+    from { opacity: 0; transform: translateY(10px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .modal-header {
+    background: var(--burgundy);
+    color: var(--white);
+    padding: 22px 28px 18px;
+    border-radius: 14px 14px 0 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+  .modal-header-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+  .modal-close {
+    background: rgba(255,255,255,0.15);
+    border: none;
+    color: var(--white);
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s;
+    font-family: inherit;
+    line-height: 1;
+  }
+  .modal-close:hover { background: rgba(255,255,255,0.28); }
+  .modal-body { padding: 24px 28px 28px; }
+
+  /* Screenshot placeholder */
+  .screenshot-placeholder {
+    background: var(--light-gray);
+    border: 2px dashed var(--border);
+    border-radius: 8px;
+    padding: 28px 20px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 13px;
+    margin: 16px 0;
+  }
+  .screenshot-placeholder .sp-icon { font-size: 28px; display: block; margin-bottom: 6px; }
+  .screenshot-placeholder .sp-label {
+    font-weight: 600;
+    color: var(--charcoal);
+    display: block;
+    margin-bottom: 2px;
+    font-size: 13.5px;
+  }
+
+  /* Modal content */
+  .modal-prose p {
+    font-size: 14.5px;
+    color: var(--charcoal);
+    margin-bottom: 12px;
+    line-height: 1.7;
+  }
+  .modal-prose p:last-child { margin-bottom: 0; }
+  .modal-prose strong { color: var(--burgundy); }
+  .modal-prose ul { padding-left: 18px; margin-bottom: 12px; }
+  .modal-prose ul li { font-size: 14.5px; margin-bottom: 6px; line-height: 1.6; }
+  .modal-prose .step {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }
+  .modal-prose .step-num {
+    background: var(--burgundy);
+    color: var(--white);
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .modal-prose .step-text { font-size: 14.5px; color: var(--charcoal); line-height: 1.6; }
+  .modal-prose .note {
+    background: #f0f6fb;
+    border-left: 3px solid var(--blue);
+    padding: 10px 14px;
+    border-radius: 0 6px 6px 0;
+    font-size: 13.5px;
+    color: var(--charcoal);
+    margin-top: 14px;
+  }
+
+  /* DISCLAIMER */
+  .disclaimer-block {
+    background: var(--light-gray);
+    border-radius: 10px;
+    padding: 20px 24px;
+    font-size: 14px;
+    color: var(--charcoal);
+    line-height: 1.65;
+  }
+  .disclaimer-block + .disclaimer-block {
+    margin-top: 12px;
+  }
+
+  /* CONTACT */
+  .contact-strip {
+    background: var(--burgundy);
+    color: var(--white);
+    border-radius: 10px;
+    padding: 22px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .contact-strip .cs-label {
+    font-size: 13px;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 2px;
+  }
+  .contact-strip .cs-email {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--gold);
+    text-decoration: none;
+  }
+  .contact-strip .cs-email:hover { text-decoration: underline; }
+
+  /* DIVIDER */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 36px 0;
+  }
+
+  /* SECTION LABEL for conditional */
+  .conditional-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #fdf8ee;
+    border: 1px solid var(--gold);
+    color: #8a6000;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+  }
+
+  /* ANCHORED NAV */
+  .toc {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 36px;
+  }
+  .toc-title {
+    font-weight: 600;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+  .toc-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .toc-links a {
+    color: var(--burgundy);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 4px 12px;
+    border: 1px solid #d4c4cb;
+    border-radius: 20px;
+    transition: background 0.15s, color 0.15s;
+  }
+  .toc-links a:hover {
+    background: var(--burgundy);
+    color: var(--white);
+  }
+
+  @media (max-width: 680px) {
+    .card-grid.cols-2, .card-grid.cols-3,
+    .req-list, .exam-details, .portal-grid { grid-template-columns: 1fr; }
+    .header-title { font-size: 28px; }
+    .contact-strip { flex-direction: column; align-items: flex-start; }
+    .page-header { padding: 32px 20px 28px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <div class="header-inner">
+    <div class="header-eyebrow">CLEAR Learning</div>
+    <h1 class="header-title">Welcome &amp; Getting Started</h1>
+    <p class="header-subtitle">Everything you need to know before your program begins — program expectations, technical requirements, and how to navigate the portal.</p>
+    <hr class="gold-rule">
+  </div>
+</header>
+
+<main class="page-body">
+
+  <!-- TABLE OF CONTENTS -->
+  <nav class="toc">
+    <div class="toc-title">On This Page</div>
+    <div class="toc-links">
+      <a href="#program-support">Program Support</a>
+      <a href="#disclaimers">Disclaimers</a>
+      <a href="#live-sessions">Live Session Expectations</a>
+      <a href="#exam">Final Exam</a>
+      <a href="#requirements">System Requirements</a>
+      <a href="#software">Software Components</a>
+      <a href="#portal">CLEAR Learning Portal</a>
+    </div>
+  </nav>
+
+  <!-- PROGRAM SUPPORT -->
+  <section class="section" id="program-support">
+    <div class="section-header">
+      <div class="section-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm0-4h-2V7h2v8z"/></svg>
+      </div>
+      <h2 class="section-title">Program Support</h2>
+    </div>
+    <div class="contact-strip">
+      <div>
+        <div class="cs-label">Questions? Reach the CLEAR Learning team at</div>
+        <a class="cs-email" href="mailto:clearlearning@clearhq.org">clearlearning@clearhq.org</a>
+      </div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.65);text-align:right;line-height:1.5;">We're here to help before,<br>during, and after your program.</div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- DISCLAIMERS -->
+  <section class="section" id="disclaimers">
+    <div class="section-header">
+      <div class="section-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-1 6h2v2h-2V7zm0 4h2v6h-2v-6z"/></svg>
+      </div>
+      <h2 class="section-title">Disclaimers</h2>
+    </div>
+    <div class="disclaimer-block" style="margin-bottom:12px;">
+      <strong style="color:var(--burgundy);margin-bottom:6px;display:block;">Program Content</strong>
+      The concepts taught in this program are what CLEAR deems as best practice. However, agency policies and procedures supersede the concepts taught in this program.
+    </div>
+    <div class="disclaimer-block">
+      <strong style="color:var(--burgundy);margin-bottom:6px;display:block;">Perspectives &amp; Debate</strong>
+      CLEAR is a place for novel, thoughtful, non-partisan debate, undertaken inclusively and respectfully. Those who contribute to the debate speak in their own capacity and do not necessarily represent the view(s) of CLEAR. CLEAR provides a space in which contentious issues can be safely and respectfully discussed, grounded in a sound body of professional regulatory knowledge. Acting in the public interest, regulations, and the views of regulators and the wider public, evolve over time. Discussions at CLEAR reflect this evolution of thinking, encompassing a wide variety of considered opinion.
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- LIVE SESSION EXPECTATIONS -->
+  <section class="section" id="live-sessions">
+    <div class="section-header">
+      <div class="section-icon">
+        <svg viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+      </div>
+      <h2 class="section-title">Live Session Expectations</h2>
+    </div>
+    <div class="conditional-badge">
+      <span>📋</span> Applies to programs with instructor-led live sessions
+    </div>
+    <div class="prose">
+      <p>If your program includes live, instructor-led sessions, the following expectations apply. Not all programs include a live component — refer to your course schedule for details.</p>
+    </div>
+
+    <div class="card-grid cols-3" style="margin-top:18px;">
+      <div class="card">
+        <div class="card-title">🎙️ Audio &amp; Participation</div>
+        <ul>
+          <li>All participant lines are muted during training by default</li>
+          <li>To speak, click the <strong>Raise Hand</strong> icon and wait to be called on, then unmute</li>
+          <li>Direct all questions in the chat to the facilitator</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-title">📷 Camera Policy</div>
+        <ul>
+          <li>Camera expectations vary by program</li>
+          <li>Some programs encourage cameras on to support engagement</li>
+          <li>Others keep cameras off due to cohort size or bandwidth</li>
+          <li>Your facilitator will communicate the expectation for your program</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-title">☕ Breaks &amp; Activities</div>
+        <ul>
+          <li>Breaks occur approximately every 45–50 minutes</li>
+          <li>Leave the training session open on your computer during breaks</li>
+          <li>Sessions include polls, videos, and small group activities</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- FINAL EXAM -->
+  <section class="section" id="exam">
+    <div class="section-header">
+      <div class="section-icon">
+        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+      </div>
+      <h2 class="section-title">Final Exam</h2>
+    </div>
+    <div class="conditional-badge">
+      <span>📋</span> Applies only to programs that include a final exam
+    </div>
+    <div class="exam-box">
+      <div class="exam-label">Exam-Track Programs Only</div>
+      <div class="prose">
+        <p>If your program culminates in a final exam, it is administered online within the CLEAR Learning Portal and proctored in real time by our testing partner, <strong>Integrity Advocate</strong>.</p>
+      </div>
+      <div class="exam-details">
+        <div class="exam-detail-item">
+          <span class="dot"></span>
+          <span>All exam questions are <strong>multiple choice</strong></span>
+        </div>
+        <div class="exam-detail-item">
+          <span class="dot"></span>
+          <span>Exams have a <strong>set time limit</strong> — plan accordingly</span>
+        </div>
+        <div class="exam-detail-item">
+          <span class="dot"></span>
+          <span>Three separate exam forms are used across the program</span>
+        </div>
+        <div class="exam-detail-item">
+          <span class="dot"></span>
+          <span>Proctoring is conducted live and remotely by Integrity Advocate</span>
+        </div>
+      </div>
+      <div class="callout warning" style="margin-top:20px;">
+        <strong>Program Review Session</strong>
+        A Program Review Session is available prior to the exam — we strongly encourage you to attend. This session covers key concepts that will appear on the exam and provides instructions for accessing and completing it. <strong>Access to the final exam is granted only after the Review Session is complete.</strong>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- SYSTEM REQUIREMENTS -->
+  <section class="section" id="requirements">
+    <div class="section-header">
+      <div class="section-icon">
+        <svg viewBox="0 0 24 24"><path d="M20 18c1.1 0 1.99-.9 1.99-2L22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zm-16 0V6h16v12H4z"/></svg>
+      </div>
+      <h2 class="section-title">System Requirements</h2>
+    </div>
+    <div class="prose">
+      <p>The following requirements apply to all CLEAR Learning programs. Please verify your setup before your program begins.</p>
+    </div>
+    <div class="req-list" style="margin-top:16px;">
+      <div class="req-item">
+        <span class="req-icon">🌐</span>
+        <span class="req-label">Web Browser</span>
+        <span class="req-detail">Google Chrome, Microsoft Edge, Mozilla Firefox, or Safari (current version recommended)</span>
+      </div>
+      <div class="req-item">
+        <span class="req-icon">🎧</span>
+        <span class="req-label">Microphone &amp; Webcam</span>
+        <span class="req-detail">Built-in laptop mic/camera or external headset and webcam; tested and working before your first session<br><strong>Note:</strong> Only required for programs containing virtual instructor-led sessions.</span>
+      </div>
+      <div class="req-item">
+        <span class="req-icon">📶</span>
+        <span class="req-label">Internet Access</span>
+        <span class="req-detail">Stable broadband connection; wired ethernet preferred for live sessions</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- SOFTWARE COMPONENTS -->
+  <section class="section" id="software">
+    <div class="section-header">
+      <div class="section-icon">
+        <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 3h2v2h-2V7zm-4 0h2v2h-2V7zM7 7h2v2H7V7zm13 12H4v-9h16v9z"/></svg>
+      </div>
+      <h2 class="section-title">Program Software Components</h2>
+    </div>
+    <div class="req-list2" style="margin-top:16px;">
+      <div class="req-item">
+        <span class="req-icon"><img src="https://clearlearning.github.io/images/cl-logo.png" alt="CLEAR Learning Logo" style="height: 50px; margin-bottom: 0px;"></span>
+        <span class="req-label">CLEAR Learning Portal</span>
+        <p>Self-paced learning modules</p>
+        <p>Knowledge assessments</p>
+        <p>Module and program surveys</p>
+        <p>Participant guides &amp; handouts</p>
+        <p>Course schedule and communications</p>
+      </div>
+      <div class="req-item">
+        <span class="req-icon"><img src="https://clearlearning.github.io/images/Zoom-Logo.png" alt="Zoom" style="height: 50px; margin-bottom: 0px;"></span>
+        <span class="req-label">Zoom</span>
+        <p>Live session hosting platform</p>
+        <p>Instructor-led modules</p>
+        <p>Small group activities</p>
+        <p>Live class participation</p>
+        <p>Program Review Session</p>
+        <p style="margin-top:10px;font-size:13px;color:var(--text-muted);">Zoom links are provided through the portal and will be sent to you in advance of each live session.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- CLEAR LEARNING PORTAL -->
+  <section class="section" id="portal">
+    <div class="section-header">
+      <div class="section-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+      </div>
+      <h2 class="section-title">Navigating the CLEAR Learning Portal</h2>
+    </div>
+    <div class="prose">
+      <p>You're already logged in — nice work! Click any topic below for step-by-step guidance on that area of the portal.</p>
+    </div>
+
+    <div class="portal-grid" style="margin-top:18px;">
+      <button class="portal-card" onclick="openModal('modal-finding-course')">
+        <div class="pc-title">Finding Your Course</div>
+        <div class="pc-desc">Locate your assigned course on the homepage and get started.</div>
+        <div class="pc-cta">Learn how</div>
+      </button>
+      <button class="portal-card" onclick="openModal('modal-live-sessions')">
+        <div class="pc-title">Attending Live Sessions</div>
+        <div class="pc-desc">Two ways to join your scheduled Zoom sessions from the portal.</div>
+        <div class="pc-cta">Learn how</div>
+      </button>
+      <button class="portal-card" onclick="openModal('modal-messages')">
+        <div class="pc-title">Messages</div>
+        <div class="pc-desc">Send and receive messages with your facilitator and CLEAR staff.</div>
+        <div class="pc-cta">Learn how</div>
+      </button>
+      <button class="portal-card" onclick="openModal('modal-profile')">
+        <div class="pc-title">Your Profile</div>
+        <div class="pc-desc">Update your contact information, job title, and account details.</div>
+        <div class="pc-cta">Learn how</div>
+      </button>
+      <button class="portal-card" onclick="openModal('modal-schedule')">
+        <div class="pc-title">Course Schedule</div>
+        <div class="pc-desc">View your live session dates and program agenda.</div>
+        <div class="pc-cta">Learn how</div>
+      </button>
+      <button class="portal-card" onclick="openModal('modal-contents')">
+        <div class="pc-title">Course Contents</div>
+        <div class="pc-desc">Modules, assessments, surveys, handouts, and more.</div>
+        <div class="pc-cta">Learn how</div>
+      </button>
+    </div>
+
+    <div class="callout info" style="margin-top:20px;">
+      <strong>Need help with the portal?</strong>
+      Contact us at <a href="mailto:clearlearning@clearhq.org" style="color:var(--blue);">clearlearning@clearhq.org</a> and we'll get you sorted out quickly.
+    </div>
+  </section>
+
+</main>
+
+<!-- ═══════════════════════════════════════════
+     MODALS
+═══════════════════════════════════════════ -->
+
+<!-- Finding Your Course -->
+<div class="modal-overlay" id="modal-finding-course" role="dialog" aria-modal="true" aria-labelledby="title-finding-course">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-header-title" id="title-finding-course">Finding Your Course</div>
+      <button class="modal-close" onclick="closeModal('modal-finding-course')" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-prose">
+        <div class="screenshot-placeholder">
+          <img src="https://clearlearning.github.io/about/homepage.png" style="width: 100%;">
+        </div>
+        <p>After logging in, your homepage displays a tile for every course assigned to your profile. Click any course tile to enter that course.</p>
+        <p><strong>NCIT programs</strong> will show two tiles — a Standard Release and the program itself. All other programs show only the program assigned to you.</p>
+        <p>If you've attended past CLEAR trainings, those courses will also appear on your dashboard.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Attending Live Sessions -->
+<div class="modal-overlay" id="modal-live-sessions" role="dialog" aria-modal="true" aria-labelledby="title-live-sessions">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-header-title" id="title-live-sessions">Attending Live Sessions</div>
+      <button class="modal-close" onclick="closeModal('modal-live-sessions')" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-prose">
+        <p>There are two ways to join a live session from the portal.</p>
+
+        <p><strong>Option 1 — From the homepage calendar</strong></p>
+        <div class="step"><div class="step-num">1</div><div class="step-text">On the portal homepage, click the <strong>calendar icon</strong> on the right side of the page.</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">Find your scheduled session on the calendar and click it.</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-text">Click the <strong>Join</strong> button to launch the Zoom session.</div></div>
+
+        <div class="screenshot-placeholder">
+          <img src="https://clearlearning.github.io/about/calendaropen.png" style="width: 100%;">
+        </div>
+
+        <p><strong>Option 2 — From within your course</strong></p>
+        <div class="step"><div class="step-num">1</div><div class="step-text">From the homepage, click your course tile to open it.</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">Locate the live session module. It may be labeled <em>Instructor-Led Session</em>, <em>Live Session</em>, or listed under a <em>Live Sessions</em> header — this varies by course.</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-text">Click the module link. You'll see the available sessions listed.</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-text">Click the <strong>Join</strong> button to launch Zoom.</div></div>
+
+        <div class="screenshot-placeholder">
+          <img src="https://clearlearning.github.io/about/livesessionaccess.png" style="width: 100%;">
+        </div>
+
+        <div class="note">The Join buttion will activate approximately 15 minutes before the session start time.<br><br>Attendance is recorded by CLEAR staff. If it isn't reflected immediately after a session, don't worry — it will be updated. If you believe there's an error by the end of your program, contact <a href="mailto:clearlearning@clearhq.org" style="color:var(--blue);">clearlearning@clearhq.org</a>.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Messages -->
+<div class="modal-overlay" id="modal-messages" role="dialog" aria-modal="true" aria-labelledby="title-messages">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-header-title" id="title-messages">Messages</div>
+      <button class="modal-close" onclick="closeModal('modal-messages')" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-prose">
+        <div class="screenshot-placeholder">
+          <img src="https://clearlearning.github.io/about/messages.png" style="width: 100%;">
+        </div>
+        <div class="step"><div class="step-num">1</div><div class="step-text">Click <strong>Messages</strong> in the top menu bar.</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">From here you can view your inbox, send a new message, and see recent communications.</div></div>
+        <p>Messages sent through the portal are delivered to the recipient's email account — the one they used when registering for the course.</p>
+        <div class="note">If you receive a portal message and reply to it from your own email client, your reply will still route through the portal and your personal email address will not be visible to the recipient.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Your Profile -->
+<div class="modal-overlay" id="modal-profile" role="dialog" aria-modal="true" aria-labelledby="title-profile">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-header-title" id="title-profile">Your Profile</div>
+      <button class="modal-close" onclick="closeModal('modal-profile')" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-prose">
+        <div class="step"><div class="step-num">1</div><div class="step-text">Hover over your <strong>name</strong> in the top menu bar. You'll see a dropdown appear.</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">Select <strong>My Info</strong> to view and edit your profile.</div></div>
+        <div class="screenshot-placeholder">
+                    <img src="https://clearlearning.github.io/about/profile.png" style="width: 100%;">
+        </div>
+        <p>From your profile you can update your job title, organization, address, name, and email address.</p>
+        <p>The same hover menu also gives you quick access to your assigned courses, certificates you've earned, and your overall progress.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Course Schedule -->
+<div class="modal-overlay" id="modal-schedule" role="dialog" aria-modal="true" aria-labelledby="title-schedule">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-header-title" id="title-schedule">Course Schedule</div>
+      <button class="modal-close" onclick="closeModal('modal-schedule')" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-prose">
+        <p>Your live session schedule is available in a few places:</p>
+        <ul>
+          <li><strong>Homepage calendar</strong> — click the calendar icon on the right side of the homepage to see all sessions assigned to you.</li>
+          <li><strong>Welcome &amp; Introduction materials</strong> — your course includes a welcome session that covers the full program schedule.</li>
+          <li><strong>Registration confirmation</strong> — an agenda is provided when you register for your program.</li>
+        </ul>
+        <div class="screenshot-placeholder">
+          <img src="https://clearlearning.github.io/about/agendaaccess.png" style="width: 100%;">
+        </div>
+        <div class="note">If you're ever unsure of the agenda, you can also download it from the event page on <a href="https://clearhq.org" target="_blank" style="color:var(--blue);">clearhq.org</a>.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Course Contents -->
+<div class="modal-overlay" id="modal-contents" role="dialog" aria-modal="true" aria-labelledby="title-contents">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-header-title" id="title-contents">Course Contents</div>
+      <button class="modal-close" onclick="closeModal('modal-contents')" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-prose">
+        <div class="screenshot-placeholder">
+          <img src="https://clearlearning.github.io/about/coursehome.png" style="width: 100%;">
+        </div>
+        <p>Your course may include several different module types. Here's what each one looks like and how to complete it:</p>
+        <ul>
+          <li><strong>Self-paced modules</strong> — click the module link, then work through the content and interactive elements (drag-and-drop, matching, hotspots, videos). When complete, a checkmark appears next to the module on your course homepage. No checkmark means something was missed — go back in to finish.</li>
+          <li><strong>Instructor-led sessions</strong> — live Zoom sessions. See the <em>Attending Live Sessions</em> guide for how to join.</li>
+          <li><strong>Knowledge checks</strong> — short, ungraded quizzes to reinforce your understanding. These do not affect your ability to complete the course.</li>
+          <li><strong>Surveys</strong> — program feedback surveys, and in some courses, EQ and communication style assessments. Results from the assessments are processed by CLEAR staff and sent to you by email.</li>
+        </ul>
+        <p>At the bottom of your course homepage, you'll find a <strong>Files</strong> section with downloadable resources: participant guides, handouts, glossaries, role play exercises, and other materials to support your learning.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function openModal(id) {
+    const overlay = document.getElementById(id);
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    // focus the close button for accessibility
+    overlay.querySelector('.modal-close').focus();
+  }
+
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  // Close on overlay click (outside modal box)
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', e => {
+      if (e.target === overlay) closeModal(overlay.id);
+    });
+  });
+
+  // Close on Escape key
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.modal-overlay.open').forEach(overlay => {
+        closeModal(overlay.id);
+      });
+    }
+  });
+</script>
+
+</body>
+</html>
