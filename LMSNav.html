@@ -549,6 +549,37 @@
     color: var(--white);
   }
 
+li.survey,
+li.quiz,
+li.ILT,
+li.Independent {
+    list-style: none;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+li.survey::before,
+li.quiz::before,
+li.ILT::before,
+li.Independent::before {
+    content: '';
+    display: block;
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    margin-top: 3px;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+li.survey::before    { background-image: url('https://clearlearning.github.io/images/survey.png'); }
+li.quiz::before      { background-image: url('https://clearlearning.github.io/images/quiz.png'); }
+li.ILT::before       { background-image: url('https://clearlearning.github.io/images/ILT.png'); }
+li.Independent::before { background-image: url('https://clearlearning.github.io/images/Independent.png'); }
+
+  }
   @media (max-width: 680px) {
     .card-grid.cols-2, .card-grid.cols-3,
     .req-list, .exam-details, .portal-grid { grid-template-columns: 1fr; }
@@ -733,7 +764,7 @@
       <div class="req-item">
         <span class="req-icon">🎧</span>
         <span class="req-label">Microphone &amp; Webcam</span>
-        <span class="req-detail">Built-in laptop mic/camera or external headset and webcam; tested and working before your first session<br><strong>Note:</strong> Only required for programs containing virtual instructor-led sessions.</span>
+        <span class="req-detail">Built-in laptop mic/camera or external headset and webcam; tested and working before your first session<br><strong>Note:</strong> Only required for programs containing virtual instructor-led sessions or proctored examination.</span>
       </div>
       <div class="req-item">
         <span class="req-icon">📶</span>
@@ -771,7 +802,7 @@
         <p>Small group activities</p>
         <p>Live class participation</p>
         <p>Program Review Session</p>
-        <p style="margin-top:10px;font-size:13px;color:var(--text-muted);">Zoom links are provided through the portal and will be sent to you in advance of each live session.</p>
+        <p style="margin-top:10px;font-size:13px;color:var(--text-muted);">Zoom links are available through the CLEAR Learning portal.</p>
       </div>
     </div>
   </section>
@@ -971,10 +1002,10 @@
         </div>
         <p>Your course may include several different module types. Here's what each one looks like and how to complete it:</p>
         <ul>
-          <li><strong>Self-paced modules</strong> — click the module link, then work through the content and interactive elements (drag-and-drop, matching, hotspots, videos). When complete, a checkmark appears next to the module on your course homepage. No checkmark means something was missed — go back in to finish.</li>
-          <li><strong>Instructor-led sessions</strong> — live Zoom sessions. See the <em>Attending Live Sessions</em> guide for how to join.</li>
-          <li><strong>Knowledge checks</strong> — short, ungraded quizzes to reinforce your understanding. These do not affect your ability to complete the course.</li>
-          <li><strong>Surveys</strong> — program feedback surveys, and in some courses, EQ and communication style assessments. Results from the assessments are processed by CLEAR staff and sent to you by email.</li>
+          <li class="Independent"><span><strong>Self-paced modules</strong> — click the module link, then work through the content and interactive elements (drag-and-drop, matching, hotspots, videos). When complete, a checkmark appears next to the module on your course homepage. No checkmark means something was missed — go back in to finish.</span></li>
+          <li class="ILT"><span><strong>Instructor-led sessions</strong> — live Zoom sessions. See the <em>Attending Live Sessions</em> guide for how to join.</span></li>
+          <li class="quiz"><span><strong>Knowledge checks</strong> — short, ungraded quizzes to reinforce your understanding. These do not affect your ability to complete the course.</span></li>
+          <li class="survey"><span><strong>Surveys</strong> — program feedback surveys, and in some courses, EQ and communication style assessments. Results from the assessments are processed by CLEAR staff and sent to you by email.</span></li>
         </ul>
         <p>At the bottom of your course homepage, you'll find a <strong>Files</strong> section with downloadable resources: participant guides, handouts, glossaries, role play exercises, and other materials to support your learning.</p>
       </div>
